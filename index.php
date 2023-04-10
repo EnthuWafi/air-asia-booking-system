@@ -1,13 +1,11 @@
 <?php
 
 require("./includes/functions.inc.php");
-require_once("./includes/classes.inc.php");
 
 session_start();
 
 if (isset($_SESSION['user_id'])){
     $user = $_SESSION['user_id'];
-    echo "Hi there " . $user;
 }
 
 ?>
@@ -21,7 +19,7 @@ if (isset($_SESSION['user_id'])){
         
         <!-- CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-        <title>airasia | Flights, Hotels, Activities, and More</title>
+        <title>airasia | Flights, and More</title>
     </head>
     <body>
         <!-- Navigation -->
@@ -30,14 +28,35 @@ if (isset($_SESSION['user_id'])){
                 <img src="assets/img/airasiacom_logo.svg">
             </div>
             <div class="d-lg-flex flex-row">
+                <?php
+                if (isset($user)){
+                    echo <<< HTML
                     <a href="#">Explore</a>
                     <a href="#">My Bookings</a>
                     <a href="#">Check-in</a>
                     <a href="#">Flight Status</a>
+                    HTML;
+                }
+                ?>
             </div>
             <div>
-                <a href="content/login">Log in</a>
-                <a href="content/register">Sign up</a>
+                <?php
+                //if logged in
+                $nav_user = null;
+                if (isset($user)){
+                    $nav_user = <<< HTML
+                    Hello there, {$user}
+                    <a href="content/logout">Log out</a>
+                    HTML;
+                }
+                else {
+                    $nav_user = <<< HTML
+                    <a href="content/login">Log in</a>
+                    <a href="content/register">Register</a>
+                    HTML;
+                }
+                echo $nav_user;
+                ?>
             </div>
         </nav>
 
