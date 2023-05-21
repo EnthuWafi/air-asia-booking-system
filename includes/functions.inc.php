@@ -1,29 +1,27 @@
 <?php
 require('connection.inc.php');
-require('classes.inc.php');
+require('config.inc.php');
 
-//html functions
-function nav_menu() {
-    //TODO
-    
-}
-
-function footer() {
-    //todo
-}
-
-function side_bar() {
-    //todo
-}
-
-
+//functions
 function current_page() {
     return htmlspecialchars($_SERVER["PHP_SELF"]);
 }
 
+//Requires login to access the site
+function login_required() {
+    if (empty($_SESSION["user_id"])){
+        header("Location: /index.php");
+        die();
+    }
+}
 
-//functions
-
+//Requires user to not be logged in to access the site (For instance, like Login page or Register page)
+  function login_forbidden() {
+    if (isset($_SESSION["user_id"])){
+        header("Location: /index.php");
+        die();
+    }
+}
 
 
 // SQL commands
@@ -68,7 +66,7 @@ function verifyUser($username, $password) {
 
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
-        $user_id = trim($row["id"]);
+        $user_id = trim($row["user_id"]);
         //check password
         if (password_verify($password, $row["password"])){
             return $user_id;
@@ -78,4 +76,37 @@ function verifyUser($username, $password) {
     return null;
 }
 
+//retrieve all airport
+function retrieveAirports() {
+    $sql = "SELECT * FROM airports";
+    $conn = OpenConn();
 
+    $result = $conn->execute_query($sql);
+    CloseConn($conn);
+
+    if (mysqli_num_rows($result) > 0) {
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);      
+    }
+    
+    return null;
+}
+
+//retrieve flights that matches parameters 
+function retrieveFlights($origin, $destination, $departure_time) {
+    $sql = "SELECT fl.*, ao.airport_name as 'origin_airport_name', ad.airport_name as 'destination_airport_name'
+    FROM flights fl
+    INNER JOIN airports ao ON fl.origin_airport_id = ao.airport_id AND ao.airport_code = ?
+    INNER JOIN airports ad ON fl.destination_airport_id = ad.airport_id AND ad.airport_code = ?
+    WHERE DATEDIFF(departure_time, ?) = 0 AND departure_time > NOW()";
+
+    $conn = OpenConn();
+
+    $result = $conn->execute_query($sql, [$origin, $destination, $departure_time]);
+    CloseConn($conn);
+
+    if (mysqli_num_rows($result) > 0) {
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);      
+    }
+    
+    return null;
+}
