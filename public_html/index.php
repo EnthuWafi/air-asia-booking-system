@@ -40,7 +40,7 @@ if (isset($_SESSION['user_id'])) {
                     <?php
                     if (isset($user)) {
                         ?>
-                        <a class="nav-link" href="/content/flightsearch.php">Search Flight</a>
+                        <a class="nav-link" href="/flightsearch.php">Search Flight</a>
                         <a class="nav-link" href="#">My Bookings</a>
                         <?php
                     }

@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (isset($user_id)) {   
     $_SESSION["user_id"] = $user_id;
     $_SESSION["username"] = $username;
-    header("Location: /content/dashboard.php");
+    header("Location: /dashboard.php");
   }
   else {
     die("User doesn't exist");
