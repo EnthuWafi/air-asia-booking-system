@@ -1,6 +1,6 @@
 <?php
 
-require("./includes/functions.inc.php");
+require("../includes/functions.inc.php");
 
 session_start();
 
@@ -49,12 +49,12 @@ if (isset($_SESSION['user_id'])) {
                     if (isset($user)) {
                         ?>
                             <span>Hello there, <?php echo $_SESSION["username"] ?></span>
-                            <a class="nav-link me-auto" href="/content/logout.php">Log out</a>
+                            <a class="nav-link me-auto" href="/logout.php">Log out</a>
                         <?php
                     } else {
                         ?>
-                            <a class="nav-link me-auto" href="/content/login.php">Log in</a>
-                            <a class="nav-link" href="/content/register.php">Register</a>
+                            <a class="nav-link me-auto" href="/login.php">Log in</a>
+                            <a class="nav-link" href="/register.php">Register</a>
                         <?php
                     }
                     ?>

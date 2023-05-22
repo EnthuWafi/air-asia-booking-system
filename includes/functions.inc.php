@@ -25,6 +25,7 @@ function login_required() {
 
 
 // SQL commands
+/* USER RELATED */
 //create user
 function createUser($username, $password, $email) {
     $sql = "INSERT INTO users(username, password, email) VALUES (?, ?, ?)";
@@ -76,6 +77,7 @@ function verifyUser($username, $password) {
     return null;
 }
 
+/* FLIGHTS RELATED */
 //retrieve all airport
 function retrieveAirports() {
     $sql = "SELECT * FROM airports";
@@ -102,6 +104,21 @@ function retrieveFlights($origin, $destination, $departure_time) {
     $conn = OpenConn();
 
     $result = $conn->execute_query($sql, [$origin, $destination, $departure_time]);
+    CloseConn($conn);
+
+    if (mysqli_num_rows($result) > 0) {
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);      
+    }
+    
+    return null;
+}
+
+function retrieveFlight($flight_id) {
+    $sql = "SELECT * FROM flights WHERE flight_id = ?";
+
+    $conn = OpenConn();
+
+    $result = $conn->execute_query($sql, [$flight_id]);
     CloseConn($conn);
 
     if (mysqli_num_rows($result) > 0) {

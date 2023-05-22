@@ -1,8 +1,8 @@
 <?php
 
+session_start();
 require("../includes/functions.inc.php");
 
-session_start();
 
 login_required();
 
@@ -10,27 +10,35 @@ if (isset($_SESSION['user_id'])) {
     $user = $_SESSION['user_id'];
 }
 
+if (isset($_POST["departure_flight_id"])){
+    $_SESSION["departure_flight_id"] = $_POST["departure_flight_id"]; 
+}
+// Prevent user from continuing
+if (empty($_SESSION["departure_flight_id"])){
+    header("Location: /index.php");
+    die();
+}
+
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title>Dashboard</title>
+    <title>Flight Check-out</title>
 </head>
 
 <body>
-    <h1>Dashboard</h1>
-    <hr>
     <div class="d-flex flex-row">
         <a class="navbar-brand" href="/index.php">
             <img class="img-fluid w-50" src="/assets/img/airasiacom_logo.svg">
         </a>
-        <a>Flight Search</a>
-        <?php
-        echo "<h1>Hello, {$_SESSION["username"]}</h1>";
-        ?>
-        <a class="nav-link me-auto" href="/content/logout.php">Log out</a>
-</div>
+    </div>
+    <h1>Flight Check-out</h1>
+    <hr>
+    
 </body>
+<script>
+
+</script>
 
 </html>

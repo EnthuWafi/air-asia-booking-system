@@ -119,7 +119,7 @@ if ($_GET) {
 
     for (const airport of jsonAirports) {
         var option = document.createElement("option");
-        option.textContent = airport["airport_state"] + " (" + airport["airport_code"] + ")";
+        option.textContent = airport["airport_name"] + " (" + airport["airport_code"] + ")";
         option.value = airport["airport_code"];
 
         origins.appendChild(option);
@@ -139,7 +139,7 @@ if ($_GET) {
             button.textContent = "Select"
             // button.setAttribute("data-flight-id", flight["flight_id"]);
             button.onclick = function() {
-                post("/content/flightcheckout.php", {flight_id: flight["flight_id"]})
+                post("/content/flightcheckout.php", {departure_flight_id: flight["flight_id"]})
             }
             li.appendChild(p);
             li.appendChild(button);
