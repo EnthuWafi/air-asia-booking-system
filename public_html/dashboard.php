@@ -6,10 +6,8 @@ session_start();
 
 login_required();
 
-if (isset($_SESSION['user_id'])) {
-    $user = $_SESSION['user_id'];
-}
-
+//temporary
+header("Location: /index.php");
 ?>
 <!DOCTYPE html>
 <html>

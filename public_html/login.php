@@ -9,12 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $username = filter_var($_POST["username"], FILTER_SANITIZE_SPECIAL_CHARS);
   $password = filter_var($_POST["password"], FILTER_SANITIZE_SPECIAL_CHARS);
 
-  //check if user exists
-  $user_id = verifyUser($username, $password);
+  $user_data = verifyUser($username, $password, "customers");
 
-  if (isset($user_id)) {   
-    $_SESSION["user_id"] = $user_id;
-    $_SESSION["username"] = $username;
+  if (isset($user_data)) {
+    $_SESSION["user_data"] = $user_data;
+    //unique token
+    $_SESSION["token"] = md5(uniqid(mt_rand(), true));
     header("Location: /dashboard.php");
   }
   else {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   <!-- CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-  <title>airasia | Login</title>
+  <title><?= config("name") ?> | Login</title>
 </head>
 
 <body>

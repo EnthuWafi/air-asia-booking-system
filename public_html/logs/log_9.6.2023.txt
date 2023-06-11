@@ -1,0 +1,5 @@
+
+Unknown column 'ac._capacity' in 'on clause'
+Unknown column 'ac._capacity' in 'on clause'
+Unknown column 'ac._capacity' in 'on clause'
+You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '? ORDER BY seat_number ASC' at line 1

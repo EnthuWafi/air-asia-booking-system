@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css?family=Lato&subset=latin");
+
+.gradient-primary {
+    background: rgb(223,0,0);
+    background: linear-gradient(rgba(223,0,0,1) 0%, rgba(250,60,65,1) 100%);
+}
+
+.white {
+    color: white;
+}
+
+.logo-airasia {
+    font-family: Lato,Lato-fallback,ui-sans-serif,system-ui, Segoe UI,
+    Roboto,Helvetica Neue,Arial,Noto Sans;
+    font-weight: bold;
+    color: white;
+}

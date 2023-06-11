@@ -1,0 +1,5 @@
+
+Unknown column 'BUS' in 'where clause'
+You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ID()' at line 1
+Column 'age_category_price_code' cannot be null
+Column 'age_category_price_code' cannot be null

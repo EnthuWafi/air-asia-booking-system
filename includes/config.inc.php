@@ -1,4 +1,16 @@
 <?php
 
-// because dealing with relative paths is really annoying
-define('LOCAL_DIR' , "/air-asia-booking-system/");
+/**
+ * Used to store website configuration information.
+ *
+ * @var string or null
+ */
+function config($key = ''): ?string
+{
+    $config = [
+        'name' => 'airasia',
+        'version' => 'v1.0',
+    ];
+
+    return $config[$key] ?? null;
+}
