@@ -4,7 +4,7 @@ session_start();
 require("../../includes/functions.inc.php");
 
 
-login_required();
+customer_login_required();
 
 if (isset($_SESSION['user_id'])) {
     $user = $_SESSION['user_id'];

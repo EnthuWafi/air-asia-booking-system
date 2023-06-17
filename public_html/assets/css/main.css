@@ -1,0 +1,47 @@
+
+.sidebar {
+    width: 280px;
+}
+
+.icon-red {
+    color: red;
+}
+
+.icon-white {
+    color: white;
+}
+
+.gradient-primary {
+    background: rgb(223,0,0);
+    background: linear-gradient(rgba(223,0,0,1) 0%, rgba(250,60,65,1) 100%);
+}
+
+@media (max-width: 575px) {
+    .mx-w-100 {
+        width: 100vh !important;
+    }
+}
+
+.completed {
+    color: #008000; /* Green */
+}
+
+.pending {
+    color: #FFA500; /* Orange */
+}
+
+.refunded {
+    color: #FF0000; /* Red */
+}
+
+.rejected {
+    color: #800080; /* Purple */
+}
+
+.nav-link.link-dark.active {
+    background-color: #e31f25 !important;
+}
+
+.font-lato {
+    font-family: Lato,sans-serif,BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell;
+}

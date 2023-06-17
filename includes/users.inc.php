@@ -36,14 +36,10 @@ function createUser($username, $password, $email, $user_type) {
 
     return false;
 }
-
 //check user exists
-function checkUser($username, $user_type): bool
+function checkUser($username): bool
 {
-    if (!($user_type == "customers" || $user_type == "admins")) {
-        die();
-    }
-    $sql = "SELECT * FROM users WHERE username = ? AND user_type = '".$user_type."'";
+    $sql = "SELECT * FROM users WHERE username = ?";
     $conn = OpenConn();
 
     $result = $conn->execute_query($sql, [$username]);
@@ -55,16 +51,25 @@ function checkUser($username, $user_type): bool
     return false;
 }
 
+function checkUserType($userID){
+    $sql = "SELECT * FROM users WHERE user_id = ?";
+    $conn = OpenConn();
+
+    $result = $conn->execute_query($sql, [$userID]);
+    CloseConn($conn);
+
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $userType = $row["user_type"];
+
+        return $userType;
+    }
+    return null;
+}
 
 //verify user (return customer/admin)
-function verifyUser($username, $password, $user_type) {
-    if (!($user_type == "customers" || $user_type == "admins")) {
-        die();
-    }
-    $sql = "SELECT us.*, ut.*
-        FROM users us
-         INNER JOIN ".$user_type." ut ON us.user_id = ut.user_id 
-         WHERE us.username = ?";
+function verifyUser($username, $password) {
+    $sql = "SELECT us.* FROM users us WHERE us.username = ?";
 
     $conn = OpenConn();
 
@@ -82,7 +87,197 @@ function verifyUser($username, $password, $user_type) {
     }
     catch (mysqli_sql_exception) {
         createLog($conn->error);
-        die();
+        die("Error: cannot get the user!");
+    }
+
+    return null;
+}
+
+
+//retrieve bookings
+function retrieveAllUserBookings($userId) {
+    $sql = "SELECT b.* FROM bookings b
+            WHERE b.user_id = ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$userId]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the user!");
+    }
+
+    return null;
+}
+
+//counts (specifically for admins)
+function retrieveCountBookings() {
+    $sql = "SELECT COUNT(booking_id) as 'count' FROM bookings";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count bookings!");
+    }
+
+    return null;
+}
+
+function retrieveCountFlights() {
+    $sql = "SELECT COUNT(flight_id) as 'count' FROM flights";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count flights!");
+    }
+
+    return null;
+}
+
+function retrieveCountUsers() {
+    $sql = "SELECT count(user_id) as 'count' FROM users";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count users!");
+    }
+
+    return null;
+}
+
+function retrieveCountAdminUsers() {
+    $sql = "SELECT count(user_id) as 'count' FROM users where user_type = 'admin'";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count users!");
+    }
+
+    return null;
+}
+function retrieveCountCustomerUsers() {
+    $sql = "SELECT count(user_id) as 'count' FROM users where user_type = 'customer'";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count users!");
+    }
+
+    return null;
+}
+
+function retrieveIncome() {
+    $sql = "SELECT sum(booking_cost) as 'income' FROM bookings";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve income!");
+    }
+
+    return null;
+}
+
+function retrieveAllAdminUsers() {
+    $sql = "SELECT u.*, a.admin_code
+            FROM users u
+            INNER JOIN admins a on u.user_id = a.user_id";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get users!");
+    }
+
+    return null;
+}
+
+function retrieveAllCustomerUsers() {
+    $sql = "SELECT u.*, c.customer_phone, c.customer_dob
+            FROM users u
+            INNER JOIN customers c on u.user_id = c.user_id";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get users!");
     }
 
     return null;

@@ -9,13 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $username = filter_var($_POST["username"], FILTER_SANITIZE_SPECIAL_CHARS);
   $password = filter_var($_POST["password"], FILTER_SANITIZE_SPECIAL_CHARS);
 
-  $user_data = verifyUser($username, $password, "customers");
+  $userData = verifyUser($username, $password);
 
-  if (isset($user_data)) {
-    $_SESSION["user_data"] = $user_data;
-    //unique token
-    $_SESSION["token"] = md5(uniqid(mt_rand(), true));
-    header("Location: /dashboard.php");
+  if (isset($userData)) {
+    $_SESSION["user_data"] = $userData;
+    header("Location: /index.php");
   }
   else {
     die("User doesn't exist");

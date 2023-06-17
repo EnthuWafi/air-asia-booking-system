@@ -1,38 +1,106 @@
 <?php
 require('connection.inc.php');
 require('config.inc.php');
+require('boilerplate.inc.php');
 
 require("bookings.inc.php");
 require("flights.inc.php");
 require("users.inc.php");
 
+require("book.page.inc.php");
+require("search.page.inc.php");
 //functions
-function current_page(): string
+function current_page(): void
 {
-    return htmlspecialchars($_SERVER["PHP_SELF"]);
+    echo htmlspecialchars($_SERVER["PHP_SELF"]);
 }
 
+// TOASTS
+function displayToast() {
+    if (isset($_SESSION["alert"])){
+        showToastr($_SESSION["alert"]);
+        unset($_SESSION["alert"]);
+    }
+}
+
+//TOASTS
+function showToastr($alert): void
+{
+    echo ("<script>
+toastr.options = {
+  \"closeButton\": false,
+  \"debug\": false,
+  \"newestOnTop\": false,
+  \"progressBar\": false,
+  \"positionClass\": \"toast-top-right\",
+  \"preventDuplicates\": false,
+  \"onclick\": null,
+  \"showDuration\": \"300\",
+  \"hideDuration\": \"1000\",
+  \"timeOut\": \"5000\",
+  \"extendedTimeOut\": \"1000\",
+  \"showEasing\": \"swing\",
+  \"hideEasing\": \"linear\",
+  \"showMethod\": \"fadeIn\",
+  \"hideMethod\": \"fadeOut\"
+}
+toastr[\"{$alert["type"]}\"](\"{$alert["message"]}\", \"{$alert["title"]}\");
+</script>");
+}
+
+
 //Requires login to access the site
-function login_required(): void
+function customer_login_required(): void
 {
     if (empty($_SESSION["user_data"])){
+        header("Location: /login.php");
+        die();
+    }
+    if (!checkUserType($_SESSION["user_data"]["user_id"]) == "customer"){
         header("Location: /index.php");
         die();
     }
-    if (!checkUser($_SESSION["user_data"]["username"], "customers")){
-        header("Location: /logout.php");
-        die();
-    }
 }
 
+
 //Requires user to not be logged in to access the site (For instance, like Login page or Register page)
-  function login_forbidden(): void
+function login_forbidden(): void
   {
     if (isset($_SESSION["user_data"])){
         header("Location: /index.php");
         die();
     }
 }
+
+function admin_login_required() {
+    if (empty($_SESSION["user_data"])){
+        header("Location: /login.php");
+        die();
+    }
+    if (!checkUserType($_SESSION["user_data"]["user_id"]) == "admin"){
+        header("Location: /index.php");
+        die();
+    }
+}
+
+//special function to prevent admin from bookings flights & customer from creating flights
+function admin_forbidden(): void
+{
+    if (checkUserType($_SESSION["user_data"]["user_id"]) == "admin"){
+        header("Location: /index.php");
+        die();
+    }
+}
+function customer_forbidden(): void
+{
+    if (checkUserType($_SESSION["user_data"]["user_id"]) == "admin"){
+        header("Location: /index.php");
+        die();
+    }
+}
+
+
+
 
 function token_csrf(): void
 {
@@ -43,6 +111,10 @@ function token_csrf(): void
         header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
         exit;
     }
+}
+function create_token(): string
+{
+    return md5(uniqid(mt_rand(), true));
 }
 
 //check array keys is set
@@ -68,68 +140,6 @@ function createLog($data): void
 
 // SQL commands
 
-function retrieveBaggageOptions() {
-
-    $sql = "SELECT * FROM baggage_prices ORDER BY baggage_weight ASC";
-    $conn = OpenConn();
-
-    try {
-        $result = $conn->execute_query($sql);
-        CloseConn($conn);
-
-        if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
-        }
-    }
-    catch (mysqli_sql_exception){
-        createLog($conn->error);
-        die();
-    }
-
-    return null;
-}
-
-function retrieveAgeCategory() {
-
-    $sql = "SELECT * FROM age_category_prices";
-    $conn = OpenConn();
-
-    try {
-        $result = $conn->execute_query($sql);
-        CloseConn($conn);
-
-        if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
-        }
-    }
-    catch (mysqli_sql_exception){
-        createLog($conn->error);
-        die();
-    }
-
-    return null;
-}
-
-function retrieveTravelClass() {
-
-    $sql = "SELECT * FROM travel_class_prices";
-    $conn = OpenConn();
-
-    try {
-        $result = $conn->execute_query($sql);
-        CloseConn($conn);
-
-        if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
-        }
-    }
-    catch (mysqli_sql_exception){
-        createLog($conn->error);
-        die();
-    }
-
-    return null;
-}
 
 //travel class assoc
 function travelClassAssoc($travel_class) {
@@ -139,7 +149,7 @@ function travelClassAssoc($travel_class) {
         if ($travel_class == $entry["travel_class_price_code"]){
             return ["code" => $entry["travel_class_price_code"],
                 "class"=>strtolower(str_replace(' ', '_', $entry["travel_class_name"])),
-                "name"=>$entry["travel_class_name"]];
+                "name"=>$entry["travel_class_name"], "cost_multiplier"=>$entry["cost_multiplier"]];
         }
     }
     return null;
@@ -147,16 +157,28 @@ function travelClassAssoc($travel_class) {
 
 //age category
 function ageCategoryAssoc($category) {
-    $AgeCategoryArr = retrieveAgeCategory();
+    $ageCategoryArr = retrieveAgeCategory();
     $category = strtoupper($category);
-    foreach ($AgeCategoryArr as $entry){
+    foreach ($ageCategoryArr as $entry){
         if ($category == strtoupper($entry["age_category_name"])){
             return ["code" => $entry["age_category_price_code"],
-                "name"=>$entry["age_category_name"]];
+                "name"=>$entry["age_category_name"], "cost_multiplier"=>$entry["cost_multiplier"]];
         }
     }
     return null;
 }
+function ageCategoryAssocAll() {
+    $ageCategoryAssoc = retrieveAgeCategory();
+    $arrAssoc = [];
+    foreach ($ageCategoryAssoc as $entry){
+        $arrAssoc[strtolower($entry["age_category_name"])] =
+                ["code" => $entry["age_category_price_code"],
+                "name"=>$entry["age_category_name"],
+                "cost_multiplier"=>$entry["cost_multiplier"]];
+    }
+    return $arrAssoc;
+}
+
 
 //baggage
 function baggageOptionsAssoc($baggage) {
@@ -164,51 +186,103 @@ function baggageOptionsAssoc($baggage) {
     $baggage = strtoupper($baggage);
     foreach ($BaggageOptionsArr as $entry){
         if ($baggage == $entry["baggage_price_code"]){
-            return ["code" => $entry["baggage_price_code"],
-                "name"=>$entry["baggage_name"]];
+            return [
+                "code" => $entry["baggage_price_code"],
+                "name"=>$entry["baggage_name"],
+                "weight"=>$entry["baggage_weight"],
+                "cost"=>$entry["cost"]
+            ];
         }
     }
     return null;
 }
 
-
-function showToastr($alert): void
-{
-    echo ("<script>
-toastr.options = {
-  \"closeButton\": false,
-  \"debug\": false,
-  \"newestOnTop\": false,
-  \"progressBar\": false,
-  \"positionClass\": \"toast-top-right\",
-  \"preventDuplicates\": false,
-  \"onclick\": null,
-  \"showDuration\": \"300\",
-  \"hideDuration\": \"1000\",
-  \"timeOut\": \"5000\",
-  \"extendedTimeOut\": \"1000\",
-  \"showEasing\": \"swing\",
-  \"hideEasing\": \"linear\",
-  \"showMethod\": \"fadeIn\",
-  \"hideMethod\": \"fadeOut\"
-}
-toastr[\"{$alert["type"]}\"](\"{$alert["message"]}\", \"{$alert["title"]}\");
-</script>");
+function baggageOptionsAssocAll() {
+    $baggageOptionsArr = retrieveBaggageOptions();
+    $arrAssoc = [];
+    foreach ($baggageOptionsArr as $entry){
+        $arrAssoc[$entry["baggage_price_code"]] =
+            [
+                "code" => $entry["baggage_price_code"],
+                "name"=>$entry["baggage_name"],
+                "weight"=>$entry["baggage_weight"],
+                "cost"=>$entry["cost"]
+            ];
+    }
+    return $arrAssoc;
 }
 
-function head(): void
-{
-    //bootstrap,boxicons, jquery, toastr
-    echo "
-    <meta charset='UTF-8'>
-    <meta content='width=device-width, initial-scale=1, maximum-scale=5,minimum-scale=1, viewport-fit=cover' name='viewport'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ' crossorigin='anonymous'>
-    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js' integrity='sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe' crossorigin='anonymous'></script>
-    <link href='/assets/css/bootstrap.css' rel='stylesheet'>
-    <script src='https://unpkg.com/boxicons@2.1.4/dist/boxicons.js'></script>
-    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css' integrity='sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==' crossorigin='anonymous' referrerpolicy='no-referrer' />
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js' integrity='sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
-    ";
+
+//non-sql command
+
+function calculateFlightPriceNoBaggage($flightBasePrice, $ageCategoryArr, $travelClassCode) {
+    $travelClassAssoc = travelClassAssoc($travelClassCode);
+    $ageCategoryAll = ageCategoryAssocAll();
+
+    $finalPrice = 0;
+    //maybe here well calculate the cost for adult, senior, infant, child first
+
+    foreach ($ageCategoryAll as $ageCategoryKey => $ageCategoryValue) {
+        foreach ($ageCategoryArr as $ageCategoryCountKey => $ageCategoryCountValue) {
+            //age category match
+            if ($ageCategoryCountKey === $ageCategoryKey) {
+                //price is base_price * age_multiplier * travel_multiplier + baggage_cost for each passenger
+                $finalPrice += ((($flightBasePrice * $ageCategoryValue["cost_multiplier"]) * $ageCategoryCountValue) *
+                    $travelClassAssoc["cost_multiplier"]);
+                break;
+            }
+        }
+    }
+
+    return $finalPrice;
 }
+function calculateFlightPrice($flightBasePrice, $passengers, $travelClassCode, $flightType) {
+    $travelClassAssoc = travelClassAssoc($travelClassCode);
+    $ageCategoryAll = ageCategoryAssocAll();
+    $baggageOptionAll = baggageOptionsAssocAll();
+    $finalPrice = 0;
+
+    foreach ($ageCategoryAll as $ageCategoryKey => $ageCategoryValue) {
+        foreach ($passengers as $passengerAgeCategoryKey => $passengerAgeCategoryValue) {
+            if ($ageCategoryKey === $passengerAgeCategoryKey) {
+                foreach ($passengerAgeCategoryValue as $passenger) {
+                    $baggage = $baggageOptionAll[$passenger["{$flightType}_baggage"]];
+                    $finalPrice += (($flightBasePrice * $ageCategoryValue["cost_multiplier"]) *
+                            $travelClassAssoc["code_multiplier"]) + $baggage["cost"];
+                }
+            }
+        }
+    }
+    return $finalPrice;
+}
+//calculate price flights
+function calculateSearchFlightPrice($flightBasePrice, $ageCategoryArr, $travelClassCode, $baggageOptionCode) {
+    $travelClassAssoc = travelClassAssoc($travelClassCode);
+    $ageCategoryAll = ageCategoryAssocAll();
+    $baggageOption = baggageOptionsAssoc($baggageOptionCode);
+
+    $finalPrice = 0;
+    //maybe here well calculate the cost for adult, senior, infant, child first
+
+    foreach ($ageCategoryAll as $ageCategoryKey => $ageCategoryValue) {
+        foreach ($ageCategoryArr as $ageCategoryCountKey => $ageCategoryCountValue) {
+            //age category match
+            if ($ageCategoryCountKey === $ageCategoryKey) {
+                if ($ageCategoryCountValue > 0 || $ageCategoryCountValue == null){
+                    $finalPrice += $baggageOption["cost"];
+                }
+                //price is base_price * age_multiplier * travel_multiplier + baggage_cost for each passenger
+                $finalPrice += ((($flightBasePrice * $ageCategoryValue["cost_multiplier"]) * $ageCategoryCountValue) *
+                    $travelClassAssoc["cost_multiplier"]);
+                break;
+            }
+        }
+    }
+
+    return $finalPrice;
+}
+
+
+
+
+

@@ -1,3 +1,83 @@
+
+//i need to get this passengers somehow (thanks gpt)
+function convertPassengersToJson() {
+    const form = document.getElementById('myForm');
+    const formData = new FormData(form);
+    const passengers = {};
+
+    for (const [key, value] of formData.entries()) {
+        const matches = key.match(/passengers\[([a-z]+)\]\[(\d+)\]\[([a-z_]+)\]/i);
+        if (!matches){
+            continue;
+        }
+        const passengerType = matches[1];
+        const index = parseInt(matches[2]);
+        const field = matches[3];
+
+        if (!passengers[passengerType]) {
+            passengers[passengerType] = [];
+        }
+
+        if (!passengers[passengerType][index]) {
+            passengers[passengerType][index] = {};
+        }
+
+        passengers[passengerType][index][field] = value;
+    }
+
+    // const json = JSON.stringify(passengers);
+    // console.log(json);
+    return passengers;
+}
+
+function getInputs(fieldName) {
+    const form = document.getElementById('myForm');
+    const formData = new FormData(form);
+    const inputs = [];
+
+    for (const [key, value] of formData.entries()) {
+        if (key.includes(fieldName)) {
+            const element = document.querySelector(`[name="${key}"]`);
+            if (element) {
+                inputs.push({ element, value });
+            }
+        }
+    }
+
+    return inputs;
+}
+
+function updateTotalCost() {
+    const totalCost = document.getElementById("total-cost");
+    var departureBaggageInputs = getInputs('departure_baggage');
+    var returnBaggageInputs = getInputs('return_baggage');
+
+    var flightPrice = originalCostDeparture + originalCostReturn;
+    for (const baggage of baggageJSON) {
+        for (let i = 0; i < departureBaggageInputs.length; i++){
+            let obj = departureBaggageInputs[i];
+            if (baggage["baggage_price_code"] === obj.value){
+                flightPrice += parseFloat(baggage["cost"]);
+            }
+        }
+        for (let i = 0; i < returnBaggageInputs.length; i++){
+            let obj = returnBaggageInputs[i];
+            if (baggage["baggage_price_code"] === obj.value){
+                flightPrice += parseFloat(baggage["cost"]);
+            }
+        }
+    }
+
+    //update here
+    let val = flightPrice.toFixed(2);
+    totalCost.textContent = `RM ${val}`;
+}
+updateTotalCost();
+
+
+
+// failed attempts (don't mind it)
+
 //         const departureFlight = <?= json_encode($departureFlight) ?>;
 //         const departureFlightAddon = <?= json_encode($departureFlightAddons) ?>;
 //         const returnFlight = <?= json_encode($returnFlight) ?>;

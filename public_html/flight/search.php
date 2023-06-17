@@ -58,6 +58,7 @@ if ($_GET) {
     $senior = filter_var($_GET["senior"], FILTER_SANITIZE_SPECIAL_CHARS);
     $tripType = htmlspecialchars($_GET["trip_type"]);
 
+    $ageCategoryArr = ["adult"=>$adult, "child"=>$child, "infant"=>$infant, "senior"=>$senior];
     $passengerCount = $adult + $child + $infant + $senior;
 
     $departure_flights = retrieveFlights($origin, $destination, $departure, $travelClass, $passengerCount);
@@ -72,8 +73,7 @@ if ($_GET) {
 <html lang="en">
 
 <head>
-    <?php head() ?>
-
+    <?php head_tag_content() ?>
     <title><?= config("name") ?> | Flight Search</title>
 </head>
 
@@ -134,40 +134,20 @@ if ($_GET) {
     </form>
 
     <div class="container">
-    <div>
-        <ol id="depart-flight-result">
+        <div id="depart-flight-result">
             <?php
-            if ($departure_flights != null){
-                //departure
-                echo "<h2>Departure Flights</h2><hr>";
-                foreach ($departure_flights as $flight) {
-                    echo "<li><div>
-<span>{$flight["departure_time"]} - {$flight["arrival_time"]}</span><br>
-<span>From {$flight["origin_airport_name"]} to {$flight["destination_airport_name"]}</span>
-<button class='ms-auto' name='departure_flight_id' value='{$flight["flight_id"]}'>Book</button>
-</div></li>";
-                }
+            if (isset($departure_flights) && $_GET){
+                search_flightDetails($departure_flights, "Departure", $ageCategoryArr, $travelClass);
             }
             ?>
-        </ol>
-    </div>
-    <div>
-        <ol id="return-flight-result" class="d-none">
+        </div>
+        <div id="return-flight-result" class="d-none">
             <?php
-            if ($return_flights != null){
-                //return
-                echo "<h2>Return Flights</h2><hr>";
-                foreach ($return_flights as $flight) {
-                    echo "<li><div>
-<span>{$flight["departure_time"]} - {$flight["arrival_time"]}</span><br>
-<span>From {$flight["origin_airport_name"]} to {$flight["destination_airport_name"]}</span>
-<button class='ms-auto' name='return_flight_id' value='{$flight["flight_id"]}'>Book</button>
-</div></li>";
-                }
+            if (isset($return_flights) && $_GET){
+                search_flightDetails($return_flights, "Return", $ageCategoryArr, $travelClass);
             }
             ?>
-        </ol>
-    </div>
+        </div>
     </div>
     <script type="text/javascript" src="/assets/js/search.js"></script>
 </body>
