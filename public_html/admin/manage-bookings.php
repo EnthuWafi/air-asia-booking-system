@@ -10,13 +10,7 @@ displayToast();
 
 $bookingsCount = retrieveCountBookings()["count"] ?? 0;
 $bookings = retrieveAllBookings();
-$bookingStatus = retrieveBookingStatus();
 
-$optionContent = "";
-foreach ($bookingStatus as $status) {
-    $statusUC = ucfirst(strtolower($status["booking_status"]));
-    $optionContent .= "<option value='{$status["booking_status"]}'>{$statusUC}</option>";
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -57,54 +51,7 @@ foreach ($bookingStatus as $status) {
                                 </thead>
                                 <tbody>
                                 <?php
-                                if ($bookings != null) {
-                                    $count = 1;
-                                    foreach ($bookings as $booking) {
-                                        $tripType = $booking["trip_type"];
-                                        $tripTypeStr = $tripType == "ONE-WAY" ? "One-way Trip" :
-                                            ($tripType == "RETURN" ? "Round-trip" : "null");
-
-                                        $status = ["status"=>ucfirst(strtolower($tripType)), "class"=>strtolower($tripType)];
-                                        $bookingCost = number_format((float)$booking["booking_cost"], 2, '.', '');
-
-                                        echo
-                                        "<tr>
-                                            <th scope='row'>$count</th>
-                                            <td><a class='text-decoration-none fw-bold' href='/admin/view-booking.php?booking_ref={$booking["booking_reference"]}'>
-                                            {$booking["booking_reference"]}</a></td>
-                                            <td>{$booking["username"]}</td>
-                                            <td>{$tripTypeStr}</td>
-                                            <td>RM{$bookingCost}</td>
-                                            <td><span class='{$status["class"]}'>{$status["status"]}</span></td>
-                                            <td>
-                                                <form action='manage-my-bookings.php' method='post'>
-                                                    <div class='row'>
-                                                        <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
-                                                        <div class='col-auto'>
-                                                            <select class='form-select' name='status' id='floatingSelectGrid'>
-                                                                {$optionContent}
-                                                            </select>
-                                                            <label for='floatingSelectGrid'>Status</label>
-                                                        </div>
-                                                        <div class='col-auto'>
-                                                            <button type='submit' class='btn btn-danger mb-3' data-bs-toggle='modal' data-bs-target='#updateStatic' 
-                                                            onclick='updateModal({$booking["booking_id"]}, \"modal-btn-update\");'>Update</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                <form action='manage-my-bookings.php' method='post'>
-                                                    <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
-                                                    <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' onclick='updateModal({$booking["booking_id"]}, \"modal-btn-delete\");' class='h4'>
-                                                    <i class='bi bi-trash'></i></a>
-                                                </form>    
-                                            </td>
-                                            
-                                        </tr>";
-                                        $count++;
-                                    }
-                                }
+                                admin_displayBookings($bookings);
                                 ?>
                                 </tbody>
                             </table>
@@ -116,13 +63,13 @@ foreach ($bookingStatus as $status) {
                         <div class='modal-dialog'>
                             <div class='modal-content'>
                                 <div class='modal-header bg-light-subtle'>
-                                    <h5 class='modal-title' id='staticBackdropLabel'>Delete user?</h5>
+                                    <h5 class='modal-title'>Delete user?</h5>
                                     <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                 </div>
                                 <div class='modal-body bg-danger-subtle'>
                                     <div class="px-3">
                                         <div class="mb-1">
-                                            <span class="fw-bolder">Warning</span>
+                                            <span class="fw-bolder">Danger</span>
                                         </div>
                                         <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
                                     </div>
@@ -130,7 +77,7 @@ foreach ($bookingStatus as $status) {
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn-delete" form="" class='btn btn-danger'>I understand</button>
+                                    <button type='submit' id="modal-btn-delete" form="" name="delete" value="1" class='btn btn-danger'>I understand</button>
                                 </div>
                             </div>
                         </div>
@@ -140,7 +87,7 @@ foreach ($bookingStatus as $status) {
                         <div class='modal-dialog'>
                             <div class='modal-content'>
                                 <div class='modal-header bg-light-subtle'>
-                                    <h5 class='modal-title' id='staticUpdateLabel'>Delete user?</h5>
+                                    <h5 class='modal-title'>Update bookings transaction?</h5>
                                     <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                 </div>
                                 <div class='modal-body bg-warning-subtle'>
@@ -148,21 +95,20 @@ foreach ($bookingStatus as $status) {
                                         <div class="mb-1">
                                             <span class="fw-bolder">Warning</span>
                                         </div>
-                                        <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
+                                        <span class="text-black mt-3">The customer will be notified after this.
+                                            <br>Proceed with caution.</span>
                                     </div>
 
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn-static" form="" class='btn btn-danger'>I understand</button>
+                                    <button type='submit' id="modal-btn-update" form="" name="update" value="1" class='btn btn-danger'>I understand</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
 
 
             <?php footer(); ?>

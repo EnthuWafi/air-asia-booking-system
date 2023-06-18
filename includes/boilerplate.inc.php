@@ -23,7 +23,29 @@ function body_script_tag_content() {
 }
 
 function nav_bar(){
-    $user = $_SESSION['user_data']['username'] ?? '';
+    $user = $_SESSION['user_data']['username'] ?? "";
+
+    $str = "";
+
+    if (empty($_SESSION["user_data"])) {
+        $str = "<a class='nav-link' href='/'>Home</a>
+                <a class='nav-link' href='/account/dashboard.php'>Dashboard</a>
+                <a class='nav-link' href='/flight/search.php'>Search Flight</a>
+                <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>";
+    }
+    else if ($_SESSION["user_data"]["user_type"] == "admin") {
+        $str = "<a class='nav-link' href='/'>Home</a>
+                <a class='nav-link' href='/admin/dashboard.php'>Dashboard</a>
+                <a class='nav-link' href='/admin/manage-flights.php'>Flights</a>
+                <a class='nav-link' href='/admin/manage-bookings.php'>Bookings</a>
+                <a class='nav-link' href='/admin/manage-users.php'>Users</a>";
+    }
+    else {
+        $str = "<a class='nav-link' href='/'>Home</a>
+                <a class='nav-link' href='/account/dashboard.php'>Dashboard</a>
+                <a class='nav-link' href='/flight/search.php'>Search Flight</a>
+                <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>";
+    }
 
     echo "<nav class='navbar navbar-expand-lg shadow-sm p-3 bg-white rounded'>
         <div class='container-fluid'>
@@ -37,17 +59,14 @@ function nav_bar(){
             </button>
             <div class='collapse navbar-collapse' id='navbarNavAltMarkup'>
                 <div class='navbar-nav me-auto'>
-                    <a class='nav-link' href='/'>Home</a>
-                    <a class='nav-link' href='/account/dashboard.php'>Dashboard</a>
-                    <a class='nav-link' href='/flight/search.php'>Search Flight</a>
-                    <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>
+                    {$str}
                 </div>
                 <div id='right-most-no-login' class='navbar-nav ms-auto'>
                     <a class='nav-link me-auto' href='/login.php'>Log in</a>
                     <a class='nav-link' href='/register.php'>Register</a>
                 </div>
                 <div id='right-most-login' class='navbar-nav ms-auto order-last'>
-                    <span class='pt-2 me-2'>Hello there, {$user}</span>
+                    <span class='pt-2 me-2'>Hello there, <strong>{$user}</strong></span>
                     <a class='nav-link me-auto' href='/logout.php'>Log out</a>
                 </div>
             </div>
@@ -95,7 +114,7 @@ function side_bar() {
         <ul class='nav nav-pills flex-column mb-auto'>
             <li class='nav-item'>
                 <a href='/' class='nav-link link-dark'>
-                    <i class='bi bi-house-door-fill me-2 $iconSize'></i>
+                    <i class='bi bi-house-door me-2 $iconSize'></i>
                     Home
                 </a>
             </li>
@@ -107,12 +126,12 @@ function side_bar() {
             </li>
             <li>
                 <a href='/account/manage-my-bookings.php' class='nav-link link-dark'>
-                    <i class='bi bi-calendar-fill me-2 $iconSize'></i>
+                    <i class='bi bi-calendar-week me-2 $iconSize'></i>
                     Bookings
                 </a>
             </li>
             <li>
-                <a href='/account/manage-users.php' class='nav-link link-dark'>
+                <a href='/account/profile.php' class='nav-link link-dark'>
                     <i class='bi bi-people me-2 $iconSize'></i>
                     Profile
                 </a>
@@ -138,10 +157,10 @@ function side_bar() {
 function admin_header_bar($pageName){
     echo "<div class='navbar navbar-expand-lg shadow navbar-white bg-white sticky-top'>
         <div class='container-fluid w-100'>
-            <div class='d-flex align-middle align-items-center'>
+            <div class='d-flex align-middle'>
                 <span class='navbar-brand order-first mb-4'>
                     <a data-bs-target='#sidebar' data-bs-toggle='collapse' class='border rounded-3 p-3 text-decoration-none'><i class='bi bi-list bi-lg py-2 p-1 text-black'></i></a>
-                    <span class='fs-2 ms-3 align-items-center'>{$pageName}</span>
+                    <span class='fs-2 ms-3 pt-2'>{$pageName}</span>
                 </span>
             </div>
             <div class='navbar-nav ms-auto order-las'>
@@ -174,7 +193,7 @@ function admin_side_bar() {
         <ul class='nav nav-pills flex-column mb-auto'>
             <li class='nav-item'>
                 <a href='/' class='nav-link link-dark'>
-                    <i class='bi bi-house-door-fill me-2 $iconSize'></i>
+                    <i class='bi bi-house-door me-2 $iconSize'></i>
                     Home
                 </a>
             </li>
@@ -186,13 +205,13 @@ function admin_side_bar() {
             </li>
             <li>
                 <a href='/admin/manage-flights.php' class='nav-link link-dark'>
-                    <i class='bi bi-airplane-fill me-2 $iconSize'></i>
+                    <i class='bi bi-airplane me-2 $iconSize'></i>
                     Flight
                 </a>
             </li>
             <li>
                 <a href='/admin/manage-bookings.php' class='nav-link link-dark'>
-                    <i class='bi bi-calendar-fill me-2 $iconSize'></i>
+                    <i class='bi bi-calendar me-2 $iconSize'></i>
                     Bookings
                 </a>
             </li>

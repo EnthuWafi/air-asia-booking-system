@@ -22,21 +22,50 @@
     }
 }
 
+/* Booking Status */
 .completed {
     color: #008000; /* Green */
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .pending {
     color: #FFA500; /* Orange */
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .refunded {
     color: #FF0000; /* Red */
+    font-weight: bold;
+    text-decoration: line-through;
 }
 
 .rejected {
     color: #800080; /* Purple */
+    font-weight: bold;
+    text-decoration: none;
+    background-color: #F5F5F5;
+    padding: 5px;
+    border-radius: 3px;
 }
+
+/*flight status*/
+.upcoming {
+    color: #FFA500; /* Orange */
+    font-weight: bold;
+}
+
+.in-progress {
+    color: #008000; /* Green */
+    font-style: italic;
+}
+
+.departed {
+    color: #0000FF; /* Blue */
+    text-decoration: line-through;
+}
+
 
 .nav-link.link-dark.active {
     background-color: #e31f25 !important;

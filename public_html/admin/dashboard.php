@@ -86,7 +86,7 @@ $incomeDecimal =  number_format((float)$income, 2, '.', '');
                     </div>
 
                     <!-- INCOME -->
-                    <div class="col">
+                    <div class="col-4">
                         <div class="shadow p-3 mb-5 gradient-primary rounded row gx-3">
                             <div class="col">
                                 <div class="row">
@@ -111,27 +111,7 @@ $incomeDecimal =  number_format((float)$income, 2, '.', '');
                                 <span class="h3">Recent Bookings</span>
                             </div>
                             <div class="row">
-                                <table class="table">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">First</th>
-                                        <th scope="col">Last</th>
-                                        <th scope="col">Handle</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <th scope="row">1</th>
-                                        <td>Mark</td>
-                                        <td>Otto</td>
-                                        <td>@mdo</td>
-                                    </tr>
-                                   <?php
 
-                                   ?>
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>

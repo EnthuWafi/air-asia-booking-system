@@ -3,6 +3,8 @@
 require("../includes/functions.inc.php");
 
 session_start();
+
+displayToast();
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +18,6 @@ session_start();
 </head>
 
 <body>
-    <?php displayToast(); ?>
     <!-- Navigation -->
     <?php nav_bar() ;?>
 

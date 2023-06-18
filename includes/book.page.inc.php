@@ -71,7 +71,7 @@ function confirm_booking(): void
         }
     }
     catch (exception $e) {
-        $_SESSION["alert"] = ["title"=>"Forbidden", "message" => "Payment was not a success!<br>{$e->getMessage()}<br>Please contact the administrators to proceed!", "type" => "error"];
+        $_SESSION["alert"] = ["title"=>"Forbidden", "message" => "Payment was not a success!<br>{$e->getMessage()}. Please contact the administrators to proceed!", "type" => "error"];
         header("Location: /index.php");
         exit();
     }

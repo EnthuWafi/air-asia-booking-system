@@ -14,7 +14,7 @@ function search_flightDetails($flights, $flightCategory, $ageCategoryArr, $trave
         echo "
     <div class='shadow p-5 bg-body rounded'>
         <div class='row'>
-            <img style='width: 10%;' src='{$flight["airline_image"]}'>
+            <img width='40' height='30' src='{$flight["airline_image"]}'>
         </div>
         <div class='row'>
             <div class='col-sm-2 order-first'>

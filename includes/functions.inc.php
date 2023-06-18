@@ -9,6 +9,7 @@ require("users.inc.php");
 
 require("book.page.inc.php");
 require("search.page.inc.php");
+require("admin.page.inc.php");
 //functions
 function current_page(): void
 {

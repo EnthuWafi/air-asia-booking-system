@@ -47,7 +47,14 @@ $customerUsers = retrieveAllCustomerUsers();
                         <div class="shadow p-3 mb-5 mt-3 bg-body rounded row gx-3 mx-1">
                             <!-- ADMIN-->
                             <div class="row">
-                                <span class="h3"><?= $adminsCount ?> admins found</span>
+                                <div class="col">
+                                    <span class="h3"><?= $adminsCount ?> admins found</span>
+                                </div>
+                                <div class="col text-end ">
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#adminStatic">
+                                         <span class="h5"><i class="bi bi-plus-circle"> </i>Add</span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="row mt-3">
                                 <table class="table table-hover">
@@ -59,37 +66,12 @@ $customerUsers = retrieveAllCustomerUsers();
                                         <th scope="col">Email</th>
                                         <th scope="col">Code</th>
                                         <th scope="col">Registration</th>
-                                        <th scope="col">Action</th>
+                                        <th scope="col" class="text-center">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if ($adminUsers != null) {
-                                        $count = 1;
-                                        // OKAY, FOR DELETING, I need to use a modal so the user can be sure to remove it
-                                        foreach ($adminUsers as $user) {
-                                            $fullName = $user["user_fname"] . " " . $user["user_lname"];
-                                            $date = date_create($user["registration_date"]);
-                                            $dateFormatted = date_format($date, "d M Y");
-                                            echo
-                                            "<tr>
-                                            <th scope='row'>$count</th>
-                                            <td>{$user["username"]}</td>
-                                            <td>{$fullName}</td>
-                                            <td>{$user["email"]}</td>
-                                            <td class='text-center'>{$user["admin_code"]}</td>
-                                            <td class='text-center'>{$dateFormatted}</td>
-                                            <td class='text-center'>
-                                                <form action='manage-users.php' id='{$user["user_id"]}' method='post'>
-                                                    <input type='hidden' name='user_id' value='{$user["user_id"]}'>
-                                                    <a type='button' data-bs-toggle='modal' data-bs-target='#static' onclick='updateModal({$user["user_id"]}, \"modal-btn\");' class='h4'>
-                                                    <i class='bi bi-trash'></i></a>
-                                                </form> 
-                                            </td>
-                                        </tr>";
-                                            $count++;
-                                        }
-                                    }
+                                    admin_displayAdminUsers($adminUsers);
                                     ?>
                                     </tbody>
                                 </table>
@@ -111,47 +93,54 @@ $customerUsers = retrieveAllCustomerUsers();
                                         <th scope="col">Date of Birth</th>
                                         <th scope="col">Phone</th>
                                         <th scope="col">Registration</th>
-                                        <th scope="col">Action</th>
+                                        <th scope="col" class="text-center">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if ($customerUsers != null) {
-                                        $count = 1;
-                                        // OKAY, FOR DELETING, I need to use a modal so the user can be sure to remove it
-                                        foreach ($customerUsers as $user) {
-                                            $fullName = $user["user_fname"] . " " . $user["user_lname"];
-                                            $date = date_create($user["registration_date"]);
-                                            $dateFormatted = date_format($date, "d M Y");
-
-                                            $dob = $user["customer_dob"];
-                                            $dobFormatted = $dob ? date_format(date_create($dob), "d M Y") : "-";
-
-                                            $phone = $user["customer_phone"] ?? "-";
-                                            echo
-                                            "<tr>
-                                            <th scope='row'>$count</th>
-                                            <td>{$user["username"]}</td>
-                                            <td>{$fullName}</td>
-                                            <td>{$user["email"]}</td>
-                                            <td class='text-center'>{$dobFormatted}</td>
-                                            <td class='text-center'>{$phone}</td>
-                                            <td class='text-center'>{$dateFormatted}</td>
-                                            <td class='text-center'>
-                                                <form action='manage-users.php' id='{$user["user_id"]}' method='post'>
-                                                    <input type='hidden' name='user_id' value='{$user["user_id"]}'>
-                                                    <a type='button' data-bs-toggle='modal' data-bs-target='#static' onclick='updateModal({$user["user_id"]}, \"modal-btn\");' class='h4'>
-                                                    <i class='bi bi-trash'></i></a>
-                                                </form>    
-                                            </td>
-                                        </tr>";
-                                            $count++;
-                                        }
-                                    }
+                                    admin_displayCustomerUsers($customerUsers);
                                     ?>
                                     </tbody>
                                 </table>
-                                <!-- Modal -->
+                                </div>
+                        </div>
+                    </div>
+                    <!-- modal create admin -->
+                    <div class='modal fade' id='adminStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                                <div class='modal-header bg-light-subtle'>
+                                    <h5 class='modal-title' id='staticBackdropLabel'>Create Admin Account</h5>
+                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                </div>
+                                <div class='modal-body'>
+                                    <form id="admin" action="/admin/manage-users.php">
+                                        <div class="row">
+                                            <div class="col" id="name">
+                                                <label for="first-name" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="first-name" placeholder="John">
+                                            </div>
+                                            <div class="col">
+                                                <label for="last-name" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="last-name" placeholder="Johnny">
+                                            </div>
+                                        </div>
+                                        <div class="row px-2">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="username" placeholder="john123" required>
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="text" class="form-control" id="email" placeholder="john@gmail.com" required>
+                                            <label for="password" class="form-label">Password</label>
+                                            <input type="password" class="form-control" id="password" placeholder="password" required>
+                                        </div>
+
+                                    </form>
+
+                                </div>
+                                <div class='modal-footer bg-light-subtle'>
+                                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+                                    <button type='submit' id="modal-btn-admin" form="admin" name="admin" value="1" class='btn btn-danger'>Create Account</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -176,7 +165,7 @@ $customerUsers = retrieveAllCustomerUsers();
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn" form="" class='btn btn-danger'>I understand</button>
+                                    <button type='submit' id="modal-btn" form="" name="delete" value="1" class='btn btn-danger'>I understand</button>
                                 </div>
                             </div>
                         </div>

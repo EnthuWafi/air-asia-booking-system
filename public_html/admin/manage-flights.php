@@ -52,59 +52,7 @@ $flights = retrieveAllFlights();
                                 </thead>
                                 <tbody>
                                 <?php
-                                if ($flights != null) {
-                                    $count = 1;
-                                    foreach ($flights as $flight) {
-
-                                        //status = upcoming, departed, in progress
-                                        $today = date("Y-m-d H:i:s");
-
-                                        $departureDate = $flight["departure_time"];
-                                        $arrivalDate = $flight["arrival_time"];
-
-                                        $departureUnformatted = date_create($departureDate);
-                                        $arrivalUnformatted = date_create($arrivalDate);
-                                        $departureFormatted = date_format($departureUnformatted, "d M Y");
-
-                                        $duration = date_create($flight["duration"]);
-                                        $durationHours = date_format($duration, "G")."h ".date_format($duration, "i")."m";
-
-                                        $flightBaseCost = number_format((float)$flight["flight_base_price"], 2, '.', '');
-
-                                        $status = "";
-                                        if ($departureUnformatted > $today) {
-                                            $status = "Upcoming";
-                                        }
-                                        else if ($today < $arrivalUnformatted) {
-                                            $status = "In Progress";
-                                        }
-                                        else {
-                                            $status = "Departed";
-                                        }
-
-                                        echo
-                                        "<tr>
-                                            <th scope='row'>$count</th>
-                                            <td><img src='{$flight["airline_image"]}' width='50' height='73'></td>
-                                            <td>{$flight["origin_airport_code"]}</td>
-                                            <td>{$flight["destination_airport_code"]}</td>
-                                            <td>{$departureFormatted}</td>
-                                            <td>{$durationHours}</td>
-                                            <td>RM{$flightBaseCost}</td>
-                                            <td>{$status}</td>
-                                            <td>{$flight["aircraft_name"]}</td>
-                                            <td>
-                                                <form action='manage-flights.php' id='{$flight["flight_id"]}' method='post'>
-                                                    <input type='hidden' name='booking_id' value='{$flight["flight_id"]}'>
-                                                    <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' onclick='updateModal({$flight["flight_id"]}, \"modal-btn-delete\");' class='h4'>
-                                                    <i class='bi bi-trash'></i></a>
-                                                </form>    
-                                            </td>
-                                            
-                                        </tr>";
-                                        $count++;
-                                    }
-                                }
+                                admin_displayFlights($flights);
                                 ?>
                                 </tbody>
                             </table>
@@ -130,7 +78,7 @@ $flights = retrieveAllFlights();
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn-delete" form="" class='btn btn-danger'>I understand</button>
+                                    <button type='submit' id="modal-btn-delete" form="" name="delete" value="1" class='btn btn-danger'>I understand</button>
                                 </div>
                             </div>
                         </div>
