@@ -39,7 +39,7 @@ function nav_bar(){
                 <div class='navbar-nav me-auto'>
                     <a class='nav-link' href='/'>Home</a>
                     <a class='nav-link' href='/flight/search.php'>Search Flight</a>
-                    <a class='nav-link' href='/account/manage-bookings.php'>My Bookings</a>
+                    <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>
                 </div>
                 <div id='right-most-no-login' class='navbar-nav ms-auto'>
                     <a class='nav-link me-auto' href='/login.php'>Log in</a>
@@ -77,8 +77,7 @@ function header_bar($pageName){
 
 function side_bar() {
     $iconSize = "h4";
-    echo "
-<div id='sidebar' class='collapse collapse-horizontal show border-end'>
+    echo "<div id='sidebar' class='collapse collapse-horizontal show border-end sticky-top'>
     <div class='d-flex flex-column flex-shrink-0 p-3 bg-light vh-100 sidebar mx-w-100'>
         <div class='row gx-3'>
             <div class='col-5'>
@@ -106,15 +105,15 @@ function side_bar() {
                 </a>
             </li>
             <li>
-                <a href='/flight/search.php' class='nav-link link-dark'>
-                    <i class='bi bi-airplane-fill me-2 $iconSize'></i>
-                    Flight Search
+                <a href='/account/manage-my-bookings.php' class='nav-link link-dark'>
+                    <i class='bi bi-calendar-fill me-2 $iconSize'></i>
+                    Bookings
                 </a>
             </li>
             <li>
-                <a href='/account/manage-bookings.php' class='nav-link link-dark'>
-                    <i class='bi bi-calendar-event-fill me-2 $iconSize'></i>
-                    Manage My Bookings
+                <a href='/admin/manage-users.php' class='nav-link link-dark'>
+                    <i class='bi bi-people me-2 $iconSize'></i>
+                    Users
                 </a>
             </li>
         </ul>
@@ -125,8 +124,7 @@ function side_bar() {
                 <strong>{$_SESSION["user_data"]["username"]}</strong>
             </a>
             <ul class='dropdown-menu text-small shadow' aria-labelledby='dropdownUser2'>
-                <li><a class='dropdown-item' href='/account/settings.php'>Settings</a></li>
-                <li><a class='dropdown-item' href='/account/dashboard.php'>Profile</a></li>
+                <li><a class='dropdown-item' href='/account/profile.php'>Profile</a></li>
                 <li><hr class='dropdown-divider'></li>
                 <li><a class='dropdown-item' href='/logout.php'>Log out</a></li>
             </ul>

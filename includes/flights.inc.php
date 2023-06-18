@@ -184,3 +184,30 @@ function retrieveTravelClass() {
     return null;
 }
 
+//RETRIEVE ALL FLIGHTS (FOR ADMIN FLIGHTS)
+function retrieveAllFlights() {
+    $sql = "SELECT f.*, ADDTIME(f.departure_time, f.duration) as 'arrival_time', al.*,
+            ac.*, a.*, u.*
+            FROM flights f
+            INNER JOIN airlines al on f.airline_id = al.airline_id
+            INNER JOIN aircrafts ac on f.aircraft_id = ac.aircraft_id
+            INNER JOIN admins a on f.user_id = a.user_id
+            INNER JOIN users u on a.user_id = u.user_id";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve flights!");
+    }
+
+    return null;
+}

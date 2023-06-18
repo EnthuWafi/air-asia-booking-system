@@ -68,10 +68,10 @@ $bookings = retrieveAllUserBookings($_SESSION["user_data"]["user_id"]);
                     }
 
                     $status = "";
-                    if ($departureDate > $today) {
+                    if ($departureUnformatted > $today) {
                         $status = "Upcoming";
                     }
-                    else if ($today < $arrivalDate) {
+                    else if ($today < $arrivalUnformatted) {
                         $status = "In Progress";
                     }
                     else {
@@ -98,48 +98,53 @@ $bookings = retrieveAllUserBookings($_SESSION["user_data"]["user_id"]);
 
                     echo "
 <div class='shadow p-5 bg-body rounded'>
-    <div class='row'>
-        <div class='col ms-auto'>
-            <strong>{$status}</strong>
-        </div>
+    <div class='row '>
+        
     </div>
     <div class='row'>
-        <div class='row'>
-            <div class='col-sm-2 order-first'>
-                <div class='row fs-3'>
-                    {$flight[0]["origin_airport_code"]} {$arrow} {$flight[0]["destination_airport_code"]}
+        <div class='col'>
+            <div class='row'>
+                    <div class='col-sm-2 order-first'>
+                        <div class='row fs-3'>
+                            {$flight[0]["origin_airport_code"]} {$arrow} {$flight[0]["destination_airport_code"]}
+                        </div>
+                        <div class='row'>
+                            <span class='text-muted'> Departure: {$departureFormatted}</span>
+                            <span class='text-muted'> {$returnDepartureText}</span>
+                        </div>
+                    </div>
+                    <div class='col ms-auto'>
+                        <div class='row'>
+                            <span class='text-middle'>Booking Reference Number</span>
+                        </div>
+                        <div class='row'>
+                            <span class='text-middle'>{$flight[0]["booking_reference"]}</span>
+                        </div> 
+                    </div>
                 </div>
                 <div class='row'>
-                    <span class='text-muted'> Departure: {$departureFormatted}</span>
-                    <span class='text-muted'> {$returnDepartureText}</span>
+                    <div class='col-sm-2 order-first'>
+                        <div class='row'>{$departureHourSimple}</div>
+                        <div class='row'>{$flight[0]["origin_airport_code"]}</div>
+                    </div>
+                    <div class='col-sm-1 align-middle'>-----</div>
+                    <div class='col-sm-2'>
+                        <div class='row'>{$arrivalHourSimple}</div>
+                        <div class='row'>{$flight[0]["destination_airport_code"]}</div>
+                    </div>
+                    <div class='col ms-auto me-auto'>
+                        <span class='text-muted text-center'>{$durationHours}</span>
+                    </div>
                 </div>
-            </div>
-            <div class='col ms-auto'>
-                <div class='row'>
-                    <span class='text-middle'>Booking Reference Number</span>
-                </div>
-                <div class='row'>
-                    <span class='text-middle'>{$flight[0]["booking_reference"]}</span>
-                </div> 
-            </div>
         </div>
-        <div class='row'>
-            <div class='col-sm-2 order-first'>
-                <div class='row'>{$departureHourSimple}</div>
-                <div class='row'>{$flight[0]["origin_airport_code"]}</div>
-            </div>
-            <div class='col-sm-1 align-middle'>-----</div>
-            <div class='col-sm-2'>
-                <div class='row'>{$arrivalHourSimple}</div>
-                <div class='row'>{$flight[0]["destination_airport_code"]}</div>
-            </div>
-            <div class='col ms-auto me-auto'>
-                <span class='text-muted text-center'>{$durationHours}</span>
-            </div>
+        
+        <div class='col ms-auto'>
+            <strong>{$status}</strong>
         </div>
         <hr>
         {$returnFlightDiv}
     </div>
+    
 </div>";
                 }
             }

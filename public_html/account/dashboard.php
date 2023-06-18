@@ -24,7 +24,7 @@ customer_login_required();
             <?php header_bar("Dashboard") ?>
 
             <!--  DASHBOARD here todo -->
-            <div class="row m-5">
+            <div class="row m-5 ms-3">
                 <span class="fs-1">Dashboard</span>
             </div>
             <?php

@@ -7,7 +7,8 @@ session_start();
 admin_login_required();
 
 if (!$_GET){
-
+    header("/admin/manage-my-bookings.php");
+    die();
 }
 
 ?>
@@ -16,7 +17,7 @@ if (!$_GET){
 
 <head>
     <?php head_tag_content(); ?>
-    <title><?= config("name") ?> | Admin Dashboard</title>
+    <title><?= config("name") ?> | View Booking</title>
 </head>
 <body>
 <div class="container-fluid">
@@ -25,7 +26,7 @@ if (!$_GET){
             <?php admin_side_bar() ?>
         </div>
         <main class="col ps-md-2 pt-2">
-            <?php admin_header_bar("Booking ") ?>
+            <?php admin_header_bar("View Booking {}") ?>
 
             <!-- todo view booking here  -->
             <div class="container">

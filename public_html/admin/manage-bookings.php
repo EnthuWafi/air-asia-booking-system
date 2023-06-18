@@ -32,7 +32,7 @@ foreach ($bookingStatus as $status) {
             <?php admin_side_bar() ?>
         </div>
         <main class="col ps-md-2 pt-2">
-            <?php admin_header_bar("Admin Dashboard") ?>
+            <?php admin_header_bar("Manage Bookings") ?>
 
             <!-- todo DASHBOARD here  -->
             <div class="container">
@@ -77,7 +77,7 @@ foreach ($bookingStatus as $status) {
                                             <td>RM{$bookingCost}</td>
                                             <td><span class='{$status["class"]}'>{$status["status"]}</span></td>
                                             <td>
-                                                <form action='manage-bookings.php' method='post'>
+                                                <form action='manage-my-bookings.php' method='post'>
                                                     <div class='row'>
                                                         <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
                                                         <div class='col-auto'>
@@ -87,15 +87,17 @@ foreach ($bookingStatus as $status) {
                                                             <label for='floatingSelectGrid'>Status</label>
                                                         </div>
                                                         <div class='col-auto'>
-                                                            <button type='submit' class='btn btn-danger mb-3'>Update</button>
+                                                            <button type='submit' class='btn btn-danger mb-3' data-bs-toggle='modal' data-bs-target='#updateStatic' 
+                                                            onclick='updateModal({$booking["booking_id"]}, \"modal-btn-update\");'>Update</button>
                                                         </div>
                                                     </div>
                                                 </form>
                                             </td>
                                             <td>
-                                                <form action='manage-bookings.php' method='post'>
+                                                <form action='manage-my-bookings.php' method='post'>
                                                     <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
-                                                    <button type='submit' class='h2'><i class='bi bi-trash'></i></button>
+                                                    <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' onclick='updateModal({$booking["booking_id"]}, \"modal-btn-delete\");' class='h4'>
+                                                    <i class='bi bi-trash'></i></a>
                                                 </form>    
                                             </td>
                                             
@@ -106,6 +108,55 @@ foreach ($bookingStatus as $status) {
                                 ?>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <!-- modal delete -->
+                    <div class='modal fade' id='deleteStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                                <div class='modal-header bg-light-subtle'>
+                                    <h5 class='modal-title' id='staticBackdropLabel'>Delete user?</h5>
+                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                </div>
+                                <div class='modal-body bg-danger-subtle'>
+                                    <div class="px-3">
+                                        <div class="mb-1">
+                                            <span class="fw-bolder">Warning</span>
+                                        </div>
+                                        <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
+                                    </div>
+
+                                </div>
+                                <div class='modal-footer bg-light-subtle'>
+                                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+                                    <button type='submit' id="modal-btn-delete" form="" class='btn btn-danger'>I understand</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- modal update -->
+                    <div class='modal fade' id='updateStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                                <div class='modal-header bg-light-subtle'>
+                                    <h5 class='modal-title' id='staticUpdateLabel'>Delete user?</h5>
+                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                </div>
+                                <div class='modal-body bg-warning-subtle'>
+                                    <div class="px-3">
+                                        <div class="mb-1">
+                                            <span class="fw-bolder">Warning</span>
+                                        </div>
+                                        <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
+                                    </div>
+
+                                </div>
+                                <div class='modal-footer bg-light-subtle'>
+                                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+                                    <button type='submit' id="modal-btn-static" form="" class='btn btn-danger'>I understand</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,6 +171,7 @@ foreach ($bookingStatus as $status) {
     </div>
 </div>
 <?php body_script_tag_content();?>
+<script type="text/javascript" src="/assets/js/modal.js"></script>
 </body>
 
 </html>

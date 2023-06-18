@@ -29,11 +29,11 @@ $incomeDecimal =  number_format((float)$income, 2, '.', '');
             <?php admin_side_bar() ?>
         </div>
         <main class="col ps-md-2 pt-2">
-            <?php admin_header_bar("Admin Dashboard") ?>
+            <?php admin_header_bar("Manage Bookings") ?>
 
             <!-- todo DASHBOARD here  -->
             <div class="container">
-                <div class="row mt-4 gx-4">
+                <div class="row mt-4 gx-4 ms-3">
                     <!-- USER COUNT -->
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
@@ -103,7 +103,7 @@ $incomeDecimal =  number_format((float)$income, 2, '.', '');
                     </div>
 
                 </div>
-                <div class="row mt-3 gx-4">
+                <div class="row mt-1 gx-4 ms-3">
                     <!-- Maybe traffic and bookings here? todo -->
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
