@@ -1,5 +1,7 @@
 <?php
 require_once("functions.inc.php");
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
 function confirm_booking(): void
 {
     token_csrf();
@@ -21,9 +23,9 @@ function confirm_booking(): void
     $passengers = $_POST["passengers"];
 
     //create booking
-    $bookingID = createBooking(["userData" => $userData, "passengers" => $passengers,
+    $bookingAssoc = createBooking(["userData" => $userData, "passengers" => $passengers,
         "flightInfo" => $flightInfo, "contactInfo"=>$contactInfo]);
-
+    $bookingID = $bookingAssoc["booking_id"];
     $_SESSION["booking_id"] = $bookingID;
 
     if (empty($bookingID)){
@@ -39,22 +41,26 @@ function confirm_booking(): void
     $fileExt = explode('.', $fileName);
     $fileActualExt = strtolower(end($fileExt));
 
-    $allowed = array('jpg','jpeg','png','pdf');
+    $allowed = ['jpg','jpeg','png','pdf'];
 
     try {
+        if ($file["error"]) {
+            throw new Exception($file["error"]);
+        }
         if (in_array($fileActualExt, $allowed)) {
             //file size < 10MB
             if ($fileSize < 10485760) {
                 $bookingReference = date("Y") . $bookingID . $flightInfo["travel_class"] . mb_substr($flightInfo["trip_type"], 0, 1);
                 $fileNameNew = "#" . $bookingReference . "." . $fileActualExt;
-                $fileDestination = '/payments/' . $fileNameNew;
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . '/payments/' . $fileNameNew;
 
-                move_uploaded_file($fileTmpName, $fileDestination) or throw new Exception("Folder not found..");
+                move_uploaded_file($fileTmpName, $fileDestination);
 
-                updateBookingDetails($bookingReference, $fileDestination, $bookingID);
+                if (!updateBookingDetails($bookingReference, $fileDestination, $bookingID)){
+                    throw new Exception("Unable to save booking reference..");
+                };
+
                 $_SESSION["alert"] = ["title" => "Wohoo", "message" => "Booking was a success!", "type" => "success"];
-                header("Location: /index.php");
-                exit();
             }
             else {
                 throw new Exception("File too big");
@@ -65,9 +71,7 @@ function confirm_booking(): void
         }
     }
     catch (exception $e) {
-        $_SESSION["alert"] = ["title"=>"Forbidden", "message" => "Payment was not a success! \n
-    {$e->getMessage()}\n
-    Please contact the administrators to proceed!", "type" => "error"];
+        $_SESSION["alert"] = ["title"=>"Forbidden", "message" => "Payment was not a success!<br>{$e->getMessage()}<br>Please contact the administrators to proceed!", "type" => "error"];
         header("Location: /index.php");
         exit();
     }
@@ -158,7 +162,7 @@ function book_seatingAddon($flightInfo, $flight, $flightAddons, $name)
                 }
 
                 echo "<div class='col text-center'>
-                            <input type='radio' name='passengers[{$key}][{$i}][departure_seat]' value='{$plusOne}' {$disabledStr}>
+                            <input type='radio' name='passengers[{$key}][{$i}][{$name}]' value='{$plusOne}' {$disabledStr}>
                       </div>";
             }
             echo "</div>

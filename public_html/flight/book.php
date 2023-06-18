@@ -60,7 +60,7 @@ $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"],
 <div class="row justify-content-center">
     <div class="col-9">
         <div class="shadow p-5 bg-body rounded">
-        <form action="<?php current_page() ?>" id="myForm" method="post">
+        <form action="<?php current_page() ?>" id="myForm" method="post" enctype="multipart/form-data">
             <div id="step-1" class="step">
                 <h2>Guest Details</h2>
                 <div>
@@ -114,7 +114,7 @@ $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"],
                         <div class="col-11">
                             <h4>Departure</h4>
                             <?php
-                            book_seatingAddon($flightInfo, $departureFlight, $departureFlightAddons, "departure_seat");
+                                book_seatingAddon($flightInfo, $departureFlight, $departureFlightAddons, "departure_seat");
                             ?>
                         </div>
                         <div class="col-11" id="return-seat-col">

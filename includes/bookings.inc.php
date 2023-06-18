@@ -47,7 +47,7 @@ function createBooking($parameters) {
     try {
         //first query
         $conn->execute_query($sqlQueryFirst, [$userData["user_id"], $flightInfo["trip_type"],
-            $contactInfo["phone"], $contactInfo["email"]], $netCost);
+            $contactInfo["phone"], $contactInfo["email"], $netCost]);
         $conn->query($sqlQueryFirstID); //id
 
         //loop
@@ -61,7 +61,7 @@ function createBooking($parameters) {
                 //insert flight addon
                 $conn->execute_query($sqlQueryThird, [$departureFlight["flight_id"], $ageCategory["code"],
                     $flightInfo["travel_class"], $passenger["departure_seat"], $passenger["departure_baggage"]]);
-                if ($flightInfo["trip_type"] == "return") {
+                if ($flightInfo["trip_type"] == "RETURN") {
                     $conn->execute_query($sqlQueryThird, [$returnFlight["flight_id"], $ageCategory["code"],
                         $flightInfo["travel_class"], $passenger["return_seat"], $passenger["return_baggage"]]);
                 }
@@ -79,7 +79,7 @@ function createBooking($parameters) {
         //remove booking first
         $result = $conn->execute_query($sqlSelectBookingID);
         $assoc = mysqli_fetch_assoc($result);
-        deleteBooking($result["booking_id"]);
+        deleteBooking($assoc["booking_id"]);
 
         //ok proceed
         createLog($conn->error);
@@ -90,7 +90,7 @@ function createBooking($parameters) {
 
 //update booking
 function updateBookingDetails($bookingReference, $bookingLocation, $bookingID) {
-    $sql = "UPDATE bookings SET booking_reference = ? and booking_payment_location = ? 
+    $sql = "UPDATE bookings SET booking_reference = ?, booking_payment_location = ? 
             WHERE booking_id = ?";
     $conn = OpenConn();
 

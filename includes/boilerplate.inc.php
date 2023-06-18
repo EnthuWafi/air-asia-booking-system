@@ -38,6 +38,7 @@ function nav_bar(){
             <div class='collapse navbar-collapse' id='navbarNavAltMarkup'>
                 <div class='navbar-nav me-auto'>
                     <a class='nav-link' href='/'>Home</a>
+                    <a class='nav-link' href='/account/dashboard.php'>Dashboard</a>
                     <a class='nav-link' href='/flight/search.php'>Search Flight</a>
                     <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>
                 </div>
@@ -111,9 +112,9 @@ function side_bar() {
                 </a>
             </li>
             <li>
-                <a href='/admin/manage-users.php' class='nav-link link-dark'>
+                <a href='/account/manage-users.php' class='nav-link link-dark'>
                     <i class='bi bi-people me-2 $iconSize'></i>
-                    Users
+                    Profile
                 </a>
             </li>
         </ul>

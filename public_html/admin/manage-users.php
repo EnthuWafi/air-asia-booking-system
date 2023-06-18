@@ -44,7 +44,7 @@ $customerUsers = retrieveAllCustomerUsers();
                         <div class="row">
                             <span class="h3"><?= $usersCount ?> users found</span>
                         </div>
-                        <div class="shadow p-3 mb-5 mt-3 bg-body rounded row gx-3">
+                        <div class="shadow p-3 mb-5 mt-3 bg-body rounded row gx-3 mx-1">
                             <!-- ADMIN-->
                             <div class="row">
                                 <span class="h3"><?= $adminsCount ?> admins found</span>
@@ -95,7 +95,7 @@ $customerUsers = retrieveAllCustomerUsers();
                                 </table>
                             </div>
                         </div>
-                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
+                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3 mx-1">
                             <!-- CUSTOMER -->
                             <div class="row">
                                 <span class="h3"><?= $customersCount ?> customers found</span>

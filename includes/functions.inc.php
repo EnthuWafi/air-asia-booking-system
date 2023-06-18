@@ -27,24 +27,26 @@ function displayToast() {
 function showToastr($alert): void
 {
     echo ("<script>
-toastr.options = {
-  \"closeButton\": false,
-  \"debug\": false,
-  \"newestOnTop\": false,
-  \"progressBar\": false,
-  \"positionClass\": \"toast-top-right\",
-  \"preventDuplicates\": false,
-  \"onclick\": null,
-  \"showDuration\": \"300\",
-  \"hideDuration\": \"1000\",
-  \"timeOut\": \"5000\",
-  \"extendedTimeOut\": \"1000\",
-  \"showEasing\": \"swing\",
-  \"hideEasing\": \"linear\",
-  \"showMethod\": \"fadeIn\",
-  \"hideMethod\": \"fadeOut\"
+window.onload = function() {
+    toastr.options = {
+      \"closeButton\": false,
+      \"debug\": false,
+      \"newestOnTop\": false,
+      \"progressBar\": false,
+      \"positionClass\": \"toast-top-right\",
+      \"preventDuplicates\": false,
+      \"onclick\": null,
+      \"showDuration\": \"300\",
+      \"hideDuration\": \"1000\",
+      \"timeOut\": \"5000\",
+      \"extendedTimeOut\": \"1000\",
+      \"showEasing\": \"swing\",
+      \"hideEasing\": \"linear\",
+      \"showMethod\": \"fadeIn\",
+      \"hideMethod\": \"fadeOut\"
+    }
+    toastr[\"{$alert["type"]}\"](\"{$alert["message"]}\", \"{$alert["title"]}\");
 }
-toastr[\"{$alert["type"]}\"](\"{$alert["message"]}\", \"{$alert["title"]}\");
 </script>");
 }
 
@@ -248,7 +250,7 @@ function calculateFlightPrice($flightBasePrice, $passengers, $travelClassCode, $
                 foreach ($passengerAgeCategoryValue as $passenger) {
                     $baggage = $baggageOptionAll[$passenger["{$flightType}_baggage"]];
                     $finalPrice += (($flightBasePrice * $ageCategoryValue["cost_multiplier"]) *
-                            $travelClassAssoc["code_multiplier"]) + $baggage["cost"];
+                            $travelClassAssoc["cost_multiplier"]) + $baggage["cost"];
                 }
             }
         }

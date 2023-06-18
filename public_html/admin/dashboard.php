@@ -29,7 +29,7 @@ $incomeDecimal =  number_format((float)$income, 2, '.', '');
             <?php admin_side_bar() ?>
         </div>
         <main class="col ps-md-2 pt-2">
-            <?php admin_header_bar("Manage Bookings") ?>
+            <?php admin_header_bar("Dashboard") ?>
 
             <!-- todo DASHBOARD here  -->
             <div class="container">
