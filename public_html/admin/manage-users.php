@@ -7,7 +7,14 @@ session_start();
 admin_login_required();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    echo $_POST["user_id"] ?? "";
+    //delete user todo
+    if (isset($_POST["delete"])) {
+
+    }
+    //create admin todo
+    if (isset($_POST["admin"])) {
+
+    }
 }
 
 

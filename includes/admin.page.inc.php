@@ -3,7 +3,7 @@ require_once("functions.inc.php");
 
 function admin_displayBookings($bookings) {
     $bookingStatus = retrieveBookingStatus();
-    $optionContent = "<option selected>Select</option>";
+    $optionContent = "";
     foreach ($bookingStatus as $status) {
         $statusUC = ucfirst(strtolower($status["booking_status"]));
         $optionContent .= "<option value='{$status["booking_status"]}'>{$statusUC}</option>";
@@ -21,7 +21,7 @@ function admin_displayBookings($bookings) {
             echo
             "<tr class='align-middle'>
                 <th scope='row'>$count</th>
-                <td><a class='text-decoration-none fw-bold' href='/admin/view-booking.php?booking_ref={$booking["booking_reference"]}'>
+                <td><a class='text-decoration-none fw-bold' href='/admin/view-booking.php?booking_id={$booking["booking_id"]}'>
                 {$booking["booking_reference"]}</a></td>
                 <td>{$booking["username"]}</td>
                 <td>{$tripTypeStr}</td>
@@ -32,9 +32,12 @@ function admin_displayBookings($bookings) {
                         <div class='row pt-2'>
                             <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
                             <div class='col-auto'>
-                                <select class='form-select' name='status' id='floatingSelectGrid'>
+                                <select class='form-select' name='status' id='select{$booking["booking_id"]}'>
                                     {$optionContent}
                                 </select>
+                                <script>
+                                    document.getElementById('select{$booking["booking_id"]}').value = \"{$booking["booking_status"]}\";                   
+                                </script>
                             </div>
                             <div class='col'>
                                 <button type='button' class='btn btn-danger mb-3' data-bs-toggle='modal' data-bs-target='#updateStatic' 
@@ -90,19 +93,22 @@ function admin_displayFlights($flights) {
 
             echo
             "<tr class='align-middle'>
-                <th scope='row'>$count</th>
+                <th scope='row'>
+                    <a href='/admin/view-flight.php?flight_id={$flight["flight_id"]}' class='text-decoration-none fw-bold'>$count</a>
+                </th>
                 <td><img src='{$flight["airline_image"]}' width='50' height='40'></td>
                 <td>{$flight["origin_airport_code"]}</td>
                 <td>{$flight["destination_airport_code"]}</td>
                 <td>{$departureFormatted}</td>
                 <td>{$durationHours}</td>
                 <td>RM{$flightBaseCost}</td>
-                <td class='{$status["css"]}'>{$status["status"]}</td>
+                <td><span class='{$status["css"]}'>{$status["status"]}</span></td>
                 <td>{$flight["aircraft_name"]}</td>
-                <td>
-                    <form action='manage-flights.php' id='{$flight["flight_id"]}' method='post'>
+                <td class='text-center'>
+                    <form action='/admin/manage-flights.php' id='{$flight["flight_id"]}' method='post'>
                         <input type='hidden' name='booking_id' value='{$flight["flight_id"]}'>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' onclick='updateModal({$flight["flight_id"]}, \"modal-btn-delete\");' class='h4'>
+                        <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' 
+                        onclick='updateModal({$flight["flight_id"]}, \"modal-btn-delete\");' class='h4'>
                         <i class='bi bi-trash'></i></a>
                     </form>    
                 </td>
@@ -132,7 +138,8 @@ function admin_displayAdminUsers($adminUsers) {
                 <td class='text-center'>
                     <form action='manage-users.php' id='{$user["user_id"]}' method='post'>
                         <input type='hidden' name='user_id' value='{$user["user_id"]}'>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#static' onclick='updateModal({$user["user_id"]}, \"modal-btn\");' class='h4'>
+                        <a type='button' data-bs-toggle='modal' data-bs-target='#static' 
+                        onclick='updateModal({$user["user_id"]}, \"modal-btn\");' class='h4'>
                         <i class='bi bi-trash'></i></a>
                     </form> 
                 </td>

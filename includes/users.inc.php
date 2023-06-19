@@ -60,9 +60,7 @@ function checkUserType($userID){
 
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
-        $userType = $row["user_type"];
-
-        return $userType;
+        return $row["user_type"];
     }
     return null;
 }
@@ -218,7 +216,8 @@ function retrieveCountCustomerUsers() {
 }
 
 function retrieveIncome() {
-    $sql = "SELECT sum(booking_cost) as 'income' FROM bookings";
+    $sql = "SELECT sum(b.booking_cost) as 'income' FROM bookings b
+            WHERE b.booking_status = 'COMPLETED'";
     $conn = OpenConn();
 
     try {

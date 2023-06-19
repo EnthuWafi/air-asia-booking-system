@@ -6,6 +6,18 @@ session_start();
 
 admin_login_required();
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    //todo update transaction
+    if (isset($_POST["update"])) {
+
+    }
+
+    //todo delete booking
+    if (isset($_POST["delete"])) {
+
+    }
+}
+
 displayToast();
 
 $bookingsCount = retrieveCountBookings()["count"] ?? 0;
@@ -41,9 +53,9 @@ $bookings = retrieveAllBookings();
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Booking Reference</th>
-                                    <th scope="col">Customers</th>
+                                    <th scope="col">Customer</th>
                                     <th scope="col">Trip Type</th>
-                                    <th scope="col">Price</th>
+                                    <th scope="col">Cost</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Update Transaction</th>
                                     <th scope="col">Action</th>
@@ -95,7 +107,7 @@ $bookings = retrieveAllBookings();
                                         <div class="mb-1">
                                             <span class="fw-bolder">Warning</span>
                                         </div>
-                                        <span class="text-black mt-3">The customer will be notified after this.
+                                        <span class="text-black mt-3">The customer will be notified by the change if you proceed.
                                             <br>Proceed with caution.</span>
                                     </div>
 

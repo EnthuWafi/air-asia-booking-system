@@ -59,7 +59,7 @@ function customer_login_required(): void
         header("Location: /login.php");
         die();
     }
-    if (!checkUserType($_SESSION["user_data"]["user_id"]) == "customer"){
+    if (checkUserType($_SESSION["user_data"]["user_type"]) == "customer"){
         header("Location: /index.php");
         die();
     }
@@ -80,7 +80,7 @@ function admin_login_required() {
         header("Location: /login.php");
         die();
     }
-    if (!checkUserType($_SESSION["user_data"]["user_id"]) == "admin"){
+    if (checkUserType($_SESSION["user_data"]["user_type"]) == "admin"){
         header("Location: /index.php");
         die();
     }
@@ -89,14 +89,14 @@ function admin_login_required() {
 //special function to prevent admin from bookings flights & customer from creating flights
 function admin_forbidden(): void
 {
-    if (checkUserType($_SESSION["user_data"]["user_id"]) == "admin"){
+    if (checkUserType($_SESSION["user_data"]["user_type"]) == "admin"){
         header("Location: /index.php");
         die();
     }
 }
 function customer_forbidden(): void
 {
-    if (checkUserType($_SESSION["user_data"]["user_id"]) == "admin"){
+    if (checkUserType($_SESSION["user_data"]["user_type"]) == "admin"){
         header("Location: /index.php");
         die();
     }

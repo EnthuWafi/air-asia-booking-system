@@ -120,8 +120,6 @@ $incomeDecimal =  number_format((float)$income, 2, '.', '');
             </div>
 
 
-
-
             <?php footer(); ?>
         </main>
 

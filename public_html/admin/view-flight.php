@@ -6,24 +6,19 @@ session_start();
 
 admin_login_required();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    //todo delete
-    if (isset($_POST["delete"])) {
-
-    }
-}
-
 displayToast();
 
-$flightsCount = retrieveCountFlights()["count"] ?? 0;
-$flights = retrieveAllFlights();
+if (!$_GET) {
+    header("Location: /admin/manage-flights.php");
+    die();
+}
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
     <?php head_tag_content(); ?>
-    <title><?= config("name") ?> | Manage Flights</title>
+    <title><?= config("name") ?> | View Flights</title>
 </head>
 <body>
 <div class="container-fluid">
@@ -32,37 +27,18 @@ $flights = retrieveAllFlights();
             <?php admin_side_bar() ?>
         </div>
         <main class="col ps-md-2 pt-2">
-            <?php admin_header_bar("Manage Flights") ?>
+            <?php admin_header_bar("View Flight") ?>
 
             <!-- todo DASHBOARD here  -->
+
             <div class="container">
                 <div class="row mt-4 gx-4 ms-3">
                     <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
                         <div class="row">
-                            <span class="h3"><?= $flightsCount ?> flights found</span>
+                            <span class="h3">Flight #{}</span>
                         </div>
                         <div class="row mt-3">
-                            <table class="table table-hover">
-                                <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Airline</th>
-                                    <th scope="col">Origin</th>
-                                    <th scope="col">Destination</th>
-                                    <th scope="col">Departure</th>
-                                    <th scope="col">Duration</th>
-                                    <th scope="col">Base Price</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Aircraft</th>
-                                    <th scope="col" class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-                                admin_displayFlights($flights);
-                                ?>
-                                </tbody>
-                            </table>
+
                         </div>
                     </div>
 

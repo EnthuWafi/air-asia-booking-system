@@ -147,6 +147,27 @@ function retrieveAllBookings() {
 }
 
 //retrieve specific
+function retrieveBooking($bookingID) {
+    $sql = "SELECT b.* FROM bookings b
+            WHERE b.booking_id = ?";
+    $conn = OpenConn();
+    try {
+        $result = $conn->execute_query($sql, [$bookingID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve bookings!");
+    }
+
+    return null;
+}
+
+//retrieve specific
 function retrieveBookingFlights($bookingID) {
     $sql = "SELECT bo.*, fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time'
 FROM bookings bo
