@@ -1,66 +1,114 @@
 <?php
-
-include("../includes/functions.inc.php");
-
 session_start();
+require("../includes/functions.inc.php");
 
-login_forbidden();
+admin_forbidden();
+customer_forbidden();
+
 // check if the form has been submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-  $email = filter_var($_POST["email"], FILTER_SANITIZE_SPECIAL_CHARS);
-  $username = filter_var($_POST["username"], FILTER_SANITIZE_SPECIAL_CHARS);
-  $password = filter_var($_POST["password"], FILTER_SANITIZE_SPECIAL_CHARS);
+    $postedToken = $_POST["token"];
+    try{
+        if(!empty($postedToken)){
+            if(isTokenValid($postedToken)){
+                $fname = htmlspecialchars($_POST["fname"]);
+                $lname = htmlspecialchars($_POST["lname"]);
+                $email = filter_var($_POST["email"], FILTER_SANITIZE_SPECIAL_CHARS);
+                $username = filter_var($_POST["username"], FILTER_SANITIZE_SPECIAL_CHARS);
+                $password = filter_var($_POST["password"], FILTER_SANITIZE_SPECIAL_CHARS);
 
-  //check if exists
-  $user = checkUser($username, "customers");
-  //create account
-  if (empty($user)) {
-    if (createUser($username, $password, $email, "customers")){
-        $message = "Successfully created!";
+                //check if exists
+                $user = checkUser($username, $email);
+                //create account
+                if (!$user) {
+                    if (createUser($fname, $lname, $username, $password, $email, "customer")){
+                        makeToast("info", "You can now log in using your account in Login Page!", "Account successfully created!");
+                    }
+                }
+                else {
+                    throw new exception("Another account with the same username or email exists!");
+                }
+            }
+            else{
+                makeToast("warning", "Please refrain from attempting to resubmit previous form", "Warning");
+            }
+        }
+        else {
+            throw new exception("Token not found");
+        }
     }
-  }
-  else {
-    $message = "Account exists!";
-  }
+    catch (exception $e){
+        makeToast("error", $e->getMessage(), "Error");
+    }
 
+    header("Location: /register.php");
+    die();
 }
 
+displayToast();
 
+$token = getToken();
 ?>
 
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=5,minimum-scale=1, viewport-fit=cover" name="viewport">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-  <!-- CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-  <title><?= config("name") ?>| Flights, Hotels, Activities, and More</title>
+    <?php head_tag_content(); ?>
+    <title><?= config("name") ?> | Login</title>
 </head>
-
 <body>
-
-  <!-- Content -->
-  <h1>Register</h1>  
-  <form action="<?php current_page(); ?>" method="POST">
-    <label>Email:</label>
-    <input type="text" name="email"><br>
-    <label>Username:</label>
-    <input type="text" name="username"><br>
-    <label>Password:</label>
-    <input type="password" name="password"><br>
-    <input type="submit" value="Register">
-  </form>
-  <a href="/login.php">Already have an account?</a>
-  <br>
-  <?= $message ?? "" ?>
-
-  <!-- JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+<?php nav_bar(); ?>
+<div class="container-fluid">
+    <div class="row overflow-x-auto">
+        <div class="container my-4">
+            <div class="row mt-5">
+                <div class="col-md-6 offset-md-3">
+                    <h2 class="text-center mb-4">Registration</h2>
+                    <form action="<?php current_page();?>" method="post">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="fname" class="form-label">First Name:</label>
+                                <input type="text" class="form-control" id="fname" name="fname" placeholder="First Name"  required>
+                            </div>
+                            <div class="col">
+                                <label for="lname" class="form-label">Last name:</label>
+                                <input type="text" class="form-control" id="lname" name="lname" placeholder="Last Name"  required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password"  required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm-password" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm-password" placeholder="Confirm your password"  required>
+                            <h5 id="conpasscheck"></h5>
+                        </div>
+                        <div class="text-center">
+                            <input type="hidden" name="token" value="<?= $token?>">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                        <div class="text-center mt-2">
+                            <span>Already have an account? <a class="text-decoration-none" href="/login.php">Login here!</a></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php footer(); ?>
+</div>
+<?php body_script_tag_content(); ?>
+<script type="text/javascript" src="/assets/js/register.js"></script>
 </body>
-
 </html>
+

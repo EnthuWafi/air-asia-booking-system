@@ -27,33 +27,30 @@ function admin_displayBookings($bookings) {
                 <td>{$tripTypeStr}</td>
                 <td>RM{$bookingCost}</td>
                 <td><span class='{$status["class"]}'>{$status["status"]}</span></td>
-                <td>
-                    <form action='manage-bookings.php' method='post'>
-                        <div class='row pt-2'>
-                            <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
-                            <div class='col-auto'>
-                                <select class='form-select' name='status' id='select{$booking["booking_id"]}'>
-                                    {$optionContent}
-                                </select>
-                                <script>
-                                    document.getElementById('select{$booking["booking_id"]}').value = \"{$booking["booking_status"]}\";                   
-                                </script>
-                            </div>
-                            <div class='col'>
-                                <button type='button' class='btn btn-danger mb-3' data-bs-toggle='modal' data-bs-target='#updateStatic' 
-                                onclick='updateModal({$booking["booking_id"]}, \"modal-btn-update\");'>Update</button>
-                            </div>
+                <form action='/admin/manage-bookings.php' id='{$booking["booking_id"]}' method='post'>
+                <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
+                <input type='hidden' name='token' value='{$_SESSION["token"]}'>
+                <td class='align-middle'>
+                    <div class='row pt-2'>   
+                        <div class='col-auto'>
+                            <select class='form-select' name='status' id='select{$booking["booking_id"]}'>
+                                {$optionContent}
+                            </select>
+                            <script>
+                                document.getElementById('select{$booking["booking_id"]}').value = \"{$booking["booking_status"]}\";                   
+                            </script>
                         </div>
-                    </form>
+                        <div class='col'>
+                            <button type='button' class='btn btn-danger mb-3' data-bs-toggle='modal' data-bs-target='#updateStatic' 
+                            onclick='updateModal({$booking["booking_id"]}, \"modal-btn-update\");'>Update</button>
+                        </div>
+                    </div>
                 </td>
                 <td class='text-center'>
-                    <form action='/admin/manage-bookings.php' method='post'>
-                        <input type='hidden' name='booking_id' value='{$booking["booking_id"]}'>
-                        <a data-bs-toggle='modal' data-bs-target='#deleteStatic' onclick='updateModal({$booking["booking_id"]}, \"modal-btn-delete\");' class='h4'>
-                        <i class='bi bi-trash'></i></a>
-                    </form>    
+                    <a data-bs-toggle='modal' data-bs-target='#deleteStatic' onclick='updateModal({$booking["booking_id"]}, \"modal-btn-delete\");' class='h4'>
+                    <i class='bi bi-trash'></i></a>
                 </td>
-                
+                </form> 
             </tr>";
             $count++;
         }
@@ -66,14 +63,15 @@ function admin_displayFlights($flights) {
         foreach ($flights as $flight) {
 
             //status = upcoming, departed, in progress
-            $today = date("Y-m-d H:i:s");
+            $today = date_create();
 
             $departureDate = $flight["departure_time"];
             $arrivalDate = $flight["arrival_time"];
 
             $departureUnformatted = date_create($departureDate);
             $arrivalUnformatted = date_create($arrivalDate);
-            $departureFormatted = date_format($departureUnformatted, "d M Y");
+
+            $departureFormatted = date_format($departureUnformatted, "d M Y H:iA");
 
             $duration = date_create($flight["duration"]);
             $durationHours = date_format($duration, "G")."h ".date_format($duration, "i")."m";
@@ -84,7 +82,7 @@ function admin_displayFlights($flights) {
             if ($departureUnformatted > $today) {
                 $status = ["status"=>"Upcoming", "css"=>"upcoming"];
             }
-            else if ($today < $arrivalUnformatted) {
+            else if ($arrivalUnformatted > $today) {
                 $status = ["status"=>"In Progress", "css"=>"in-progress"];
             }
             else {
@@ -103,10 +101,13 @@ function admin_displayFlights($flights) {
                 <td>{$durationHours}</td>
                 <td>RM{$flightBaseCost}</td>
                 <td><span class='{$status["css"]}'>{$status["status"]}</span></td>
+                
                 <td>{$flight["aircraft_name"]}</td>
+                <td class='text-muted'>{$flight["username"]}</td>
                 <td class='text-center'>
                     <form action='/admin/manage-flights.php' id='{$flight["flight_id"]}' method='post'>
-                        <input type='hidden' name='booking_id' value='{$flight["flight_id"]}'>
+                        <input type='hidden' name='flight_id' value='{$flight["flight_id"]}'>
+                        <input type='hidden' name='token' value='{$_SESSION["token"]}'>
                         <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' 
                         onclick='updateModal({$flight["flight_id"]}, \"modal-btn-delete\");' class='h4'>
                         <i class='bi bi-trash'></i></a>
@@ -136,12 +137,12 @@ function admin_displayAdminUsers($adminUsers) {
                 <td>{$user["admin_code"]}</td>
                 <td>{$dateFormatted}</td>
                 <td class='text-center'>
-                    <form action='manage-users.php' id='{$user["user_id"]}' method='post'>
-                        <input type='hidden' name='user_id' value='{$user["user_id"]}'>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#static' 
-                        onclick='updateModal({$user["user_id"]}, \"modal-btn\");' class='h4'>
-                        <i class='bi bi-trash'></i></a>
-                    </form> 
+                    <a type='button' data-bs-toggle='modal' data-bs-target='#updateAdminStatic' 
+                    onclick='updateElement(\"{$user["user_id"]}\", \"update\", \"user_id\");' class='h4'>
+                    <i class='bi bi-pencil-square'></i></a>
+                    <a type='button' data-bs-toggle='modal' data-bs-target='#static' 
+                    onclick='updateElement(\"{$user["user_id"]}\", \"delete\", \"user_id\");' class='h4'>
+                    <i class='bi bi-trash'></i></a>
                 </td>
             </tr>";
             $count++;
@@ -172,12 +173,10 @@ function admin_displayCustomerUsers($customerUsers) {
                 <td>{$phone}</td>
                 <td>{$dateFormatted}</td>
                 <td class='text-center'>
-                    <form action='manage-users.php' id='{$user["user_id"]}' method='post'>
-                        <input type='hidden' name='user_id' value='{$user["user_id"]}'>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#static' onclick='updateModal({$user["user_id"]}, \"modal-btn\");' class='h4'>
-                        <i class='bi bi-trash'></i></a>
-                    </form>    
-                </td>
+                    <a type='button' data-bs-toggle='modal' data-bs-target='#static' 
+                    onclick='updateElement(\"{$user["user_id"]}\", \"delete\", \"user_id\");' class='h4'>
+                    <i class='bi bi-trash'></i></a>  
+                </td> 
             </tr>";
             $count++;
         }

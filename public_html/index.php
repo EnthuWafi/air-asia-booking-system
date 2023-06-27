@@ -5,6 +5,7 @@ require("../includes/functions.inc.php");
 session_start();
 
 displayToast();
+setSessionTraffic();
 ?>
 
 <!DOCTYPE html>
@@ -13,41 +14,316 @@ displayToast();
 <head>
     <?php head_tag_content() ?>
     <link href="/assets/css/index.css" rel="stylesheet">
+    <style>
+        .mySlides {
+            display: none;
+        }
+        /* Slideshow container */
+        .slideshow-container {
+            width: 100%;
+            height: 100%;
+            max-height: 100vh;
+            margin: auto;
+            margin-bottom: 5%;
+            margin-left: 4%;
+        }
+        /* The dots/bullets/indicators */
+        .dot {
+            height: 15px;
+            width: 15px;
+            margin: 0 3px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.8s ease;
+        }
+        /* Fading animation */
+        .fade {
+            -webkit-animation-name: fade;
+            -webkit-animation-duration: 1.5s;
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+        @-webkit-keyframes fade {
+            from {
+                opacity: .4
+            }
+            to {
+                opacity: 1
+            }
+        }
+        @keyframes fade {
+            from {
+                opacity: .4
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        /* On smaller screens, decrease text size */
+        @media only screen and (max-width: 300px) {
+            .prev, .next, .text {
+                font-size: 11px
+            }
+        }
+        /* Next & previous buttons */
+        .prev, .next {
+            cursor: pointer;
+            position: relative;
+            top: 75%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.9s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+        }
+        /* Position the "next button" to the right */
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        /* On hover, add a black background color with a little bit see-through */
+        .prev:hover, .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .image {
+            position: relative;
+            width: 300px;
+            border-radius: 3%;
+        }
+        .image__img {
+            display: table;
+            width: 100%;
+            border-radius: 3%;
+        }
+        .image__overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-family: 'Quicksand', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+            border-radius: 5%;
+        }
+        .image__overlay--blur {
+            backdrop-filter: blur(1px);
+        }
+        }
+        .image__overlay>* {
+            transform: translateY(20px);
+            transition: transform 0.5s;
+        }
+        .image__overlay:hover {
+            opacity: 1;
+        }
+        .image__overlay:hover>* {
+            transform: translateY(0);
+        }
+        .image__title {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .image__description {
+            font-size: 1.25em;
+            margin-top: 0.25em;
+        }
+    </style>
 
     <title><?= config("name") ?> | Flights, and More</title>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <?php nav_bar() ;?>
+<!-- Navigation -->
+<?php nav_bar() ;?>
 
-    <!-- Content -->
-    <div>
-        <div class="gradient-primary h-50 w-100">
-            <div class="container pt-4" style="padding-bottom: 25%;">
-                <div class="">
-                    <h1 class="text-white">Start Travelling with AirAsia!</h1>
-                    <h5 class="text-white"">Get flights and hotels worldwide for your trip with the best deals</h5>
+<!-- Content -->
+<section class="gradient-primary w-100 d-flex justify-content-center" style="height: 280px">
+    <div class="container">
+        <div class="mt-5">
+            <h1 class="text-white fw-bold">Start Travelling with AirAsia!</h1>
+            <h5 class="text-white"">Get flights and hotels worldwide for your trip with the best deals</h5>
+        </div>
+    </div>
+</section>
+<section class="container my-5">
+    <div class="slideshow-container">
+        <div class="mySlides fade"> <img src="/assets/img/promo1.jpg" style="width: 90%;height: 90%"> </div>
+        <div class="mySlides fade"> <img src="/assets/img/promo2.jpg" style="width: 90%;height: 90%"> </div>
+        <div class="mySlides fade"> <img src="/assets/img/promo3.jpg" style="width: 90%;height: 90%"> </div>
+        <div style="text-align:center; margin:-5vh;"> <span class="dot"></span> <span class="dot"></span> <span class="dot"></span> </div>
+        <a class="prev text-decoration-none" onclick="prevSlide()">&#10094;</a>
+        <a class="next text-decoration-none" onclick="showSlides()">&#10095;</a> </div>
+</section>
+<section>
+    <div class="container">
+        <div class="my-5">
+            <span class="fs-3 fw-bold">Recommended Flights</span>
+        </div>
+        <div class="row gx-0 gy-4 ms-4">
+            <div class="col-4">
+                <div class="img-fluid image">
+                    <img class="image__img" src="/assets/img/kualaLumpur.jpg" alt="Kuala Lumpur">
+                    <div class="image__overlay image__overlay--blur">
+                        <div class="image__title">KUALA LUMPUR</div>
+                        <p class="image__description"> Start from RM 99 </p>
+                    </div>
                 </div>
-                <!-- form here -->
-                <div>
-                    <form>
-                    </form>
+            </div>
+            <div class="col-4">
+                <div class="image"> <img class="image__img" src="/assets/img/langkawi.jpg" alt="Langkawi">
+                    <div class="image__overlay image__overlay--blur">
+                        <div class="image__title">LANGKAWI</div>
+                        <p class="image__description"> Start from RM 79 </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="image"> <img class="image__img" src="/assets/img/georgeTown.jpg" alt="George Town">
+                    <div class="image__overlay image__overlay--blur">
+                        <div class="image__title">GEORGE TOWN</div>
+                        <p class="image__description"> Start from RM 79 </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="image"> <img class="image__img" src="/assets/img/kotaKinabalu.jpg" alt="Kota Kinabalu">
+                    <div class="image__overlay image__overlay--blur">
+                        <div class="image__title">KOTA KINABALU</div>
+                        <p class="image__description"> Start from RM 149 </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="image"> <img class="image__img" src="/assets/img/kuching.jpg" alt="Kuching">
+                    <div class="image__overlay image__overlay--blur">
+                        <div class="image__title">KUCHING</div>
+                        <p class="image__description"> Start from RM 149 </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="image"> <img class="image__img" src="/assets/img/portDickson.jpg" alt="Port Dickson">
+                    <div class="image__overlay image__overlay--blur">
+                        <div class="image__title">PORT DICKSON</div>
+                        <p class="image__description"> Start from RM 99 </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<section class="bg-light py-5 my-5">
+    <div class="container text-center">
+        <div class="row mb-4">
+            <span class="fs-3 fw-bold ">Why you should travel with AirAsia</span>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="row h-100">
+                    <h4>Simplify Your Booking Experience</h4>
+                </div>
+                <div class="row">
+                    <p>Feel the flexibility and simplicity throughout your booking process</p>
                 </div>
 
             </div>
+            <div class="col">
+                <div class="row  h-100">
+                    <h4>Wide Selections of Travel Product</h4>
+                </div>
+                <div class="row">
+                    <p>Enjoy your memorable moments with millions of favorable flights and accommodations</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="row  h-100">
+                    <h4>Affectionate Customer Support</h4>
+                </div>
+                <div class="row">
+                    <p>Giving best assistance, our customer support is available 24/7 with your local language</p>
+                </div>
+            </div>
         </div>
-        <?php footer() ?>
     </div>
+</section>
 
+<?php footer() ?>
 
-    <?php body_script_tag_content(); ?>
-    <!-- JS -->
-    <script>
-        const userData = <?= json_encode(isset($_SESSION["user_data"]) ?? "") ?>;
-    </script>
-    <script src="/assets/js/main.js"></script>
-    <script src="/assets/js/index.js"></script>
+<?php body_script_tag_content(); ?>
+<script>
+    var timeOut = 3000;
+    var slideIndex = 0;
+    var autoOn = true;
+
+    autoSlides();
+    showSlides();
+
+    function autoSlides() {
+        timeOut = timeOut - 100;
+
+        if (autoOn == true && timeOut < 0) {
+            showSlides();
+        }
+        setTimeout(autoSlides, 43);
+    }
+
+    function prevSlide() {
+
+        timeOut = 3000;
+
+        var slides = document.getElementsByClassName("mySlides");
+        var dots = document.getElementsByClassName("dot");
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slideIndex--;
+
+        if (slideIndex > slides.length) {
+            slideIndex = 1
+        }
+        if (slideIndex == 0) {
+            slideIndex = 3
+        }
+        slides[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " active";
+    }
+
+    function showSlides() {
+
+        timeOut = 3000;
+
+        var slides = document.getElementsByClassName("mySlides");
+        var dots = document.getElementsByClassName("dot");
+
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slideIndex++;
+
+        if (slideIndex > slides.length) {
+            slideIndex = 1
+        }
+        slides[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " active";
+    }
+</script>
 </body>
 
 </html>

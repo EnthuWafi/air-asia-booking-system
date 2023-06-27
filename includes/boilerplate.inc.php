@@ -8,8 +8,10 @@ function head_tag_content(): void
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ' crossorigin='anonymous'>
     <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js' integrity='sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe' crossorigin='anonymous'></script>
+    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css' integrity='sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==' crossorigin='anonymous' referrerpolicy='no-referrer' />
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css'>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel='stylesheet' href='/assets/css/main.css'>
      ";
 }
@@ -17,61 +19,68 @@ function head_tag_content(): void
 function body_script_tag_content() {
     echo "
     <script src='/assets/js/main.js'></script>
-    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js' integrity='sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+    <script src='https://cdn.canvasjs.com/ga/canvasjs.min.js'></script>
     ";
 }
 
 function nav_bar(){
     $user = $_SESSION['user_data']['username'] ?? "";
 
-    $str = "";
+    $navMenu = "";
+    $loginMenu = "";
+    if (isset($_SESSION["user_data"])) {
+        $loginMenu = "<div id='right-most-login' class='navbar-nav ms-auto order-last'>
+                    <span class='pt-2 me-2'>Hello there, <strong>{$user}</strong></span>
+                    <a class='nav-link me-auto' href='/logout.php'>Log out</a>
+                </div>";
+    }
+    else {
+        $loginMenu = "<div id='right-most-no-login' class='navbar-nav ms-auto'>
+                    <a class='nav-link me-auto' href='/login.php'>Log in</a>
+                    <a class='nav-link' href='/register.php'>Register</a>
+                </div>";
+    }
 
     if (empty($_SESSION["user_data"])) {
-        $str = "<a class='nav-link' href='/'>Home</a>
+        $navMenu = "<a class='nav-link' href='/'>Home</a>
+                <a class='nav-link' href='/contact-us.php'>Contact Us</a>
+                <a class='nav-link' href='/about.php'>About</a>";
+    }
+    else if ($_SESSION["user_data"]["user_type"] == "customer") {
+        $navMenu = "<a class='nav-link' href='/'>Home</a>
                 <a class='nav-link' href='/account/dashboard.php'>Dashboard</a>
                 <a class='nav-link' href='/flight/search.php'>Search Flight</a>
                 <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>";
     }
     else if ($_SESSION["user_data"]["user_type"] == "admin") {
-        $str = "<a class='nav-link' href='/'>Home</a>
+        $navMenu = "<a class='nav-link' href='/'>Home</a>
                 <a class='nav-link' href='/admin/dashboard.php'>Dashboard</a>
                 <a class='nav-link' href='/admin/manage-flights.php'>Flights</a>
                 <a class='nav-link' href='/admin/manage-bookings.php'>Bookings</a>
                 <a class='nav-link' href='/admin/manage-users.php'>Users</a>";
     }
-    else {
-        $str = "<a class='nav-link' href='/'>Home</a>
-                <a class='nav-link' href='/account/dashboard.php'>Dashboard</a>
-                <a class='nav-link' href='/flight/search.php'>Search Flight</a>
-                <a class='nav-link' href='/account/manage-my-bookings.php'>My Bookings</a>";
-    }
 
-    echo "<nav class='navbar navbar-expand-lg shadow-sm p-3 bg-white rounded'>
+
+    echo "<nav class='navbar navbar-expand-lg shadow p-3 bg-white rounded sticky-top'>
         <div class='container-fluid'>
             <div class='d-flex'>
                 <a class='navbar-brand order-first' href='index.php'>
-                    <img class='img-fluid w-50' src='/assets/img/airasiacom_logo.svg'>
+                    <img class='img-fluid mb-2' src='/assets/img/airasiacom_logo.svg' style='width: 35%;'>
                 </a>
             </div>
             <button class='navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#navbarNavAltMarkup' aria-controls='navbarNavAltMarkup' aria-expanded='false' aria-label='Toggle navigation'>
                 <span class='navbar-toggler-icon'></span>
             </button>
-            <div class='collapse navbar-collapse' id='navbarNavAltMarkup'>
+            <div class='collapse navbar-collapse fw-semibold' id='navbarNavAltMarkup'>
                 <div class='navbar-nav me-auto'>
-                    {$str}
+                    {$navMenu}
                 </div>
-                <div id='right-most-no-login' class='navbar-nav ms-auto'>
-                    <a class='nav-link me-auto' href='/login.php'>Log in</a>
-                    <a class='nav-link' href='/register.php'>Register</a>
-                </div>
-                <div id='right-most-login' class='navbar-nav ms-auto order-last'>
-                    <span class='pt-2 me-2'>Hello there, <strong>{$user}</strong></span>
-                    <a class='nav-link me-auto' href='/logout.php'>Log out</a>
-                </div>
+                {$loginMenu}
             </div>
         </div>
     </nav>";
+
 }
 
 
@@ -205,7 +214,7 @@ function admin_side_bar() {
             </li>
             <li>
                 <a href='/admin/manage-flights.php' class='nav-link link-dark'>
-                    <i class='bi bi-airplane me-2 $iconSize'></i>
+                    <i class='bx bxs-plane-take-off me-2 $iconSize'></i>
                     Flight
                 </a>
             </li>
@@ -213,6 +222,12 @@ function admin_side_bar() {
                 <a href='/admin/manage-bookings.php' class='nav-link link-dark'>
                     <i class='bi bi-calendar me-2 $iconSize'></i>
                     Bookings
+                </a>
+            </li>
+            <li>
+                <a href='/admin/manage-aircrafts.php' class='nav-link link-dark'>
+                    <i class='bx bxs-plane me-2 $iconSize'></i>
+                    Aircrafts
                 </a>
             </li>
             <li>
@@ -251,7 +266,7 @@ function footer(){
     </a>
 
     <ul class='nav col-md-4 justify-content-end'>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Home</a></li>
+      <li class='nav-item'><a href='/' class='nav-link px-2 text-muted'>Home</a></li>
       <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Features</a></li>
       <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Pricing</a></li>
       <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>FAQs</a></li>

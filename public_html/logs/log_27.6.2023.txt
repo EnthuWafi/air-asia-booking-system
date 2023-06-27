@@ -1,0 +1,2 @@
+
+Cannot delete or update a parent row: a foreign key constraint fails (`air-asia-booking-system`.`bookings`, CONSTRAINT `FK_USER_ID` FOREIGN KEY (`user_id`) REFERENCES `customers` (`user_id`))

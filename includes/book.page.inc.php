@@ -4,7 +4,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 function confirm_booking(): void
 {
-    token_csrf();
 
     if (!array_keys_isset_or_not(["passengers", "phone", "email", "consent", "submit"], $_POST)) {
         die("Error: false POST values!");

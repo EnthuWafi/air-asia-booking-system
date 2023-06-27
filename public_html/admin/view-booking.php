@@ -37,8 +37,7 @@ $booking = retrieveBooking(htmlspecialchars($_GET["booking_id"]));
                 <div class="row mt-4 gx-4 ms-3">
                     <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
                         <div class="row">
-                            <span class="h3">Booking Reference Number
-                                <span class="text-info">#<?= $booking["booking_reference"] ?></span>
+                            <span class="h3">Booking Reference Number <span class="text-info">#<?= $booking["booking_reference"] ?></span>
                             </span>
                         </div>
                     </div>

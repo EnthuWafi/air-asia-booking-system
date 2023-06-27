@@ -7,15 +7,97 @@ session_start();
 admin_login_required();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    //todo update transaction
-    if (isset($_POST["update"])) {
+    $postedToken = $_POST["token"];
+    try{
+        if(!empty($postedToken)){
+            if(isTokenValid($postedToken)){
+                //todo update transaction
+                if (isset($_POST["update"])) {
+                    $bookingID = htmlspecialchars($_POST["booking_id"]);
+                    $bookingStatus = htmlspecialchars($_POST["status"]);
 
+                    updateBooking($bookingID, $bookingStatus) or throw new Exception("Couldn't update transaction status");
+
+                    //notify user here via mail
+                    require_once("../../mail.inc.php");
+                    $booking = retrieveBooking($bookingID);
+                    $fullName = $booking["user_fname"]." ".$booking["user_lname"];
+
+                    $bookingReference = $booking["booking_reference"];
+                    $date = date_create($booking["date_created"]);
+                    $dateFormatted = date_format($date, "d M Y");
+
+                    $cost = number_format((float)$booking['booking_cost'], 2, ".", ",");
+                    $tripType = ucfirst(strtolower($booking['trip_type']));
+
+                    $subject = "";
+                    $content = "";
+                    if ($bookingStatus === "PENDING"){
+                        $subject = "Your Booking Request #{$bookingReference} is Pending";
+                        $content = "<p>Dear {$fullName},</p>
+                <p>Your booking with reference number <strong>{$bookingReference}</strong> is currently pending review. We are processing your request and will provide an update shortly.</p>
+                <p>Thank you for choosing our airline.</p>";
+                    }
+                    else if ($bookingStatus === "COMPLETED") {
+                        $subject = "Your Booking #{$bookingReference} is Confirmed";
+                        $content = "<p>Dear {$fullName},</p>
+                <p>We are pleased to inform you that your booking with reference number <strong>{$bookingReference}</strong> has been successfully confirmed. Please find the details below:</p>
+                <ul>
+                    <li>Booking Reference: {$bookingReference}</li>
+                    <li>Date Created: {$dateFormatted}</li>
+                    <li>Total Cost: {$cost}</li>
+                    <li>Trip Type: {$tripType}</li>
+                </ul>
+                <p>Thank you for choosing our airline. We look forward to serving you.</p>";
+                    }
+                    else if ($bookingStatus === "REJECTED") {
+                        $subject = "Your Booking Request #{$bookingReference} has been Rejected";
+                        $content = "<p>Dear {$fullName},</p>
+                <p>We regret to inform you that your booking request with reference number <strong>{$bookingReference}</strong> has been rejected. If you have any questions or require further assistance, please contact our customer support.</p>
+                <p>Thank you for considering our airline.</p>";
+                    }
+                    else if ($bookingStatus === "REFUNDED") {
+                        $subject = "Your Booking #{$bookingReference} has been Refunded";
+                        $content = "<p>Dear {$fullName},</p>
+                <p>We would like to inform you that your booking with reference number <strong>{$bookingReference}</strong> has been refunded. The refunded amount will be credited to your original payment method. If you have any questions or concerns, please don't hesitate to reach out to us.</p>
+                <p>Thank you for your understanding.</p>";
+                    }
+                    else {
+                        throw new Exception("Order status does not exist!");
+                    }
+
+                    $body = "<h1>Dear {$fullName},</h1>
+                             {$content}
+                             <p>Sincerely,</p>
+                             <p>AirAsia Team</p>";
+
+                    sendMail($booking["booking_email"], $subject, $body) or throw new Exception("Message wasn't sent!");;
+
+                    makeToast("success", "Transaction status successfully updated!", "Success");
+                }
+
+                //todo delete booking
+                if (isset($_POST["delete"])) {
+                    $bookingID = htmlspecialchars($_POST["booking_id"]);
+
+                    deleteBooking($bookingID) or throw new Exception("Couldn't delete booking");
+                    makeToast("success", "Booking successfully deleted!", "Success");
+                }
+            }
+            else{
+                makeToast("warning", "Please refrain from attempting to resubmit previous form", "Warning");
+            }
+        }
+        else {
+            throw new exception("Token not found");
+        }
+    }
+    catch (exception $e){
+        makeToast("error", $e->getMessage(), "Error");
     }
 
-    //todo delete booking
-    if (isset($_POST["delete"])) {
-
-    }
+    header("Location: /admin/manage-bookings.php");
+    die();
 }
 
 displayToast();
@@ -23,6 +105,7 @@ displayToast();
 $bookingsCount = retrieveCountBookings()["count"] ?? 0;
 $bookings = retrieveAllBookings();
 
+$token = getToken();
 ?>
 <!DOCTYPE html>
 <html>

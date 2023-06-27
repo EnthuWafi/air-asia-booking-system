@@ -2,16 +2,16 @@
 require_once("functions.inc.php");
 /* USER RELATED */
 //create customer/admin
-function createUser($username, $password, $email, $user_type) {
-    if (!($user_type == "customers" || $user_type == "admins")) {
+function createUser($fname, $lname, $username, $password, $email, $user_type) {
+    if (!($user_type == "customer" || $user_type == "admin")) {
         die();
     }
 
     $conn = OpenConn();
-    $sqlQueryFirst = "INSERT INTO users(username, password, email, user_type) VALUES (?, ?, ?, ?)";
+    $sqlQueryFirst = "INSERT INTO users(user_fname, user_lname, username, password, email, user_type) VALUES (?, ?, ?, ?, ?, ?)";
     $sqlQueryFirstID = "SET @last_user_id = LAST_INSERT_ID()"; //@last_user_id
     //check user types
-    if ($user_type == "customers") {
+    if ($user_type == "customer") {
         $sqlQuerySecond = "INSERT INTO customers(user_id) VALUES (@last_user_id)";
     }
     else {
@@ -21,7 +21,7 @@ function createUser($username, $password, $email, $user_type) {
     }
 
     try {
-        $conn->execute_query($sqlQueryFirst, [$username, password_hash($password, PASSWORD_DEFAULT), $email, $user_type]);
+        $conn->execute_query($sqlQueryFirst, [$fname, $lname, $username, password_hash($password, PASSWORD_DEFAULT), $email, $user_type]);
         $conn->query($sqlQueryFirstID);
         if ($conn->execute_query($sqlQuerySecond)){
             CloseConn($conn);
@@ -37,12 +37,12 @@ function createUser($username, $password, $email, $user_type) {
     return false;
 }
 //check user exists
-function checkUser($username): bool
+function checkUser($username, $email): bool
 {
-    $sql = "SELECT * FROM users WHERE username = ?";
+    $sql = "SELECT * FROM users WHERE username = ? or email = ?";
     $conn = OpenConn();
 
-    $result = $conn->execute_query($sql, [$username]);
+    $result = $conn->execute_query($sql, [$username, $email]);
     CloseConn($conn);
 
     if (mysqli_num_rows($result) > 0) {
@@ -51,7 +51,7 @@ function checkUser($username): bool
     return false;
 }
 
-function checkUserType($userID){
+function returnUserType($userID){
     $sql = "SELECT * FROM users WHERE user_id = ?";
     $conn = OpenConn();
 
@@ -136,25 +136,6 @@ function retrieveCountBookings() {
     return null;
 }
 
-function retrieveCountFlights() {
-    $sql = "SELECT COUNT(flight_id) as 'count' FROM flights";
-    $conn = OpenConn();
-
-    try {
-        $result = $conn->execute_query($sql,);
-        CloseConn($conn);
-
-        if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_assoc($result);
-        }
-    }
-    catch (mysqli_sql_exception){
-        createLog($conn->error);
-        die("Error: unable to retrieve count flights!");
-    }
-
-    return null;
-}
 
 function retrieveCountUsers() {
     $sql = "SELECT count(user_id) as 'count' FROM users";
@@ -280,4 +261,72 @@ function retrieveAllCustomerUsers() {
     }
 
     return null;
+}
+
+function retrieveUser($userID) {
+    $sql = "SELECT us.* FROM users us 
+            WHERE us.user_id = ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the user!");
+    }
+
+    makeToast("error", "User doesn't exist or was removed!", "Error");
+    header("Location: /logout.php");
+    die();
+}
+
+function deleteUser($userID) {
+    $sql = "DELETE FROM users WHERE user_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to delete user!");
+    }
+
+    return false;
+}
+
+function updateUser($userID, $fname, $lname, $username, $email) {
+    $sql = "UPDATE users 
+        SET user_fname = ?, user_lname = ?, username = ?, email = ?
+        WHERE user_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$fname, $lname, $username, $email, $userID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to update user details!");
+    }
+
+    return false;
 }

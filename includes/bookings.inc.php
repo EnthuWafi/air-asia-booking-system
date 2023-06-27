@@ -107,6 +107,22 @@ function updateBookingDetails($bookingReference, $bookingLocation, $bookingID) {
     return false;
 }
 
+function updateBooking($bookingID, $bookingStatus) {
+    $sql = "UPDATE bookings SET booking_status = ? WHERE booking_id = ?";
+    $conn = OpenConn();
+    try {
+        if ($conn->execute_query($sql, [$bookingStatus, $bookingID])){
+            CloseConn($conn);
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: Booking update failed. Check logs!");
+    }
+    return false;
+}
+
 //just to remove failed bookings
 function deleteBooking($bookingID) {
     $sql = "DELETE FROM bookings WHERE booking_id = ?";
@@ -119,7 +135,7 @@ function deleteBooking($bookingID) {
     }
     catch (mysqli_sql_exception) {
         createLog($conn->error);
-        die("Error: Booking failed. Check logs!");
+        die("Error: Booking delete failed. Check logs!");
     }
     return false;
 }
@@ -148,7 +164,9 @@ function retrieveAllBookings() {
 
 //retrieve specific
 function retrieveBooking($bookingID) {
-    $sql = "SELECT b.* FROM bookings b
+    $sql = "SELECT b.*, u.*, c.* FROM bookings b
+           INNER JOIN customers c on b.user_id = c.user_id
+           INNER JOIN users u on c.user_id = u.user_id
             WHERE b.booking_id = ?";
     $conn = OpenConn();
     try {
@@ -255,12 +273,11 @@ function retrieveBookingStatus() {
     }
     catch (mysqli_sql_exception){
         createLog($conn->error);
-        die("Error: unable to retrieve passenger!");
+        die("Error: unable to retrieve booking status!");
     }
 
     return null;
 }
-
 
 
 

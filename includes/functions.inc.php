@@ -6,6 +6,7 @@ require('boilerplate.inc.php');
 require("bookings.inc.php");
 require("flights.inc.php");
 require("users.inc.php");
+require("traffic.inc.php");
 
 require("book.page.inc.php");
 require("search.page.inc.php");
@@ -16,7 +17,11 @@ function current_page(): void
     echo htmlspecialchars($_SERVER["PHP_SELF"]);
 }
 
+
 // TOASTS
+function makeToast($type, $message, $title) {
+    $_SESSION["alert"] = ["type"=>$type, "message"=>$message, "title"=>$title];
+}
 function displayToast() {
     if (isset($_SESSION["alert"])){
         showToastr($_SESSION["alert"]);
@@ -52,6 +57,14 @@ window.onload = function() {
 }
 
 
+
+function setSessionTraffic() {
+    if (!isset($_SESSION["traffic"])) {
+        $_SESSION["traffic"] = 1;
+        createTraffic();
+    }
+}
+
 //Requires login to access the site
 function customer_login_required(): void
 {
@@ -59,7 +72,8 @@ function customer_login_required(): void
         header("Location: /login.php");
         die();
     }
-    if (checkUserType($_SESSION["user_data"]["user_type"]) == "customer"){
+    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]);
+    if (returnUserType($_SESSION["user_data"]["user_id"]) != "customer"){
         header("Location: /index.php");
         die();
     }
@@ -67,20 +81,13 @@ function customer_login_required(): void
 
 
 //Requires user to not be logged in to access the site (For instance, like Login page or Register page)
-function login_forbidden(): void
-  {
-    if (isset($_SESSION["user_data"])){
-        header("Location: /index.php");
-        die();
-    }
-}
-
 function admin_login_required() {
     if (empty($_SESSION["user_data"])){
         header("Location: /login.php");
         die();
     }
-    if (checkUserType($_SESSION["user_data"]["user_type"]) == "admin"){
+    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]);
+    if (returnUserType($_SESSION["user_data"]["user_id"]) != "admin"){
         header("Location: /index.php");
         die();
     }
@@ -89,42 +96,49 @@ function admin_login_required() {
 //special function to prevent admin from bookings flights & customer from creating flights
 function admin_forbidden(): void
 {
-    if (checkUserType($_SESSION["user_data"]["user_type"]) == "admin"){
-        header("Location: /index.php");
-        die();
+    if (isset($_SESSION["user_data"])){
+        if (returnUserType($_SESSION["user_data"]["user_id"]) === "admin"){
+            header("Location: /admin/dashboard.php");
+            die();
+        }
     }
 }
 function customer_forbidden(): void
 {
-    if (checkUserType($_SESSION["user_data"]["user_type"]) == "admin"){
-        header("Location: /index.php");
-        die();
+    if (isset($_SESSION["user_data"])){
+        if (returnUserType($_SESSION["user_data"]["user_id"]) === "customer"){
+            header("Location: /account/dashboard.php");
+            die();
+        }
     }
 }
 
 
 
 
-function token_csrf(): void
-{
-    $token = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_SPECIAL_CHARS);
 
-    if (!$token || $token !== $_SESSION['token']) {
-        // return 405 http status code
-        header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
-        exit;
-    }
+function getToken(){
+    $token = sha1(mt_rand());
+    $_SESSION['token'] = $token;
+
+    return $token;
 }
-function create_token(): string
-{
-    return md5(uniqid(mt_rand(), true));
+
+function isTokenValid($token){
+    if(!empty($_SESSION['token'])){
+        if ($_SESSION['token'] === $token){
+            unset($_SESSION['token']);
+            return true;
+        }
+    }
+    return false;
 }
 
 //check array keys is set
 function array_keys_isset_or_not($keys, $array): bool
 {
     foreach ($keys as $key) {
-        if (!isset($array[$key])) {
+        if (empty($array[$key])) {
             return false;
         }
     }
@@ -285,7 +299,42 @@ function calculateSearchFlightPrice($flightBasePrice, $ageCategoryArr, $travelCl
     return $finalPrice;
 }
 
-
+function makeChart($dataPoints, $name, $max) {
+    $encode = json_encode($dataPoints);
+    echo "<script>
+window.onload = function () {
+ 
+var chart = new CanvasJS.Chart(\"{$name}\", {
+	animationEnabled: true,
+	theme: \"light2\",
+	title:{
+		text: \"Site Traffic\"
+	},
+	axisX: {
+		valueFormatString: \"DD MMM\"
+	},
+	axisY: {
+		title: \"Total Number of Visits\",
+		includeZero: true,
+		maximum: {$max}
+	},
+	data: [{
+		type: \"splineArea\",
+		color: \"#6599FF\",
+		xValueType: \"dateTime\",
+		xValueFormatString: \"DD MMM\",
+		yValueFormatString: \"#,##0 Visits\",
+		dataPoints: {$encode}
+	}]
+});
+ 
+chart.render();
+ 
+}
+</script>
+<div id=\"$name\" class='w-100' style='height: 380px'></div>
+";
+}
 
 
 

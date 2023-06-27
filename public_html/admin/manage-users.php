@@ -6,16 +6,111 @@ session_start();
 
 admin_login_required();
 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    //delete user todo
-    if (isset($_POST["delete"])) {
+    $postedToken = $_POST["token"];
+    try{
+        if(!empty($postedToken)){
+            if(isTokenValid($postedToken)){
 
-    }
-    //create admin todo
-    if (isset($_POST["admin"])) {
+                require_once("../../mail.inc.php");
+                //delete user todo
+                if (isset($_POST["delete"])) {
+                    $userID = htmlspecialchars($_POST["user_id"]);
 
+                    if ($userID == $_SESSION["user_data"]["user_id"]){
+                        throw new Exception("Cannot delete the admin user you are currently using!");
+                    }
+
+                    $user = retrieveUser($userID) or throw new Exception("User wasn't found!");
+
+                    //main
+                    if ($user["username"] === "EnthuWafi"){
+                        throw new Exception("Cannot delete the MAIN ADMIN account!");
+                    }
+
+                    deleteUser($userID) or throw new Exception("Couldn't delete booking");
+
+                    $fullName = "{$user["user_fname"]} {$user["user_lname"]}";
+
+                    $subject = "Apology for Account Deletion";
+                    $content = "<p>We would like to sincerely apologize for the recent removal of your account from our system. We understand that this may have caused inconvenience to you, and we deeply regret any inconvenience caused.</p>
+            <p>If you believe this account deletion was made in error or if you have any concerns or questions, please feel free to contact our customer support team. We will be more than happy to assist you.</p>
+            <p>Once again, we apologize for any inconvenience caused, and we appreciate your understanding in this matter.</p>";
+
+                    $body = "<h1>Dear {$fullName},</h1>
+                             {$content}
+                             <p>Sincerely,</p>
+                             <p>AirAsia Team</p>";
+
+                    sendMail($user["email"], $subject, $body) or throw new Exception("Message wasn't sent!");
+
+                    makeToast("success", "User successfully deleted!", "Success");
+                }
+                //create admin todo
+                else if (isset($_POST["admin"])) {
+                    $fname = htmlspecialchars($_POST["fname"]);
+                    $lname = htmlspecialchars($_POST["lname"]);
+                    $username = htmlspecialchars($_POST["username"]);
+                    $email = htmlspecialchars($_POST["email"]);
+                    $password = htmlspecialchars($_POST["password"]);
+
+                    createUser($fname, $lname, $username, $password, $email, "admin") or throw new Exception("Admin user wasn't able to be created!");
+                    makeToast("success", "Admin account successfully created!", "Success");
+
+                }
+                else if (isset($_POST["update"])) {
+                    $userID = htmlspecialchars($_POST["user_id"]);
+                    $fname = htmlspecialchars($_POST["fname"]);
+                    $lname = htmlspecialchars($_POST["lname"]);
+                    $username = htmlspecialchars($_POST["username"]);
+                    $email = htmlspecialchars($_POST["email"]);
+
+                    $user = retrieveUser($userID) or throw new Exception("User wasn't found!");
+
+                    updateUser($userID, $fname, $lname, $username, $email) or throw new Exception("Wasn't able to update user!");
+
+                    $fullName = "{$user["user_fname"]} {$user["user_lname"]}";
+
+                    $subject = "Account Details Updated";
+                    $content = "
+            <p>We would like to inform you that your account details have been successfully updated. Here are your updated details:</p>
+            <ul>
+                <li>First Name: {$fname}</li>
+                <li>Last Name: {$lname}</li>
+                <li>Username: {$username}</li>
+                <li>Email: {$email}</li>
+            </ul>
+            <p>If you did not request this update or if you have any concerns, please contact our customer support team immediately.</p>
+            <p>Thank you for choosing AirAsia.</p>";
+
+                    $body = "<h1>Dear {$fullName},</h1>
+                             {$content}
+                             <p>Sincerely,</p>
+                             <p>AirAsia Team</p>";
+
+                    sendMail($user["email"], $subject, $body) or throw new Exception("Message wasn't sent!");
+
+                    makeToast("success", "User successfully updated!", "Success");
+                }
+            }
+            else{
+                makeToast("warning", "Please refrain from attempting to resubmit previous form", "Warning");
+            }
+        }
+        else {
+            throw new exception("Token not found");
+        }
     }
+    catch (exception $e){
+        makeToast("error", $e->getMessage(), "Error");
+    }
+
+    header("Location: /admin/manage-users.php");
+    die();
 }
+
+displayToast();
 
 
 $usersCount = retrieveCountUsers()["count"] ?? 0;
@@ -26,6 +121,7 @@ $customersCount = retrieveCountCustomerUsers()["count"] ?? 0;
 $adminUsers = retrieveAllAdminUsers();
 $customerUsers = retrieveAllCustomerUsers();
 
+$token = getToken();
 
 ?>
 <!DOCTYPE html>
@@ -109,9 +205,10 @@ $customerUsers = retrieveAllCustomerUsers();
                                     ?>
                                     </tbody>
                                 </table>
-                                </div>
+                            </div>
                         </div>
                     </div>
+
                     <!-- modal create admin -->
                     <div class='modal fade' id='adminStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
                         <div class='modal-dialog'>
@@ -121,36 +218,77 @@ $customerUsers = retrieveAllCustomerUsers();
                                     <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                 </div>
                                 <div class='modal-body'>
-                                    <form id="admin" action="/admin/manage-users.php">
-                                        <div class="row">
+                                    <form id="admin" action="/admin/manage-users.php" method="post">
+                                        <div class="row mb-1">
                                             <div class="col" id="name">
                                                 <label for="first-name" class="form-label">First Name</label>
-                                                <input type="text" class="form-control" id="first-name" placeholder="John">
+                                                <input type="text" class="form-control" id="first-name" name="fname" placeholder="First name">
                                             </div>
                                             <div class="col">
                                                 <label for="last-name" class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" id="last-name" placeholder="Johnny">
+                                                <input type="text" class="form-control" id="last-name" name="lname" placeholder="Last name">
                                             </div>
                                         </div>
-                                        <div class="row px-2">
+                                        <div class="row px-2 mb-1">
                                             <label for="username" class="form-label">Username</label>
-                                            <input type="text" class="form-control" id="username" placeholder="john123" required>
+                                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username here" required>
                                             <label for="email" class="form-label">Email</label>
-                                            <input type="text" class="form-control" id="email" placeholder="john@gmail.com" required>
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email here" required>
                                             <label for="password" class="form-label">Password</label>
-                                            <input type="password" class="form-control" id="password" placeholder="password" required>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password here" required>
                                         </div>
-
+                                        <input type="hidden" name="token" value="<?= $token ?>">
                                     </form>
 
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+
                                     <button type='submit' id="modal-btn-admin" form="admin" name="admin" value="1" class='btn btn-danger'>Create Account</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- modal update admin -->
+                    <div class='modal fade' id='updateAdminStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                                <div class='modal-header bg-light-subtle'>
+                                    <h5 class='modal-title' id='staticBackdropLabel'>Update Admin Account</h5>
+                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                </div>
+                                <div class='modal-body'>
+                                    <form id="update" action="/admin/manage-users.php" method="post">
+                                        <div class="row mb-1">
+                                            <div class="col" id="name">
+                                                <label for="first-name-update" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="first-name-update" name="fname" placeholder="First name">
+                                            </div>
+                                            <div class="col">
+                                                <label for="last-name-update" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="last-name-update" name="lname" placeholder="Last name">
+                                            </div>
+                                        </div>
+                                        <div class="row px-2 mb-1">
+                                            <label for="username-update" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="username-update" name="username" placeholder="Enter username here" required>
+                                            <label for="email-update" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email-update" name="email" placeholder="Enter email here" required>
+                                        </div>
+                                        <input type="hidden" name="token" value="<?= $token ?>">
+                                        <input type="hidden" name="user_id" value="">
+                                    </form>
+
+                                </div>
+                                <div class='modal-footer bg-light-subtle'>
+                                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+                                    <button type='submit' id="modal-btn-update" form="update" name="update" value="1" class='btn btn-danger'>Update Account</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
 
                     <!-- modal delete -->
@@ -168,11 +306,14 @@ $customerUsers = retrieveAllCustomerUsers();
                                         </div>
                                         <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
                                     </div>
-
+                                    <form id="delete" action="/admin/manage-users.php" method="post">
+                                        <input type="hidden" name="token" value="<?= $token ?>">
+                                        <input type="hidden" name="user_id" value="">
+                                    </form>
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn" form="" name="delete" value="1" class='btn btn-danger'>I understand</button>
+                                    <button type='submit' id="modal-btn-delete" form="delete" name="delete" value="1" class='btn btn-danger'>I understand</button>
                                 </div>
                             </div>
                         </div>

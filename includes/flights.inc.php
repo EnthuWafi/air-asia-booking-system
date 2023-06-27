@@ -21,6 +21,44 @@ function retrieveAirports() {
     return null;
 }
 
+function retrieveAircrafts() {
+    $sql = "SELECT * FROM aircrafts";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: unable to retrieve aircraft!");
+    }
+    return null;
+}
+
+function retrieveAirlines() {
+    $sql = "SELECT * FROM airlines";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: unable to retrieve airlines!");
+    }
+    return null;
+}
+
 
 //retrieve flights that matches parameters
 function retrieveFlights($origin, $destination, $departureTime, $travelClass, $passengerCount) {
@@ -210,4 +248,155 @@ function retrieveAllFlights() {
     }
 
     return null;
+}
+
+function deleteFlight($flightID) {
+    $sql = "DELETE FROM flights WHERE flight_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$flightID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to delete flight!");
+    }
+
+    return false;
+}
+
+function createFlight($userID, $originCode, $destinationCode, $departureTime,
+                    $duration, $price, $aircraftID, $airlineID) {
+    $sql = "INSERT INTO flights(user_id, origin_airport_code, destination_airport_code, 
+                    departure_time, duration, flight_base_price, aircraft_id, airline_id) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$userID, $originCode, $destinationCode, $departureTime,
+            $duration, $price, $aircraftID, $airlineID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to create flight!");
+    }
+
+    return false;
+}
+
+function retrieveCountFlights() {
+    $sql = "SELECT COUNT(flight_id) as 'count' FROM flights";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count flights!");
+    }
+
+    return null;
+}
+
+function retrieveCountAircrafts() {
+    $sql = "SELECT COUNT(aircraft_id) AS 'count' FROM aircrafts";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count aircraft!");
+    }
+
+    return null;
+}
+
+function deleteAircraft($aircraftID) {
+    $sql = "DELETE FROM aircrafts WHERE aircraft_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$aircraftID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to delete aircraft!");
+    }
+
+    return false;
+}
+
+function createAircraft($name, $economy, $premium_economy, $business, $first_class){
+    $sql = "INSERT INTO aircrafts(aircraft_name, economy_capacity, premium_economy_capacity, business_capacity, first_class_capacity)
+            VALUES (?, ?, ?, ?, ?)";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$name, $economy, $premium_economy, $business, $first_class]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to create aircraft!");
+    }
+
+    return false;
+}
+
+function updateAircraft($aircraftID, $name, $economy, $premium_economy, $business, $first_class){
+    $sql = "UPDATE aircrafts SET aircraft_name = ?, economy_capacity = ?, premium_economy_capacity = ?, 
+                     business_capacity = ?, first_class_capacity = ? WHERE aircraft_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$name, $economy, $premium_economy, $business, $first_class, $aircraftID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to update aircraft!");
+    }
+
+    return false;
 }
