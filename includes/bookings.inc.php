@@ -10,11 +10,11 @@ function createBooking($parameters) {
     $contactInfo = $parameters["contactInfo"];
 
     //ok first retrieve from flights again (last time)
-    $departureFlight = retrieveFlight($flightInfo["departure_flight_id"], $flightInfo["travel_class"],
+    $departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $flightInfo["travel_class"],
         $flightInfo["passenger_count"]);
     $returnFlight = null;
     if ($flightInfo["trip_type"] == "RETURN") {
-        $returnFlight = retrieveFlight($flightInfo["return_flight_id"], $flightInfo["travel_class"],
+        $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"],
             $flightInfo["passenger_count"]);
     }
 
@@ -187,11 +187,13 @@ function retrieveBooking($bookingID) {
 
 //retrieve specific
 function retrieveBookingFlights($bookingID) {
-    $sql = "SELECT bo.*, fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time'
+    $sql = "SELECT bo.*, fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', a.*, a2.*
 FROM bookings bo
 INNER JOIN passengers pa on bo.booking_id = pa.booking_id
 INNER JOIN flight_addons fa on pa.passenger_id = fa.passenger_id
-INNER JOIN flights fl on fa.flight_id = fl.flight_id 
+INNER JOIN flights fl on fa.flight_id = fl.flight_id
+INNER JOIN aircrafts a on fl.aircraft_id = a.aircraft_id
+INNER JOIN airlines a2 on fl.airline_id = a2.airline_id
 WHERE bo.booking_id = ?
 ORDER BY fl.departure_time ASC";
     $conn = OpenConn();
@@ -206,7 +208,7 @@ ORDER BY fl.departure_time ASC";
     }
     catch (mysqli_sql_exception){
         createLog($conn->error);
-        die("Error: unable to retrieve booking!");
+        die("Error: unable to retrieve booking flights!");
     }
 
     return null;

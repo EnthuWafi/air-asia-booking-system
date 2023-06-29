@@ -26,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $departureTime = htmlspecialchars($_POST['departureTime']);
                     $duration = htmlspecialchars($_POST['duration']);
                     $flightBasePrice = htmlspecialchars($_POST['flightBasePrice']);
+                    $flightDiscount = htmlspecialchars($_POST['flightDiscount']);
                     $aircraft = htmlspecialchars($_POST['aircraft']);
                     $airline = htmlspecialchars($_POST['airline']);
 
@@ -33,9 +34,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $userID = $_SESSION["user_data"]["user_id"];
 
                     createFlight($userID, $originAirport, $destinationAirport, $departureTime,
-                    $duration, $flightBasePrice, $aircraft, $airline) or throw new Exception("Couldn't create flight");
+                    $duration, $flightBasePrice, $aircraft, $airline, $flightDiscount) or throw new Exception("Couldn't create flight");
 
                     makeToast("success", "FLight successfully created!", "Success");
+                }
+                else if (isset($_POST["update"])) {
+                    $flightDiscount = htmlspecialchars($_POST['flightDiscount']);
+                    $flightID = htmlspecialchars($_POST["flight_id"]);
+
+                    if (!is_numeric($flightDiscount)) {
+                        throw new Exception("Discount must be a number!");
+                    }
+                    if (!($flightDiscount > 0 && $flightDiscount < 1)) {
+                        throw new Exception("Discount must be between 0.00 and 1.00!");
+                    }
+
+                    updateFlight($flightID, $flightDiscount) or throw new Exception("Couldn't update flight discount");
+
+                    makeToast("success", "FLight discount successfully update!", "Success");
                 }
             }
             else{
@@ -98,7 +114,7 @@ $token = getToken();
 
             <!-- todo DASHBOARD here  -->
             <div class="container">
-                <div class="row mt-4 ms-3">
+                <div class="row mt-4 ms-2">
                     <div class="shadow-sm p-3 px-4 mb-5 bg-body rounded row gx-3">
                         <div class="row mb-4">
                             <span class="h2"><?= $flightsCount ?> flights found</span>
@@ -120,10 +136,11 @@ $token = getToken();
                                         <th scope="col">#</th>
                                         <th scope="col">Airline</th>
                                         <th scope="col">Origin</th>
-                                        <th scope="col">Destination</th>
+                                        <th scope="col">Dest.</th>
                                         <th scope="col">Departure</th>
                                         <th scope="col">Duration</th>
-                                        <th scope="col">Base Price</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Discount</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Aircraft</th>
                                         <th scope="col">Creator</th>
@@ -197,6 +214,10 @@ $token = getToken();
                                                 <label for="flightBasePrice" class="form-label">Flight Base Price (RM):</label>
                                                 <input type="text" id="flightBasePrice" name="flightBasePrice" class="form-control" required>
                                             </div>
+                                            <div class="col-md-6">
+                                                <label for="flightDiscount" class="form-label">Flight Discount:</label>
+                                                <input type="text" id="flightDiscount" name="flightDiscount" class="form-control" placeholder="Enter 0.00 ~ 1.00" required>
+                                            </div>
                                         </div>
                                         <input type="hidden" name="token" value="<?= $token ?>">
                                     </form>
@@ -226,15 +247,47 @@ $token = getToken();
                                         </div>
                                         <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
                                     </div>
-
+                                    <form id="delete" method="post" action="/admin/manage-flights.php">
+                                        <input type="hidden" name="flight_id" value="">
+                                        <input type="hidden" name="token" value="<?= $token ?>">
+                                    </form>
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
                                     <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn-delete" form="" name="delete" value="1" class='btn btn-danger'>I understand</button>
+                                    <button type='submit' id="modal-btn-delete" form="delete" name="delete" value="1" class='btn btn-danger'>I understand</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- modal update -->
+                    <div class='modal fade' id='updateStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                        <div class='modal-dialog'>
+                            <div class='modal-content'>
+                                <div class='modal-header bg-light-subtle'>
+                                    <h5 class='modal-title' id='staticBackdropLabel'>Update Discount</h5>
+                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                </div>
+                                <div class='modal-body'>
+                                    <form id="update" method="post" action="/admin/manage-flights.php">
+
+                                        <div class="px-3">
+                                            <label for="flightDiscountUpdate" class="form-label">Flight Discount:</label>
+                                            <input type="text" id="flightDiscountUpdate" name="flightDiscount" class="form-control" placeholder="Enter 0.00 ~ 1.00" required>
+                                        </div>
+
+                                        <input type="hidden" name="flight_id" value="">
+                                        <input type="hidden" name="token" value="<?= $token ?>">
+                                    </form>
+                                </div>
+                                <div class='modal-footer bg-light-subtle'>
+                                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+                                    <button type='submit' form="update" name="update" value="1" class='btn btn-danger'>Update Discount</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
             </div>

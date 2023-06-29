@@ -12,16 +12,16 @@ function search_flightDetails($flights, $flightCategory, $ageCategoryArr, $trave
         $price = calculateSearchFlightPrice($flight["flight_base_price"], $ageCategoryArr,  $travelClass, "XSM");
         $price = number_format((float)$price, 2, '.', '');
         echo "
-    <div class='shadow p-5 bg-body rounded'>
-        <div class='row'>
-            <img width='40' height='30' src='{$flight["airline_image"]}'>
+    <div class='shadow p-5 bg-body rounded row'>
+        <div class='col-2'>
+            <img width='60' src='{$flight["airline_image"]}'>
         </div>
-        <div class='row'>
+        <div class='col row'>
             <div class='col-sm-2 order-first'>
                 <div class='row'>{$flight["departure_time"]}</div>
                 <div class='row'>{$flight["origin_airport_name"]}</div>
             </div>
-            <div class='col-sm-1 align-middle'>-----></div>
+            <div class='col-sm-1 align-middle'><i class='bi bi-arrow-right'></i></div>
             <div class='col-sm-2'>
                 <div class='row'>{$flight["arrival_time"]}</div>
                 <div class='row'>{$flight["destination_airport_name"]}</div>

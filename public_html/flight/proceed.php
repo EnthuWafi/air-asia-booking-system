@@ -24,10 +24,10 @@ else{
 }
 
 if (isset($flightInfo["return_flight_id"])) {
-    $returnFlight = retrieveFlight($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+    $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
 }
 
-$departureFlight = retrieveFlight($flightInfo["departure_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+$departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
 ?>
 <!DOCTYPE html>
 <html>

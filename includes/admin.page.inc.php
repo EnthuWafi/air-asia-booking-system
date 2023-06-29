@@ -78,6 +78,9 @@ function admin_displayFlights($flights) {
 
             $flightBaseCost = number_format((float)$flight["flight_base_price"], 2, '.', '');
 
+            $discount = $flight["flight_discount"];
+            $discountPercentage = $discount * 100;
+
             $status = [];
             if ($departureUnformatted > $today) {
                 $status = ["status"=>"Upcoming", "css"=>"upcoming"];
@@ -100,18 +103,18 @@ function admin_displayFlights($flights) {
                 <td>{$departureFormatted}</td>
                 <td>{$durationHours}</td>
                 <td>RM{$flightBaseCost}</td>
+                <td class='text-center'>{$discountPercentage}%</td>
                 <td><span class='{$status["css"]}'>{$status["status"]}</span></td>
                 
                 <td>{$flight["aircraft_name"]}</td>
                 <td class='text-muted'>{$flight["username"]}</td>
                 <td class='text-center'>
-                    <form action='/admin/manage-flights.php' id='{$flight["flight_id"]}' method='post'>
-                        <input type='hidden' name='flight_id' value='{$flight["flight_id"]}'>
-                        <input type='hidden' name='token' value='{$_SESSION["token"]}'>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' 
-                        onclick='updateModal({$flight["flight_id"]}, \"modal-btn-delete\");' class='h4'>
-                        <i class='bi bi-trash'></i></a>
-                    </form>    
+                    <a type='button' data-bs-toggle='modal' data-bs-target='#updateStatic' 
+                    onclick='updateElement({$flight["flight_id"]}, \"update\",\"flight_id\");' class='h4'>
+                    <i class='bi bi-pencil-square'></i></a>
+                    <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' 
+                    onclick='updateElement({$flight["flight_id"]}, \"delete\",\"flight_id\");' class='h4'>
+                    <i class='bi bi-trash'></i></a>
                 </td>
                 
             </tr>";
@@ -181,4 +184,77 @@ function admin_displayCustomerUsers($customerUsers) {
             $count++;
         }
     }
+}
+
+function admin_bookingFlightsDisplay($flights) {
+    $flightDiv = "";
+    foreach ($flights as $flight) {
+
+
+        $departure = date_create($flight["departure_time"]);
+        $arrival = date_create($flight["arrival_time"]);
+
+        $departureFormat = date_format($departure, "d M Y");
+        $arrivalFormat = date_format($arrival, "d M Y");
+
+        $today = date_create("now");
+        $status = "";
+        if ($departure > $today) {
+            $status = "Upcoming";
+        }
+        else if ($today < $arrival) {
+            $status = "In Progress";
+        }
+        else {
+            $status = "Departed";
+        }
+
+        $hour = formatDuration($flight["duration"]);
+
+        $flightDiv .= "
+<div class='card mb-1'>
+  <div class='card-body'>
+      <div class='row align-items-center'>
+      
+    <div class='col-1'>
+        <img class='img-fluid' width='60' height='60' src='{$flight["airline_image"]}'>
+    </div>
+    <div class='col-3'>
+        <div class='row'>
+            <h3 class='text-nowrap'>{$flight["airline_name"]}</h3>
+        </div>
+        <div class='row'>
+            <p class='text-muted'>{$flight["aircraft_name"]}</p>
+        </div>
+    </div>
+    <div class='col text-center'>
+        <div class='row'>
+            <h3><i class='bx bxs-plane-take-off icon-red'></i></h3>     
+        </div>
+        <div class='row'>
+            <p class='text-muted text-nowrap'>$departureFormat</p>
+        </div>
+    </div>
+    <div class='col text-center'>
+        <div class='row'>
+            <h3><i class='bx bxs-plane-land icon-red'></i></h3>     
+        </div>
+        <div class='row'>
+            <p class='text-muted text-nowrap'>$arrivalFormat</p>
+        </div>
+    </div>
+    <div class='col'>
+        <span class='h4 text-nowrap text-secondary'> 
+            {$flight["origin_airport_code"]} <i class='bi bi-arrow-right'></i> {$flight["destination_airport_code"]}
+        </span>
+    </div>
+    <div class='col text-center'>
+        <span class='text-muted'>{$hour}</span>
+    </div>
+      
+      </div>
+  </div>
+</div>";
+    }
+    return $flightDiv;
 }

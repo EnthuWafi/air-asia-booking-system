@@ -61,7 +61,7 @@ function retrieveAirlines() {
 
 
 //retrieve flights that matches parameters
-function retrieveFlights($origin, $destination, $departureTime, $travelClass, $passengerCount) {
+function retrieveFlightsSearch($origin, $destination, $departureTime, $travelClass, $passengerCount) {
     $travelClassAssoc = travelClassAssoc($travelClass);
 
     $sql = "SELECT fl.*, ao.airport_name as 'origin_airport_name', ao.airport_country as 'origin_airport_country', ao.airport_state as 'origin_airport_state',
@@ -98,7 +98,7 @@ function retrieveFlights($origin, $destination, $departureTime, $travelClass, $p
     return null;
 }
 // retrieve flight with id
-function retrieveFlight($flight_id, $travel_class, $passenger_count) {
+function retrieveFlightSearch($flight_id, $travel_class, $passenger_count) {
     $travel_class_assoc = travelClassAssoc($travel_class);
     $sql = "SELECT fl.*, ao.airport_name as 'origin_airport_name', ao.airport_country as 'origin_airport_country', ao.airport_state as 'origin_airport_state',
        ad.airport_name as 'destination_airport_name', ad.airport_country as 'destination_airport_country', ad.airport_state as 'destination_airport_state',
@@ -250,6 +250,37 @@ function retrieveAllFlights() {
     return null;
 }
 
+function retrieveFlight($flightID) {
+    $sql = "SELECT fl.*, ao.airport_name as 'origin_airport_name', ao.airport_country as 'origin_airport_country', ao.airport_state as 'origin_airport_state',
+       ad.airport_name as 'destination_airport_name', ad.airport_country as 'destination_airport_country', ad.airport_state as 'destination_airport_state',
+       ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', ac.*, al.*, a.*, u.*
+    FROM flights fl
+    INNER JOIN airports ao ON fl.origin_airport_code = ao.airport_code
+    INNER JOIN airports ad ON fl.destination_airport_code = ad.airport_code
+    INNER JOIN aircrafts ac ON fl.aircraft_id = ac.aircraft_id 
+    INNER JOIN airlines al on fl.airline_id = al.airline_id
+    INNER JOIN admins a on fl.user_id = a.user_id
+    INNER JOIN users u on a.user_id = u.user_id
+    WHERE fl.flight_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$flightID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve flight!");
+    }
+
+    return null;
+}
+
 function deleteFlight($flightID) {
     $sql = "DELETE FROM flights WHERE flight_id = ?";
 
@@ -272,16 +303,16 @@ function deleteFlight($flightID) {
 }
 
 function createFlight($userID, $originCode, $destinationCode, $departureTime,
-                    $duration, $price, $aircraftID, $airlineID) {
+                    $duration, $price, $aircraftID, $airlineID, $discount) {
     $sql = "INSERT INTO flights(user_id, origin_airport_code, destination_airport_code, 
-                    departure_time, duration, flight_base_price, aircraft_id, airline_id) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    departure_time, duration, flight_base_price, aircraft_id, airline_id, flight_discount) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $conn = OpenConn();
 
     try {
         $result = $conn->execute_query($sql, [$userID, $originCode, $destinationCode, $departureTime,
-            $duration, $price, $aircraftID, $airlineID]);
+            $duration, $price, $aircraftID, $airlineID, $discount]);
         CloseConn($conn);
 
         if ($result) {
@@ -291,6 +322,27 @@ function createFlight($userID, $originCode, $destinationCode, $departureTime,
     catch (mysqli_sql_exception){
         createLog($conn->error);
         die("Error: unable to create flight!");
+    }
+
+    return false;
+}
+
+function updateFlight($flightID, $discount) {
+    $sql = "UPDATE flights SET flight_discount = ? WHERE flight_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$discount, $flightID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to update flight!");
     }
 
     return false;

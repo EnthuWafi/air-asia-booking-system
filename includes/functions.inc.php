@@ -72,13 +72,19 @@ function customer_login_required(): void
         header("Location: /login.php");
         die();
     }
-    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]);
+    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]) or logout();
+
     if (returnUserType($_SESSION["user_data"]["user_id"]) != "customer"){
         header("Location: /index.php");
         die();
     }
 }
 
+function logout() {
+    makeToast("error", "User doesn't exist or was removed!", "Error");
+    header("Location: /logout.php");
+    die();
+}
 
 //Requires user to not be logged in to access the site (For instance, like Login page or Register page)
 function admin_login_required() {
@@ -86,7 +92,7 @@ function admin_login_required() {
         header("Location: /login.php");
         die();
     }
-    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]);
+    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]) or logout();
     if (returnUserType($_SESSION["user_data"]["user_id"]) != "admin"){
         header("Location: /index.php");
         die();
@@ -135,10 +141,10 @@ function isTokenValid($token){
 }
 
 //check array keys is set
-function array_keys_isset_or_not($keys, $array): bool
+function array_keys_isset($keys, $array): bool
 {
     foreach ($keys as $key) {
-        if (empty($array[$key])) {
+        if (!isset($array[$key])) {
             return false;
         }
     }
@@ -337,4 +343,24 @@ chart.render();
 }
 
 
+// Function to format the date and time
+function formatDateTime($dateTime)
+{
+    $dateObj = new DateTime($dateTime);
+    return $dateObj->format('d M Y h:iA');
+}
 
+// Function to format the duration
+function formatDuration($duration)
+{
+    $time = date_create($duration);
+    $durationHours = date_format($time, "G")."h ".date_format($time, "i")."m";
+
+    return $durationHours;
+}
+
+// Function to format the discount
+function formatDiscount($discount)
+{
+    return number_format($discount * 100) . '%';
+}

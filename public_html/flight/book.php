@@ -18,33 +18,32 @@ if (!$_SESSION["flightInfo"]) {
     die();
 }
 
-$_SESSION["token"] = create_token();
-
 $baggageOptions = retrieveBaggageOptions();
 
 $flightInfo = $_SESSION["flightInfo"];
 
-$departureFlight = retrieveFlight($flightInfo["departure_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+$departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
 $departureFlightAddons = retrieveFlightAddon($departureFlight["aircraft_id"], $flightInfo["travel_class"]);
 
 $returnFlight = null;
 $returnFlightAddons = null;
 
 if (isset($flightInfo["return_flight_id"])) {
-    $returnFlight = retrieveFlight($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+    $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
     $returnFlightAddons = retrieveFlightAddon($returnFlight["aircraft_id"], $flightInfo["travel_class"]);
 }
 
 $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"], "infant"=>$flightInfo["infant"],
     "senior"=>$flightInfo["senior"]];
 
+$token = getToken();
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
     <?php head_tag_content(); ?>
-    <title>Flight Book</title>
+    <title><?= config("name") ?> | Flight Book</title>
 </head>
 
 <body>
@@ -136,7 +135,7 @@ $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"],
                 Submit PDF file here: <input type="file" name="payment_file">
                 <button type="submit" name="submit" value="true">Submit</button>
             </div>
-            <input type="hidden" name="token" value="<?php echo $_SESSION['token'] ?>">
+            <input type="hidden" name="token" value="<?php echo $token ?>">
         </form>
         </div>
     </div>

@@ -17,9 +17,10 @@ $travel_class = null;
 //save in session
 if ($_SERVER['REQUEST_METHOD'] == 'POST'){
     //check post values (required!) return flight not required
-    if (empty($_POST) || !array_keys_isset_or_not(array("return_flight_id", "departure_flight_id", "trip_type", "travel_class",
-                                        "adult","child","infant","senior"), $_POST))
+    if (empty($_POST) || !array_keys_isset(["return_flight_id", "departure_flight_id", "trip_type", "travel_class",
+                                        "adult","child","infant","senior"], $_POST))
     {
+        makeToast("warning", "Missing one of the values", "Warning");
         header("Location: /index.php");
         die();
     }
@@ -61,10 +62,10 @@ if ($_GET) {
     $ageCategoryArr = ["adult"=>$adult, "child"=>$child, "infant"=>$infant, "senior"=>$senior];
     $passengerCount = $adult + $child + $infant + $senior;
 
-    $departure_flights = retrieveFlights($origin, $destination, $departure, $travelClass, $passengerCount);
+    $departure_flights = retrieveFlightsSearch($origin, $destination, $departure, $travelClass, $passengerCount);
 
     if ($tripType == "RETURN"){
-        $return_flights = retrieveFlights($destination, $origin, $return, $travelClass, $passengerCount);
+        $return_flights = retrieveFlightsSearch($destination, $origin, $return, $travelClass, $passengerCount);
     }
 }
 

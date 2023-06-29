@@ -5,7 +5,7 @@ ini_set('display_errors', 'On');
 function confirm_booking(): void
 {
 
-    if (!array_keys_isset_or_not(["passengers", "phone", "email", "consent", "submit"], $_POST)) {
+    if (!array_keys_isset(["passengers", "phone", "email", "consent", "submit"], $_POST)) {
         die("Error: false POST values!");
     }
     $contactInfo = ["email"=>htmlspecialchars($_POST["email"]), "phone"=>htmlspecialchars($_POST["phone"]),
@@ -83,24 +83,43 @@ function book_guestDetails($flightInfo)
     $ageCategoriesArr = ["adult", "child", "infant", "senior"];
     foreach ($ageCategoriesArr as $key) {
         for ($i = 0, $n = $flightInfo[$key]; $i < $n; $i++) {
-            echo "<div class='row'>
-<h5>" . (ucfirst($key)) . " " . ($i + 1) . "</h5><br>
-<input type='text' name='passengers[{$key}][{$i}][first_name]' placeholder='First Name'>
-<input type='text' name='passengers[{$key}][{$i}][last_name]' placeholder='Last Name'>
-<select name='passengers[{$key}][{$i}][gender]'>
-<option value='Male'>Male</option>
-<option value='Female'>Female</option>
-</select>
-<input type='date' name='passengers[{$key}][{$i}][dob]' placeholder='Date of Birth'>
-
-<input type='hidden' name='passengers[{$key}][{$i}][special_assistance]' value='0'>
-<label>
-<span>Special Assistance: </span>
-<input type='checkbox' name='passengers[{$key}][{$i}][special_assistance]' value='1'>
-</label>
-
+            echo "<div class='row mb-3'>
+    <div class='col'>
+        <h5>" . ucfirst($key) . " " . ($i + 1) . "</h5>
+    </div>
 </div>
-";
+<div class='row'>
+    <div class='col-md-3'>
+        <label for='passengers[{$key}][{$i}][first_name]' class='form-label'>First Name</label>
+        <input type='text' class='form-control' id='passengers[{$key}][{$i}][first_name]' name='passengers[{$key}][{$i}][first_name]' placeholder='First Name'>
+    </div>
+    <div class='col-md-3'>
+        <label for='passengers[{$key}][{$i}][last_name]' class='form-label'>Last Name</label>
+        <input type='text' class='form-control' id='passengers[{$key}][{$i}][last_name]' name='passengers[{$key}][{$i}][last_name]' placeholder='Last Name'>
+    </div>
+    <div class='col-md-3'>
+        <label for='passengers[{$key}][{$i}][gender]' class='form-label'>Gender</label>
+        <select class='form-select' id='passengers[{$key}][{$i}][gender]' name='passengers[{$key}][{$i}][gender]'>
+            <option value='Male'>Male</option>
+            <option value='Female'>Female</option>
+        </select>
+    </div>
+    <div class='col-md-3'>
+        <label for='passengers[{$key}][{$i}][dob]' class='form-label'>Date of Birth</label>
+        <input type='date' class='form-control' id='passengers[{$key}][{$i}][dob]' name='passengers[{$key}][{$i}][dob]' placeholder='Date of Birth'>
+    </div>
+</div>
+<div class='row mt-2'>
+    <div class='col'>
+        <input type='hidden' name='passengers[{$key}][{$i}][special_assistance]' value='0'>
+        <div class='form-check'>
+            <input class='form-check-input' type='checkbox' id='passengers[{$key}][{$i}][special_assistance]' name='passengers[{$key}][{$i}][special_assistance]' value='1'>
+            <label class='form-check-label' for='passengers[{$key}][{$i}][special_assistance]'>
+                Special Assistance
+            </label>
+        </div>
+    </div>
+</div>";
         }
     }
 }
@@ -108,19 +127,21 @@ function book_guestDetails($flightInfo)
 function book_baggageAddon($flightInfo, $baggageOptions, $name)
 {
     $ageCategoriesArr = ["adult", "child", "infant", "senior"];
+    $str = "";
     //loop here to iterate over passenger
     foreach ($ageCategoriesArr as $key) {
         for ($i = 0, $n = $flightInfo[$key]; $i < $n; $i++) {
             $j = $i + 1;
-            echo "<div class='row'>
+            $str .= "<div class='row'>
                 <h5>" . (ucfirst($key)) . " {$j}</h5>
                 <select name='passengers[{$key}][{$i}][{$name}]' onchange='updateTotalCost();'>";
             foreach ($baggageOptions as $baggage) {
-                echo "<option value='{$baggage["baggage_price_code"]}'>{$baggage["baggage_name"]}</option>";
+                $str .= "<option value='{$baggage["baggage_price_code"]}'>{$baggage["baggage_name"]}</option>";
             }
-            echo "</select></div>";
+            $str .= "</select></div>";
         }
     }
+    return $str;
 }
 
 function book_seatingAddon($flightInfo, $flight, $flightAddons, $name)
@@ -170,6 +191,23 @@ function book_seatingAddon($flightInfo, $flight, $flightAddons, $name)
     </div>";
         }
     }
+}
+
+function book_seatingAddonX($flightInfo, $flight, $flightAddons, $name) {
+    $ageCategoriesArr = ["adult", "child", "infant", "senior"];
+
+    $str = "";
+    //loop here to iterate over passenger
+    $travelClassArr = travelClassAssoc($flightInfo["travel_class"]);
+
+    foreach ($ageCategoriesArr as $key) {
+        $content = "";
+        for ($i = 0, $n = $flightInfo[$key]; $i < $n; $i++) {
+
+        }
+    }
+
+    return $str;
 }
 
 

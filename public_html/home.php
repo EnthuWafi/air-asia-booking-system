@@ -174,7 +174,7 @@ displayToast();
         <div class="my-5">
             <span class="fs-3 fw-bold">Recommended Flights</span>
         </div>
-        <div class="row gx-0 gy-4 ms-4">
+        <div class="row row-cols-3 gx-0 gy-4 ms-4">
             <div class="col-4">
                 <div class="img-fluid image">
                     <img class="image__img" src="/assets/img/kualaLumpur.jpg" alt="Kuala Lumpur">

@@ -115,7 +115,7 @@ function side_bar() {
                 </a>
             </div>
             <div class='col d-sm-none'>
-                <a data-bs-target='#sidebar' data-bs-toggle='collapse' class='p-3 text-black'><i class='bi bi-x-lg'></i></a>
+                <button data-bs-target='#sidebar' data-bs-toggle='collapse' type='button' class='btn-close'></button>
             </div>
         </div>
         
@@ -136,7 +136,13 @@ function side_bar() {
             <li>
                 <a href='/account/manage-my-bookings.php' class='nav-link link-dark'>
                     <i class='bi bi-calendar-week me-2 $iconSize'></i>
-                    Bookings
+                    My Bookings
+                </a>
+            </li>
+            <li>
+                <a href='/flight/search.php' class='nav-link link-dark'>
+                    <i class='bx bxs-plane-alt me-2 $iconSize'></i>
+                    Flight Search
                 </a>
             </li>
             <li>
@@ -194,7 +200,7 @@ function admin_side_bar() {
                 </a>
             </div>
             <div class='col d-sm-none'>
-                <a data-bs-target='#sidebar' data-bs-toggle='collapse' class='p-3 text-black'><i class='bi bi-x-lg'></i></a>
+                <button data-bs-target='#sidebar' data-bs-toggle='collapse' type='button' class='btn-close'></button>
             </div>
         </div>
         

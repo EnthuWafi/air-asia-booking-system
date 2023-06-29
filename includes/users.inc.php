@@ -104,7 +104,7 @@ function retrieveAllUserBookings($userId) {
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+            return mysqli_fetch_all($result, MYSQLI_BOTH);
         }
     }
     catch (mysqli_sql_exception) {
@@ -282,9 +282,31 @@ function retrieveUser($userID) {
         die("Error: cannot get the user!");
     }
 
-    makeToast("error", "User doesn't exist or was removed!", "Error");
-    header("Location: /logout.php");
-    die();
+    return null;
+
+}
+
+function retrieveCustomer($userID) {
+    $sql = "SELECT us.*, c.* FROM users us 
+            INNER JOIN customers c on us.user_id = c.user_id
+            WHERE us.user_id = ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the user!");
+    }
+
+    return null;
 }
 
 function deleteUser($userID) {
