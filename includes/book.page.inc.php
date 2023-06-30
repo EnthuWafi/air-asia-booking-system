@@ -124,7 +124,7 @@ function book_guestDetails($flightInfo)
     }
 }
 
-function book_baggageAddon($flightInfo, $baggageOptions, $name)
+function book_baggageAddon($flightInfo, $baggageOptions)
 {
     $ageCategoriesArr = ["adult", "child", "infant", "senior"];
     $str = "";
@@ -132,18 +132,25 @@ function book_baggageAddon($flightInfo, $baggageOptions, $name)
     foreach ($ageCategoriesArr as $key) {
         for ($i = 0, $n = $flightInfo[$key]; $i < $n; $i++) {
             $j = $i + 1;
-            $str .= "<div class='row'>
-                <h5>" . (ucfirst($key)) . " {$j}</h5>
-                <select name='passengers[{$key}][{$i}][{$name}]' onchange='updateTotalCost();'>";
+            $str .= "<div class='row mt-3'>
+                <div class='row mb-2'>
+                    <h5>" . ucfirst($key) . " {$j}</h5>
+                </div>
+                <div class='col-5'>
+                <select class='form-select' name='baggages[{$key}][{$i}]' required>
+                    <option selected disabled>Select baggage option</option>";
             foreach ($baggageOptions as $baggage) {
                 $str .= "<option value='{$baggage["baggage_price_code"]}'>{$baggage["baggage_name"]}</option>";
             }
-            $str .= "</select></div>";
+            $str .= "</select>
+                    </div>
+                </div>";
         }
     }
     return $str;
 }
 
+//outdated function - just keeping it around for fun
 function book_seatingAddon($flightInfo, $flight, $flightAddons, $name)
 {
     $ageCategoriesArr = ["adult", "child", "infant", "senior"];
@@ -193,22 +200,171 @@ function book_seatingAddon($flightInfo, $flight, $flightAddons, $name)
     }
 }
 
-function book_seatingAddonX($flightInfo, $flight, $flightAddons, $name) {
-    $ageCategoriesArr = ["adult", "child", "infant", "senior"];
+//newer
+function book_cabinSeating($travelClass, $flight, $flightAddons, $type) {
+    $flightCapacityName = $travelClass["class"] . "_capacity";
+    $flightCapacity = $flight[$flightCapacityName];
 
-    $str = "";
-    //loop here to iterate over passenger
-    $travelClassArr = travelClassAssoc($flightInfo["travel_class"]);
-
-    foreach ($ageCategoriesArr as $key) {
-        $content = "";
-        for ($i = 0, $n = $flightInfo[$key]; $i < $n; $i++) {
-
+    //seat disabled
+    $seatDisabled = [];
+    if ($flightAddons != null) {
+        foreach ($flightAddons as $flightAddon) {
+            $seatNumber = $flightAddon["seat_number"];
+            array_push($seatDisabled, $seatNumber);
         }
     }
 
-    return $str;
+
+    $seats = "";
+    $maxColumnLength = 6;
+
+    $seatLabels = range('A', 'Z'); // Generate an array of seat labels from A to Z
+
+    $rowCount = 1; //rows
+    $colCount = 0; //col
+    $i = 0; //for counting till capacity is reached
+    while ($i < $flightCapacity){
+        if ($i % $maxColumnLength == 0) {
+            $seats .= "<li class=''><ol class='seats'>";
+        }
+        $i++;
+        $colCount++;
+
+        $label = $rowCount . $seatLabels[$colCount - 1]; // Generate the seat label
+        $disabledCheck = in_array($label, $seatDisabled) ? "disabled" : "";
+
+        $seats .= "<li class='seat $type'>
+          <input type='checkbox' id='{$label}{$type}' value='$label' $disabledCheck>
+          <label for='{$label}{$type}'>$label</label>
+        </li>";
+
+        if ($i % $maxColumnLength == 0) {
+            $seats .= "</ol></li>";
+            $colCount = 0;
+            $rowCount++;
+        }
+    }
+    echo $seats;
 }
+function book_invoiceBooking($booking) {
+    $bookingID = $booking["booking_id"];
+    ?>
+    <!-- Invoice details and content -->
+    <div class="invoice-box my-5">
+        <table>
+            <tr class="top">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td class="title">
+                                <img src="/assets/img/airasiacom_logo.svg" style="width: 100%; max-width: 200px" />
+                            </td>
+
+                            <td>
+                                Booking Ref: <span class="font-lato fw-bold">#<?= $booking["booking_reference"]; ?></span><br />
+                                Created: <?= formatDateFriendly($booking["date_created"]); ?> <br />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                AIRASIA BERHAD<br />
+                                RedQ Jalan Pekeliling 5<br />
+                                Lapangan Terbang Antarabangsa Kuala Lumpur<br/>
+                                Selangor, 64000 Malaysia<br />
+                                +60-3-86604333
+                            </td>
+
+                            <td>
+                                <?= "{$booking["user_fname"]} {$booking["user_lname"]}"; ?><br />
+                                <?= "{$booking["booking_email"]}"; ?><br />
+                                <?= $booking["booking_phone"] ?? "-"; ?><br />
+                                <?= "{$booking["username"]}"; ?><br />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr class="heading">
+                <td>Payment Method</td>
+                <td></td>
+            </tr>
+
+            <tr class="details">
+                <td>Direct Bank Transfer</td>
+                <td></td>
+            </tr>
+
+            <tr class="heading">
+                <td>Item</td>
+
+                <td>Price</td>
+            </tr>
+
+            <?php
+
+            //tis how to calculate these crap
+            $bookingFlight = retrieveBookingFlights($bookingID);
+
+            // Retrieve count for adult age category
+            $adultCount = retrieveBookingAgeCategoryCount($bookingID, "adult")["count"];
+
+            // Retrieve count for child age category
+            $childCount = retrieveBookingAgeCategoryCount($bookingID, "child")["count"];
+
+            // Retrieve count for senior age category
+            $seniorCount = retrieveBookingAgeCategoryCount($bookingID, "senior")["count"];
+
+            // Retrieve count for infant age category
+            $infantCount = retrieveBookingAgeCategoryCount($bookingID, "infant")["count"];
+
+            $ageCategoryArr = ["adult"=>$adultCount, "child"=>$childCount, "senior"=>$seniorCount,
+                "infant"=>$infantCount];
+
+            $bookingTravelClass = retrieveBookingTravelClass($bookingID);
+            $travelClass = $bookingTravelClass["travel_class_price_code"];
+            $count = 0;
+            $total = 0;
+            foreach ($bookingFlight as $flight) {
+                $cost = calculateFlightPriceBase($flight["flight_base_price"], $ageCategoryArr, $travelClass);
+                $path = "<em>({$flight["origin_airport_code"]} <i class='bi bi-arrow-right'></i> {$flight["destination_airport_code"]})</em>";
+
+                $str = $count == 0 ? "Depart $path" : "Return $path";
+                $costFormat = number_format((float)$cost, 2, ".", ",");
+                echo "
+                                            <tr class='item'>
+                                                <td>$str</td>        
+                                                <td>RM$costFormat</td>        
+                                            </tr>";
+                $count++;
+
+                $total += $cost;
+            }
+            $netCost = $total - $booking["booking_discount"];
+            $netFormatted = number_format((float)$netCost, 2, ".", ",");
+
+            ?>
 
 
+            <tr class="item last">
+                <td>Discount</td>
 
+                <td><?= "RM{$booking["booking_discount"]}"; ?></td>
+            </tr>
+
+            <tr class="total">
+                <td></td>
+
+                <td>Total: <?= "RM$netFormatted"; ?></td>
+            </tr>
+        </table>
+    </div>
+    <?php
+}

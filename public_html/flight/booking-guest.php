@@ -19,8 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         throw new Exception("You can't proceed without giving your consent!");
                     }
 
-                    $_SESSION["contactInfo"] = $contactInfo;
-                    $_SESSION["passengers"] = htmlspecialchars($_POST["passengers"]);
+                    $_SESSION["book"]["contactInfo"] = $contactInfo;
+                    $_SESSION["book"]["passengers"] = $_POST["passengers"];
 
                     header("Location: /flight/booking-addon.php");
                     die();
@@ -42,13 +42,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     die();
 }
 
-if (!isset($_SESSION["flightInfo"])) {
+if (!isset($_SESSION["book"]["flightInfo"])) {
     makeToast("error", "Flight info was not found. Please try searching flight again!", "Error");
     header("Location: /index.php");
     die();
 }
 
-$flightInfo = $_SESSION["flightInfo"];
+$flightInfo = $_SESSION["book"]["flightInfo"];
 
 displayToast();
 $token = getToken();
@@ -119,6 +119,5 @@ $token = getToken();
 </div>
 
 <?php body_script_tag_content();?>
-<script type="text/javascript" src="/assets/js/modal.js"></script>
 </body>
 </html>

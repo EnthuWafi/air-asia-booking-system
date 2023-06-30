@@ -31,13 +31,13 @@ function nav_bar(){
     $loginMenu = "";
     if (isset($_SESSION["user_data"])) {
         $loginMenu = "<div id='right-most-login' class='navbar-nav ms-auto order-last'>
-                    <span class='pt-2 me-2'>Hello there, <strong>{$user}</strong></span>
-                    <a class='nav-link me-auto' href='/logout.php'>Log out</a>
+                    <span class='pt-2 me-3'>Hello there, <strong>{$user}</strong></span>
+                    <a class='nav-link me-auto' href='/logout.php'><i class='bi bi-box-arrow-left h5'></i> Log out</a>
                 </div>";
     }
     else {
         $loginMenu = "<div id='right-most-no-login' class='navbar-nav ms-auto'>
-                    <a class='nav-link me-auto' href='/login.php'>Log in</a>
+                    <a class='nav-link me-auto' href='/login.php'><i class='bi bi-box-arrow-in-left'></i> Log in</a>
                     <a class='nav-link' href='/register.php'>Register</a>
                 </div>";
     }
@@ -55,7 +55,7 @@ function nav_bar(){
     }
     else if ($_SESSION["user_data"]["user_type"] == "admin") {
         $navMenu = "<a class='nav-link' href='/'>Home</a>
-                <a class='nav-link' href='/admin/dashboard.php'>Dashboard</a>
+                <a class='nav-link' href='/admin/dashboard.php'>Admin Dashboard</a>
                 <a class='nav-link' href='/admin/manage-flights.php'>Flights</a>
                 <a class='nav-link' href='/admin/manage-bookings.php'>Bookings</a>
                 <a class='nav-link' href='/admin/manage-users.php'>Users</a>";
@@ -95,7 +95,7 @@ function header_bar($pageName){
                 </span>
             </div>
             <div class='navbar-nav ms-auto order-las'>
-                <form class='d-flex' role='search'>
+                <form class='d-flex' role='search' action='/account/search.php'>
                     <input class='form-control me-2' type='search' name='q' placeholder='Search' aria-label='Search'>
                     <button class='btn btn-outline-success' type='submit'>Search</button>
                 </form>
@@ -140,8 +140,8 @@ function side_bar() {
                 </a>
             </li>
             <li>
-                <a href='/flight/search.php' class='nav-link link-dark'>
-                    <i class='bx bxs-plane-alt me-2 $iconSize'></i>
+                <a href='/flight/search.php' class='nav-link link-dark d-flex align-items-center'>
+                    <i class='bx bxs-plane-alt me-2 pt-1 $iconSize'></i>
                     Flight Search
                 </a>
             </li>
@@ -179,7 +179,7 @@ function admin_header_bar($pageName){
                 </span>
             </div>
             <div class='navbar-nav ms-auto order-las'>
-                <form class='d-flex' role='search'>
+                <form class='d-flex' role='search' action='/admin/search.php'>
                     <input class='form-control me-2' type='search' name='q' placeholder='Search' aria-label='Search'>
                     <button class='btn btn-outline-success' type='submit'>Search</button>
                 </form>

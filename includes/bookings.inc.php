@@ -8,28 +8,28 @@ function createBooking($parameters) {
     $flightInfo = $parameters["flightInfo"];
     $passengers = $parameters["passengers"];
     $contactInfo = $parameters["contactInfo"];
+    $flights = $parameters["flights"];
 
-    //ok first retrieve from flights again (last time)
-    $departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $flightInfo["travel_class"],
-        $flightInfo["passenger_count"]);
-    $returnFlight = null;
-    if ($flightInfo["trip_type"] == "RETURN") {
-        $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"],
-            $flightInfo["passenger_count"]);
-    }
+    $departureFlight = $flights[0];
+    $returnFlight = $flights[1];
 
     $departureCost = calculateFlightPrice($departureFlight["flight_base_price"], $passengers, $flightInfo["travel_class"],
     "departure");
-    if ($returnFlight) {
+    if (!empty($returnFlight)) {
         $returnCost = calculateFlightPrice($returnFlight["flight_base_price"], $passengers, $flightInfo["travel_class"],
             "return");
+        $discountReturn = $returnCost * $returnFlight["flight_discount"];
     }
-    $netCost = $departureCost + ($returnCost ?? 0);
+    //net cost is departure (full) + return (full) + discount
+    $discountDeparture = $departureCost * $departureFlight["flight_discount"];
+
+    $discount = $discountDeparture + ($discountReturn ?? 0);
+    $netCost = $departureCost + ($returnCost ?? 0) + $discount;
 
     $conn = OpenConn();
     //insert in bookings table
-    $sqlQueryFirst = "INSERT INTO bookings(user_id, trip_type, booking_phone, booking_email, booking_cost) 
-                    VALUES (?, ?, ?, ?, ?)";
+    $sqlQueryFirst = "INSERT INTO bookings(user_id, trip_type, booking_phone, booking_email, booking_cost, booking_discount) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
     $sqlQueryFirstID = "SET @last_booking_id = LAST_INSERT_ID()";
 
     //loop
@@ -47,7 +47,7 @@ function createBooking($parameters) {
     try {
         //first query
         $conn->execute_query($sqlQueryFirst, [$userData["user_id"], $flightInfo["trip_type"],
-            $contactInfo["phone"], $contactInfo["email"], $netCost]);
+            $contactInfo["phone"], $contactInfo["email"], $netCost, $discount]);
         $conn->query($sqlQueryFirstID); //id
 
         //loop
@@ -187,14 +187,17 @@ function retrieveBooking($bookingID) {
 
 //retrieve specific
 function retrieveBookingFlights($bookingID) {
-    $sql = "SELECT bo.*, fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', a.*, a2.*
-FROM bookings bo
-INNER JOIN passengers pa on bo.booking_id = pa.booking_id
-INNER JOIN flight_addons fa on pa.passenger_id = fa.passenger_id
-INNER JOIN flights fl on fa.flight_id = fl.flight_id
-INNER JOIN aircrafts a on fl.aircraft_id = a.aircraft_id
-INNER JOIN airlines a2 on fl.airline_id = a2.airline_id
-WHERE bo.booking_id = ?
+    $sql = "SELECT fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', ac.*, al.*
+FROM flights fl
+INNER JOIN aircrafts ac on fl.aircraft_id = ac.aircraft_id
+INNER JOIN airlines al on fl.airline_id  = al.airline_id
+WHERE fl.flight_id IN (
+    SELECT fa.flight_id 
+    FROM bookings bo
+    INNER JOIN passengers p on bo.booking_id = p.booking_id
+    INNER JOIN flight_addons fa on p.passenger_id = fa.passenger_id
+    WHERE bo.booking_id = ?
+)
 ORDER BY fl.departure_time ASC";
     $conn = OpenConn();
 
@@ -281,5 +284,53 @@ function retrieveBookingStatus() {
     return null;
 }
 
+function retrieveBookingAgeCategoryCount($bookingID, $ageCategory) {
+    $ageCategoryAssoc = ageCategoryAssoc($ageCategory);
+
+    $sql = "SELECT COUNT(p.passenger_id) as 'count' FROM bookings b
+            INNER JOIN passengers p on b.booking_id = p.booking_id
+            INNER JOIN flight_addons fa on p.passenger_id = fa.passenger_id AND fa.age_category_price_code = ?
+            WHERE b.booking_id = ?";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$ageCategoryAssoc["code"], $bookingID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve booking pass. count!");
+    }
+
+    return null;
+}
+function retrieveBookingTravelClass($bookingID) {
+
+    $sql = "SELECT fa.*
+            FROM flight_addons fa
+            INNER JOIN passengers p on fa.passenger_id = p.passenger_id
+            INNER JOIN bookings b on p.booking_id = b.booking_id
+            WHERE b.booking_id = ? LIMIT 1";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$bookingID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve booking travel class!");
+    }
+
+    return null;
+}
 
 

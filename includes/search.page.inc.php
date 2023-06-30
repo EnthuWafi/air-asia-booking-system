@@ -9,7 +9,7 @@ function search_flightDetails($flights, $flightCategory, $ageCategoryArr, $trave
         $duration = date_create($flight["duration"]);
         $durationHours = date_format($duration, "G")."h ".date_format($duration, "i")."m";
 
-        $price = calculateSearchFlightPrice($flight["flight_base_price"], $ageCategoryArr,  $travelClass, "XSM");
+        $price = calculateSearchFlightPrice($flight["flight_base_price"], $flight["flight_discount"], $ageCategoryArr,  $travelClass, "XSM");
         $price = number_format((float)$price, 2, '.', '');
         echo "
     <div class='shadow p-5 bg-body rounded row'>

@@ -89,3 +89,19 @@
 .invoice-box.rtl table tr td:nth-child(2) {
     text-align: left;
 }
+
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .card-body * {
+        visibility: visible;
+    }
+    #sidebar, .navbar, footer * {
+        display: none;
+    }
+    .card-body {
+        page-break-inside: avoid;
+    }
+}

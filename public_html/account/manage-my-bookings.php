@@ -63,12 +63,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $bookings = retrieveAllUserBookings($_SESSION["user_data"]["user_id"]);
 $token = getToken();
 
+$countBooking = 0;
 displayToast();
 ?>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <?php head_tag_content(); ?>
-    <title>My Bookings</title>
+    <title><?= config("name") ?> | My Bookings</title>
 </head>
 <body>
 <div class="container-fluid">
@@ -82,9 +85,10 @@ displayToast();
             <!--  BOOKINGS HERE todo -->
 
             <div class="container py-2 px-4 pb-5 mt-3 border rounded-4">
-                <div class="row mx-3 my-5">
-                    <span class="fs-1">My Bookings</span>
+                <div class="row mx-3 my-2">
+                    <span class="fs-1"><span id="count-booking">0</span> bookings found</span>
                 </div>
+                <hr>
                 <?php
                 if ($bookings != null) {
                     foreach ($bookings as $booking) {
@@ -130,8 +134,7 @@ displayToast();
                         $statusLower = strtolower($booking["booking_status"]);
 
                         echo "
-<div class='shadow p-5 bg-body rounded'>
-    
+<div class='shadow p-5 bg-body rounded my-2'>
     <div class='row'>
         <div class='col'>
             <div class='row'>
@@ -149,10 +152,10 @@ displayToast();
                 <div class='col-3 mt-2'>
                     
                     <div class='row'>
-                        <strong>Booking Reference No:</strong><em>{$flights[0]["booking_reference"]}</em>
+                        <strong>Booking Reference No:</strong><em>{$booking["booking_reference"]}</em>
                     </div>
                     <div class='row'>
-                        <strong>Booking Status:</strong><em class='$statusLower'>{$booking["booking_status"]}</em>
+                        <strg>Booking Status:</strg><em class='$statusLower'>{$booking["booking_status"]}</em>
                     </div>
                 </div>
             </div>
@@ -171,7 +174,7 @@ displayToast();
                   <ul class=\"dropdown-menu\" aria-labelledby=\"dropdown\">
                     <li><a class=\"dropdown-item\" data-bs-toggle='modal' data-bs-target='#cancelStatic' onclick='updateElement({$booking["booking_id"]}, \"cancel\", \"booking_id\")'>
                     <i class='bi bi-x-circle'></i> Cancel</a></li>
-                    <li><a class=\"dropdown-item\" href=\"/flight/view-booking?booking_id={$booking["booking_id"]}\"><i class='bi bi-eye'></i> View</a></li>
+                    <li><a class=\"dropdown-item\" href=\"/flight/view-booking.php?booking_id={$booking["booking_id"]}\"><i class='bi bi-eye'></i> View</a></li>
                   </ul>
                 </div>
                 
@@ -179,6 +182,7 @@ displayToast();
         </div>
     </div>
 </div>";
+                        $countBooking++;
                     }
                 }
                 ?>
@@ -237,6 +241,8 @@ displayToast();
         modalView.style.display = "none"; // Hide the modalView element
     }
     wait.style.display = "none";
+
+    $('#count-booking').html("<?= $countBooking ?>");
 </script>
 </body>
 </html>

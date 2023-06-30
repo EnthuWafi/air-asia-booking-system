@@ -6,28 +6,54 @@ require("../../includes/functions.inc.php");
 
 customer_login_required();
 
-if (isset($_SESSION['user_id'])) {
-    $user = $_SESSION['user_id'];
-}
 
 $flightInfo = null;
 $returnFlight = null;
 $departureFlight = null;
 
 //check session values
-if (isset($_SESSION["flightInfo"])) {
-    $flightInfo = $_SESSION["flightInfo"];
+if (isset($_SESSION["book"]["flightInfo"])) {
+    $flightInfo = $_SESSION["book"]["flightInfo"];
 }
 else{
+    makeToast("warning", "Flight info was not set! Please search a flight again!", "Warning");
     header("Location: /index.php");
     die();
 }
 
-if (isset($flightInfo["return_flight_id"])) {
-    $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+try{
+    //check if similar booking exists in user booking
+    $userBookings = retrieveAllUserBookings($_SESSION["user_data"]["user_id"]);
+    //flights
+    //ok first retrieve from flights again
+    $departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+    $returnFlight = null;
+
+    if ($flightInfo["trip_type"] == "RETURN") {
+        $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+    }
+
+    foreach ($userBookings as $booking) {
+        $bookingFlights = retrieveBookingFlights($booking["booking_id"]);
+        foreach ($bookingFlights as $flight) {
+            if ($flight["flight_id"] == $departureFlight["flight_id"]){
+                throw new Exception("Flight has already been booked by user before!<br>Please book another flight!");
+            }
+            if (!empty($returnFlight)){
+                if ($flight["flight_id"] == $returnFlight["flight_id"]){
+                    throw new Exception("Flight has already been booked by user before!<br>Please book another flight!");
+                }
+            }
+        }
+    }
+}
+catch (exception $e){
+    makeToast("error", $e->getMessage(), "Error");
+    header("Location: /flight/search.php");
+    die();
 }
 
-$departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
+displayToast();
 ?>
 <!DOCTYPE html>
 <html>
@@ -132,9 +158,9 @@ $departureFlight = retrieveFlightSearch($flightInfo["departure_flight_id"], $fli
             }
             ?>
         </div>
-        <!-- checkout here -->
-        <button id="btn-proceed">Proceed</button>
+        <button id="btn-proceed" class="btn btn-outline-primary">Proceed</button>
     </div>
+    <?php body_script_tag_content(); ?>
     <script type="module" src="/assets/js/proceed.js"></script>
 </body>
 </html>
