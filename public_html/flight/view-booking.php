@@ -12,7 +12,13 @@ if (!isset($_GET["booking_id"])) {
 }
 
 $bookingID = $_GET["booking_id"];
-$booking = retrieveBooking($bookingID);
+$booking = retrieveBookingByUser($bookingID, $_SESSION["user_data"]["user_id"]);
+
+if (empty($booking)) {
+    makeToast("warning", "Booking doesn't exist!", "Warning");
+    header("Location: /index.php");
+    die();
+}
 
 displayToast();
 ?>
@@ -34,7 +40,7 @@ displayToast();
             <div class="container py-5">
                 <div class="row mt-4">
                     <div class="col">
-                        <div class="card">
+                        <div class="card" id="invoice">
                             <div class="card-body p-3 my-5">
                                 <h3 class="text-center card-title">Booking Invoice</h3>
 

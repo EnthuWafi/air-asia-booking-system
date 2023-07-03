@@ -452,3 +452,29 @@ function updateAircraft($aircraftID, $name, $economy, $premium_economy, $busines
 
     return false;
 }
+
+function retrieveAllFlightLike($query) {
+    $query = "%{$query}%";
+    $sql = "SELECT fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', ac.*, al.* FROM flights fl
+            INNER JOIN aircrafts ac on fl.aircraft_id = ac.aircraft_id
+            INNER JOIN airlines al on fl.airline_id = al.airline_id
+            WHERE fl.origin_airport_code LIKE ? OR fl.destination_airport_code LIKE ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$query, $query]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot flights like query!");
+    }
+
+    return null;
+}
+

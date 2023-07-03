@@ -84,7 +84,7 @@ displayToast();
 
             <!--  BOOKINGS HERE todo -->
 
-            <div class="container py-2 px-4 pb-5 mt-3 border rounded-4">
+            <div class="container py-4 px-4 pb-5 mt-3">
                 <div class="row mx-3 my-2">
                     <span class="fs-1"><span id="count-booking">0</span> bookings found</span>
                 </div>

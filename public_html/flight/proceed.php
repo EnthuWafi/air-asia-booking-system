@@ -33,19 +33,22 @@ try{
         $returnFlight = retrieveFlightSearch($flightInfo["return_flight_id"], $flightInfo["travel_class"], $flightInfo["passenger_count"]);
     }
 
-    foreach ($userBookings as $booking) {
-        $bookingFlights = retrieveBookingFlights($booking["booking_id"]);
-        foreach ($bookingFlights as $flight) {
-            if ($flight["flight_id"] == $departureFlight["flight_id"]){
-                throw new Exception("Flight has already been booked by user before!<br>Please book another flight!");
-            }
-            if (!empty($returnFlight)){
-                if ($flight["flight_id"] == $returnFlight["flight_id"]){
+    if ($userBookings != null) {
+        foreach ($userBookings as $booking) {
+            $bookingFlights = retrieveBookingFlights($booking["booking_id"]);
+            foreach ($bookingFlights as $flight) {
+                if ($flight["flight_id"] == $departureFlight["flight_id"]){
                     throw new Exception("Flight has already been booked by user before!<br>Please book another flight!");
+                }
+                if (!empty($returnFlight)){
+                    if ($flight["flight_id"] == $returnFlight["flight_id"]){
+                        throw new Exception("Flight has already been booked by user before!<br>Please book another flight!");
+                    }
                 }
             }
         }
     }
+
 }
 catch (exception $e){
     makeToast("error", $e->getMessage(), "Error");

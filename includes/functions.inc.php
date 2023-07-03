@@ -75,6 +75,7 @@ function customer_login_required(): void
     $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]) or logout();
 
     if (returnUserType($_SESSION["user_data"]["user_id"]) != "customer"){
+        makeToast("warning", "You are forbidden from accessing this page!", "Warning");
         header("Location: /index.php");
         die();
     }
@@ -94,6 +95,7 @@ function admin_login_required() {
     }
     $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]) or logout();
     if (returnUserType($_SESSION["user_data"]["user_id"]) != "admin"){
+        makeToast("warning", "You are forbidden from accessing this page!", "Warning");
         header("Location: /index.php");
         die();
     }

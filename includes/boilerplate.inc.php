@@ -6,6 +6,7 @@ function head_tag_content(): void
     <meta charset='UTF-8'>
     <meta content='width=device-width, initial-scale=1, maximum-scale=5,minimum-scale=1, viewport-fit=cover' name='viewport'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <script src='https://unpkg.com/@popperjs/core@2'></script>
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ' crossorigin='anonymous'>
     <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js' integrity='sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe' crossorigin='anonymous'></script>
     <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
@@ -58,6 +59,7 @@ function nav_bar(){
                 <a class='nav-link' href='/admin/dashboard.php'>Admin Dashboard</a>
                 <a class='nav-link' href='/admin/manage-flights.php'>Flights</a>
                 <a class='nav-link' href='/admin/manage-bookings.php'>Bookings</a>
+                <a class='nav-link' href='/admin/manage-aircrafts.php'>Aircrafts</a>
                 <a class='nav-link' href='/admin/manage-users.php'>Users</a>";
     }
 
@@ -219,8 +221,8 @@ function admin_side_bar() {
                 </a>
             </li>
             <li>
-                <a href='/admin/manage-flights.php' class='nav-link link-dark'>
-                    <i class='bx bxs-plane-take-off me-2 $iconSize'></i>
+                <a href='/admin/manage-flights.php' class='nav-link link-dark d-flex align-items-center'>
+                    <i class='bx bxs-plane-take-off me-2 pt-1 $iconSize'></i>
                     Flight
                 </a>
             </li>
@@ -232,7 +234,7 @@ function admin_side_bar() {
             </li>
             <li>
                 <a href='/admin/manage-aircrafts.php' class='nav-link link-dark'>
-                    <i class='bx bxs-plane me-2 $iconSize'></i>
+                    <i class='bi bi-airplane-engines me-2 $iconSize'></i>
                     Aircrafts
                 </a>
             </li>
@@ -250,9 +252,6 @@ function admin_side_bar() {
                 <strong>{$_SESSION["user_data"]["username"]}</strong>
             </a>
             <ul class='dropdown-menu text-small shadow' aria-labelledby='dropdownUser2'>
-                <li><a class='dropdown-item' href='/admin/profile.php'>Settings</a></li>
-                <li><a class='dropdown-item' href='/admin/dashboard.php'>Profile</a></li>
-                <li><hr class='dropdown-divider'></li>
                 <li><a class='dropdown-item' href='/logout.php'>Log out</a></li>
             </ul>
         </div>
@@ -273,10 +272,9 @@ function footer(){
 
     <ul class='nav col-md-4 justify-content-end'>
       <li class='nav-item'><a href='/' class='nav-link px-2 text-muted'>Home</a></li>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Features</a></li>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Pricing</a></li>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>FAQs</a></li>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>About</a></li>
+      <li class='nav-item'><a href='/index.php/#features' class='nav-link px-2 text-muted'>Features</a></li>
+      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>About Us</a></li>
+      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Contact Us</a></li>
     </ul>
   </footer>
     ";

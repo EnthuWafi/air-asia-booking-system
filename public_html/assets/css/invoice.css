@@ -95,7 +95,7 @@
     body * {
         visibility: hidden;
     }
-    .card-body * {
+    #invoice * {
         visibility: visible;
     }
     #sidebar, .navbar, footer * {

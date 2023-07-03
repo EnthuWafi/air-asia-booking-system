@@ -13,6 +13,7 @@ $income = retrieveIncome()["income"] ?? 0;
 
 $incomeDecimal =  number_format((float)$income, 2, '.', '');
 
+$bookings = retrieveAllBookingsLIMIT5();
 $today = date_create("now");
 $date = date_format($today, "D, d M Y");
 
@@ -21,20 +22,33 @@ $name = "{$user["user_fname"]} {$user["user_lname"]}";
 
 //chart
 $traffics = retrieveTraffic(); //all
-$trafficCount = retrieveTrafficCount()["count"] ?? 0;
 
-$max = $trafficCount * 1.2;
-$y = 0;
+$visitedToday = false;
+
+$highestPeak = 1;
+
 $dataPoints = array();
 foreach($traffics as $traffic) {
-    $datetime = new DateTime($traffic["timestamp"]);
+    $datetime = new DateTime($traffic["date"]);
     $timestamp = $datetime->getTimestamp();
     $timestamp *= 1000;
-    $y += 1;
+    $y = $traffic["count"];
     array_push($dataPoints, array("x" => $timestamp, "y" => $y));
+
+    $interval = $today->diff($datetime);
+    if ($interval->days === 0) {
+        $visitedToday = true;
+    }
+    if ($traffic["count"] > $highestPeak) {
+        $highestPeak = $traffic["count"];
+    }
 }
-
-
+$max = $highestPeak * 1.2;
+if (!$visitedToday) {
+    $timestamp = $today->getTimestamp() * 1000;
+    array_push($dataPoints, array("x" => $timestamp, "y" => 0));
+}
+displayToast();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -63,13 +77,13 @@ foreach($traffics as $traffic) {
                 <div class="row mt-4 ms-3">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link icon-red" aria-current="page" href="/admin/dashboard.php">All-Time</a>
+                            <a class="nav-link icon-red interact" aria-current="page" href="/admin/dashboard.php">All-Time</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link icon-red" href="/admin/dashboard-monthly.php">Monthly</a>
+                            <a class="nav-link icon-red interact" href="/admin/dashboard-monthly.php">Monthly</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link icon-red" href="/admin/dashboard-daily.php">Daily</a>
+                            <a class="nav-link icon-red interact" href="/admin/dashboard-daily.php">Daily</a>
                         </li>
                     </ul>
                 </div>
@@ -144,23 +158,25 @@ foreach($traffics as $traffic) {
                     </div>
 
                 </div>
-                <div class="row mt-1 gx-4 ms-3">
+                <div class="row mt-1 ms-3">
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded">
                             <?php makeChart($dataPoints, "chart", $max); ?>
                         </div>
                     </div>
-                    <!-- Maybe bookings here? todo -->
+                </div>
+                <div class="row mt-1 ms-3">
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
                             <div class="row">
                                 <span class="h3">Recent Bookings</span>
                             </div>
                             <div class="row">
-
+                                <?php admin_displayBookingsLite($bookings); ?>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 

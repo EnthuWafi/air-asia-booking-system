@@ -104,58 +104,7 @@ $token = getToken();
                             </div>
 
                             <div class="row mt-3">
-                                <table class="table table-hover table-responsive">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Registration</th>
-                                        <th scope="col">Economy</th>
-                                        <th scope="col">Premium Economy</th>
-                                        <th scope="col">Business</th>
-                                        <th scope="col">First Class</th>
-                                        <th scope="col" class="text-center">Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php
-                                    if ($aircrafts != null) {
-                                        $count = 1;
-                                        // OKAY, FOR DELETING, I need to use a modal so the user can be sure to remove it
-                                        foreach ($aircrafts as $aircraft) {
-
-                                            $date = date_create($aircraft["registration_date"]);
-                                            $dateFormatted = date_format($date, "d M Y");
-                                            echo
-                                            "<tr class='align-middle'>
-                <th scope='row'>$count</th>
-                <td>{$aircraft["aircraft_name"]}</td>
-                <td>{$dateFormatted}</td>
-                <td class='text-center'>{$aircraft["economy_capacity"]}</td>
-                <td class='text-center'>{$aircraft["premium_economy_capacity"]}</td>
-                <td class='text-center'>{$aircraft["business_capacity"]}</td>
-                <td class='text-center'>{$aircraft["first_class_capacity"]}</td>
-                <td class='text-center'>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#updateAircraftStatic' 
-                        onclick='updateElement(\"{$aircraft["aircraft_id"]}\", \"update\", \"aircraft_id\"); 
-updateElement(\"{$aircraft["aircraft_name"]}\", \"update\", \"name\");
-updateElement(\"{$aircraft["economy_capacity"]}\", \"update\", \"economy\");
-updateElement(\"{$aircraft["premium_economy_capacity"]}\", \"update\", \"premium-economy\");
-updateElement(\"{$aircraft["business_capacity"]}\", \"update\", \"business\");
-updateElement(\"{$aircraft["first_class_capacity"]}\", \"update\", \"first-class\");' class='h4'>
-                        <i class='bi bi-pencil-square'></i></a>
-                        <a type='button' data-bs-toggle='modal' data-bs-target='#deleteStatic' 
-                        onclick='updateElement({$aircraft["aircraft_id"]}, \"delete\", \"aircraft_id\");' class='h4'>
-                        <i class='bi bi-trash'></i></a>
-                    </form> 
-                </td>
-            </tr>";
-                                            $count++;
-                                        }
-                                    }
-                                    ?>
-                                    </tbody>
-                                </table>
+                                <?php admin_displayAircraft($aircrafts); ?>
                             </div>
                         </div>
                     </div>

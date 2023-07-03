@@ -2,7 +2,7 @@
 
 session_start();
 require("../../includes/functions.inc.php");
-
+customer_login_required();
 
 $airports = retrieveAirports();
 $departure_flights = null;
@@ -46,27 +46,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 //error checking
-if ($_GET) {
-    $origin = filter_var($_GET["origin"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $destination = filter_var($_GET["destination"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $departure = filter_var($_GET["departure"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $return = filter_var($_GET["return"], FILTER_SANITIZE_SPECIAL_CHARS);
+try {
+    if ($_GET) {
+        if (!(array_keys_isset(["origin", "destination", "departure", "return", "travel_class", "adult", "child", "infant",
+            "senior", "trip_type"], $_GET))) {
+            throw new Exception("Please fill in the missing information!");
+        }
+        $origin = filter_var($_GET["origin"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $destination = filter_var($_GET["destination"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $departure = filter_var($_GET["departure"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $return = filter_var($_GET["return"], FILTER_SANITIZE_SPECIAL_CHARS);
 
-    $travelClass = htmlspecialchars($_GET["travel_class"]);
-    $adult = filter_var($_GET["adult"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $child = filter_var($_GET["child"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $infant = filter_var($_GET["infant"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $senior = filter_var($_GET["senior"], FILTER_SANITIZE_SPECIAL_CHARS);
-    $tripType = htmlspecialchars($_GET["trip_type"]);
+        $travelClass = htmlspecialchars($_GET["travel_class"]);
+        $adult = filter_var($_GET["adult"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $child = filter_var($_GET["child"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $infant = filter_var($_GET["infant"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $senior = filter_var($_GET["senior"], FILTER_SANITIZE_SPECIAL_CHARS);
+        $tripType = htmlspecialchars($_GET["trip_type"]);
 
-    $ageCategoryArr = ["adult"=>$adult, "child"=>$child, "infant"=>$infant, "senior"=>$senior];
-    $passengerCount = $adult + $child + $infant + $senior;
+        $ageCategoryArr = ["adult" => $adult, "child" => $child, "infant" => $infant, "senior" => $senior];
+        $passengerCount = $adult + $child + $infant + $senior;
 
-    $departure_flights = retrieveFlightsSearch($origin, $destination, $departure, $travelClass, $passengerCount);
+        $departure_flights = retrieveFlightsSearch($origin, $destination, $departure, $travelClass, $passengerCount);
 
-    if ($tripType == "RETURN"){
-        $return_flights = retrieveFlightsSearch($destination, $origin, $return, $travelClass, $passengerCount);
+        if ($tripType == "RETURN") {
+            $return_flights = retrieveFlightsSearch($destination, $origin, $return, $travelClass, $passengerCount);
+        }
     }
+}
+catch(Exception $e) {
+    makeToast("warning", $e->getMessage(), "Warning");
 }
 
 displayToast();
@@ -77,6 +86,8 @@ displayToast();
 <html lang="en">
 <head>
     <?php head_tag_content() ?>
+    <style>
+    </style>
     <title><?= config("name") ?> | Flight Search</title>
 </head>
 
@@ -91,63 +102,119 @@ displayToast();
             <?php header_bar("Flight Search") ?>
 
             <!--  BOOKINGS HERE todo -->
-
-            <div class="container py-2 px-4 pb-5 mt-3 border rounded-4">
-                <div class="d-flex flex-row">
-                    <a class="navbar-brand" href="/index.php">
-                        <img class="img-fluid w-50" src="/assets/img/airasiacom_logo.svg">
-                    </a>
+            <div class="position-relative ">
+                <div class="gradient-primary w-100 position-absolute top-0 start-0 end-0 bottom-0" style="height: 320px; z-index: -1; "></div>
+                <div class="row container ms-3">
+                    <div class="mt-5">
+                        <h1 class="text-white fw-bold">Start Booking Your Flight Now</h1>
+                        <h5 class="text-white">Find countless flights options & deals to various destinations around the world</h5>
+                    </div>
                 </div>
-                <h1>Flight Search</h1>
-                <hr>
-                <form action="<?php current_page(); ?>" method="get">
-                    <label for="trip-type">Trip-type</label>
-                    <select id="trip-type" name="trip_type">
-                        <option value="ONE-WAY">One-way Trip</option>
-                        <option value="RETURN">Return-trip</option>
-                    </select>
-                    <label for="travel-class">Travel Class</label>
-                    <select id="travel-class" name="travel_class">
-                        <option value="BUS">Business</option>
-                        <option value="PRE">Premium Economy</option>
-                        <option value="ECO">Economy</option>
-                        <option value="FST">First Class</option>
-                    </select>
-                    <br>
-                    <label for="adult">Adult: </label><input type="number" id="adult" name="adult" min="0" max="9" value="<?php echo $_GET["adult"] ?? 1; ?>">
-                    <label for="child">Child:</label><input type="number" id="child" name="child" min="0" max="9" value="<?php echo $_GET["child"] ?? 0; ?>">
-                    <label for="infant">Infant: </label><input type="number" id="infant" name="infant" min="0" max="9" value="<?php echo $_GET["infant"] ?? 0; ?>">
-                    <label for="senior">Senior: </label><input type="number" id="senior" name="senior" min="0" max="9" value="<?php echo $_GET["senior"] ?? 0; ?>">
+                <div class="row justify-content-center mt-4">
+                    <div class="col-9">
 
-                    <br>
-                    <label for="origin-select">Origin</label><select name="origin" id="origin-select">
-                        <option></option>
-                        <?php
-                        //airports
-                        foreach ($airports as $airport) {
-                            echo "<option value='{$airport["airport_code"]}'>{$airport["airport_state"]} ({$airport["airport_code"]})
-                </option>";
-                        }
-                        ?>
-                    </select>
+                        <div class="bg-white rounded-4 shadow ms-3 p-5">
+                            <form action="<?php current_page(); ?>" method="get">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="trip-type">Trip-type</label>
+                                        <select id="trip-type" name="trip_type" class="form-select">
+                                            <option value="ONE-WAY">One-way Trip</option>
+                                            <option value="RETURN">Return-trip</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="travel-class">Travel Class</label>
+                                        <select id="travel-class" name="travel_class" class="form-select">
+                                            <option value="BUS">Business</option>
+                                            <option value="PRE">Premium Economy</option>
+                                            <option value="ECO">Economy</option>
+                                            <option value="FST">First Class</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mt-4">
+                                        <div class="dropdown dropend">
+                                            <button class="btn btn-danger dropdown-toggle" type="button" id="passenger-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Guests
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="passenger-toggle">
+                                                <div class="row mx-3 mt-2">
+                                                    <h4><strong class="icon-red">Guests Count</strong></h4>
+                                                    <hr>
+                                                </div>
 
-                    <label for="destination-select">Destination</label><select name="destination" id="destination-select" value="<?php echo $_GET["destination"] ?? ""; ?>">
-                        <option></option>
-                        <?php
-                        //airports
-                        foreach ($airports as $airport) {
-                            echo "<option value='{$airport["airport_code"]}'>{$airport["airport_state"]} ({$airport["airport_code"]})
-                </option>";
-                        }
-                        ?>
-                    </select>
-                    <br>
-                    <label for="departure">Departure Date: </label><input type="date" id="departure" name="departure" min="" value="<?php echo $_GET["departure"] ?? ""; ?>">
-                    <label for="return">Return Date</label><input type="date" id="return" name="return" min="" value="<?php echo $_GET["return"] ?? ""; ?>">
-                    <br>
-                    <input type="submit">
-                </form>
+                                                <div class="row mx-3 mb-2">
+                                                    <div class="col-md-3">
+                                                        <label for="adult">Adult:</label>
+                                                        <input type="number" id="adult" name="adult" min="0" max="9" value="<?php echo $_GET["adult"] ?? 1; ?>" class="form-control">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label for="child">Child:</label>
+                                                        <input type="number" id="child" name="child" min="0" max="9" value="<?php echo $_GET["child"] ?? 0; ?>" class="form-control">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label for="infant">Infant:</label>
+                                                        <input type="number" id="infant" name="infant" min="0" max="9" value="<?php echo $_GET["infant"] ?? 0; ?>" class="form-control">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label for="senior">Senior:</label>
+                                                        <input type="number" id="senior" name="senior" min="0" max="9" value="<?php echo $_GET["senior"] ?? 0; ?>" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <label for="origin-select">Origin</label>
+                                        <select name="origin" id="origin-select" class="form-select">
+                                            <option value="" selected disabled>--- Origin ---</option>
+                                            <?php
+                                            //airports
+                                            foreach ($airports as $airport) {
+                                                echo "<option value='{$airport["airport_code"]}'>{$airport["airport_state"]} ({$airport["airport_code"]})
+                    </option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="destination-select">Destination</label>
+                                        <select name="destination" id="destination-select" value="<?php echo $_GET["destination"] ?? ""; ?>" class="form-select">
+                                            <option value="" selected disabled>--- Destination ---</option>
+                                            <?php
+                                            //airports
+                                            foreach ($airports as $airport) {
+                                                echo "<option value='{$airport["airport_code"]}'>{$airport["airport_state"]} ({$airport["airport_code"]})
+                    </option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label for="departure">Departure Date:</label>
+                                            <input type="date" id="departure" name="departure" min="" value="<?php echo $_GET["departure"] ?? ""; ?>" class="form-control">
+                                        </div>
+                                        <div class="row" id="return">
+                                            <label for="return">Return Date:</label>
+                                            <input type="date" name="return" min="" value="<?php echo $_GET["return"] ?? ""; ?>" class="form-control">
+                                        </div>
+                                    </div>
 
+                                </div>
+                                <div class="text-center mt-4">
+                                    <input type="submit" class="btn btn-danger float-end" value="Search">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="container py-2 px-4 pb-5 mt-5" >
                 <div class="container">
                     <div id="depart-flight-result">
                         <?php

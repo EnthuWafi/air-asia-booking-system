@@ -144,7 +144,8 @@ function deleteBooking($bookingID) {
 function retrieveAllBookings() {
     $sql = "SELECT b.*, c.*, u.* FROM bookings b
             INNER JOIN customers c on b.user_id = c.user_id
-            INNER JOIN users u on c.user_id = u.user_id";
+            INNER JOIN users u on c.user_id = u.user_id
+            ORDER BY b.date_created DESC";
     $conn = OpenConn();
     try {
         $result = $conn->execute_query($sql);
@@ -161,6 +162,32 @@ function retrieveAllBookings() {
 
     return null;
 }
+
+//retrieve ALL
+function retrieveAllBookingsLIMIT5() {
+    $sql = "SELECT b.*, c.*, u.* FROM bookings b
+            INNER JOIN customers c on b.user_id = c.user_id
+            INNER JOIN users u on c.user_id = u.user_id
+            ORDER BY b.date_created DESC
+            LIMIT 5
+            ";
+    $conn = OpenConn();
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve bookings!");
+    }
+
+    return null;
+}
+
 
 //retrieve specific
 function retrieveBooking($bookingID) {
@@ -185,10 +212,35 @@ function retrieveBooking($bookingID) {
     return null;
 }
 
+function retrieveBookingByUser($bookingID, $userID) {
+    $sql = "SELECT b.*, u.*, c.* FROM bookings b
+           INNER JOIN customers c on b.user_id = c.user_id
+           INNER JOIN users u on c.user_id = u.user_id
+            WHERE b.booking_id = ? AND b.user_id = ?";
+    $conn = OpenConn();
+    try {
+        $result = $conn->execute_query($sql, [$bookingID, $userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve bookings!");
+    }
+
+    return null;
+}
 //retrieve specific
 function retrieveBookingFlights($bookingID) {
-    $sql = "SELECT fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', ac.*, al.*
+    $sql = "SELECT fl.*, ADDTIME(fl.departure_time, fl.duration) as 'arrival_time', ac.*, al.*, 
+       ao.airport_country as 'origin_airport_country', ao.airport_state as 'origin_airport_state',
+       ad.airport_name as 'destination_airport_name', ad.airport_country as 'destination_airport_country', ad.airport_state as 'destination_airport_state'
 FROM flights fl
+INNER JOIN airports ao on fl.origin_airport_code = ao.airport_code
+INNER JOIN airports ad on fl.destination_airport_code = ad.airport_code
 INNER JOIN aircrafts ac on fl.aircraft_id = ac.aircraft_id
 INNER JOIN airlines al on fl.airline_id  = al.airline_id
 WHERE fl.flight_id IN (
@@ -332,5 +384,54 @@ function retrieveBookingTravelClass($bookingID) {
 
     return null;
 }
+
+function retrieveAllBookingLike($query) {
+    $query = "%{$query}%";
+    $sql = "SELECT bo.*, c.*, u.* FROM bookings bo
+            INNER JOIN customers c on bo.user_id = c.user_id
+            INNER JOIN users u on c.user_id = u.user_id
+            WHERE bo.booking_reference LIKE ? OR bo.booking_status LIKE ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$query, $query]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot bookings like query!");
+    }
+
+    return null;
+}
+
+function retrieveAllAircraftLike($query) {
+    $query = "%{$query}%";
+    $sql = "SELECT ac.* FROM aircrafts ac
+            WHERE ac.aircraft_name LIKE ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$query]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot aircrafts like query!");
+    }
+
+    return null;
+}
+
 
 

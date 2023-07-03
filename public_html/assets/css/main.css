@@ -4,12 +4,13 @@
     width: 280px;
 }
 
+
 .icon-red {
     color: red;
     font-weight: bold;
 }
 
-.icon-red:hover {
+.icon-red.interact:hover {
     color: #b90000;
 }
 

@@ -6,6 +6,11 @@ session_start();
 
 displayToast();
 setSessionTraffic();
+
+$airports = retrieveAirports();
+
+$userType = $_SESSION["user_data"]["user_type"] ?? "";
+
 ?>
 
 <!DOCTYPE html>
@@ -150,14 +155,134 @@ setSessionTraffic();
 <?php nav_bar() ;?>
 
 <!-- Content -->
-<section class="gradient-primary w-100 d-flex justify-content-center" style="height: 280px">
-    <div class="container">
-        <div class="mt-5">
-            <h1 class="text-white fw-bold">Start Travelling with AirAsia!</h1>
-            <h5 class="text-white"">Get flights and hotels worldwide for your trip with the best deals</h5>
+<?php if ($userType === "admin") { ?>
+    <section class="position-relative"  style="height: 320px;">
+        <div class="gradient-primary w-100 position-absolute top-0 start-0 end-0 bottom-0" style="z-index: -1; "></div>
+        <div class="row container ms-3">
+            <div class="mt-5">
+                <h1 class="text-white fw-bold">Take Control of the Skies</h1>
+                <h5 class="text-white"">Seamlessly Manage Flights for a Smooth Travel Experience!</h5>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+<?php
+}
+else { ?>
+    <section class="position-relative">
+        <div class="gradient-primary w-100 position-absolute top-0 start-0 end-0 bottom-0" style="height: 320px; z-index: -1; "></div>
+        <div class="row container ms-3">
+            <div class="mt-5">
+                <h1 class="text-white fw-bold">Start Travelling with AirAsia!</h1>
+                <h5 class="text-white"">Get flights worldwide for your trip with the best deals</h5>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-4">
+            <div class="col-9">
+                <div class="bg-white rounded-4 shadow ms-3 p-5">
+                    <form action="/flight/search.php" method="get">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="trip-type">Trip-type</label>
+                                <select id="trip-type" name="trip_type" class="form-select">
+                                    <option value="ONE-WAY">One-way Trip</option>
+                                    <option value="RETURN">Return-trip</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="travel-class">Travel Class</label>
+                                <select id="travel-class" name="travel_class" class="form-select">
+                                    <option value="BUS">Business</option>
+                                    <option value="PRE">Premium Economy</option>
+                                    <option value="ECO">Economy</option>
+                                    <option value="FST">First Class</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6 mt-4">
+                                <div class="dropdown dropend">
+                                    <button class="btn btn-danger dropdown-toggle" type="button" id="passenger-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Guests
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="passenger-toggle">
+                                        <div class="row mx-3 mt-2">
+                                            <h4><strong class="icon-red">Guests Count</strong></h4>
+                                            <hr>
+                                        </div>
+
+                                        <div class="row mx-3 mb-2">
+                                            <div class="col-md-3">
+                                                <label for="adult">Adult:</label>
+                                                <input type="number" id="adult" name="adult" min="0" max="9" value="1" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="child">Child:</label>
+                                                <input type="number" id="child" name="child" min="0" max="9" value="0" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="infant">Infant:</label>
+                                                <input type="number" id="infant" name="infant" min="0" max="9" value="0" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="senior">Senior:</label>
+                                                <input type="number" id="senior" name="senior" min="0" max="9" value="0" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <label for="origin-select">Origin</label>
+                                <select name="origin" id="origin-select" class="form-select">
+                                    <option disabled selected>--- Origin ---</option>
+                                    <?php
+                                    //airports
+                                    foreach ($airports as $airport) {
+                                        echo "<option value='{$airport["airport_code"]}'>{$airport["airport_state"]} ({$airport["airport_code"]})
+                    </option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="destination-select">Destination</label>
+                                <select name="destination" id="destination-select" class="form-select">
+                                    <option disabled selected>--- Destination ---</option>
+                                    <?php
+                                    //airports
+                                    foreach ($airports as $airport) {
+                                        echo "<option value='{$airport["airport_code"]}'>{$airport["airport_state"]} ({$airport["airport_code"]})
+                    </option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="row">
+                                    <label for="departure">Departure Date:</label>
+                                    <input type="date" id="departure" name="departure" min="" value="" class="form-control">
+                                </div>
+                                <div class="row" id="return">
+                                    <label for="return">Return Date:</label>
+                                    <input type="date" name="return" min="" value="" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <input type="submit" class="btn btn-danger float-end" value="Search">
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+<?php } ?>
+
 <section class="container my-5">
     <div class="slideshow-container">
         <div class="mySlides fade"> <img src="/assets/img/promo1.jpg" style="width: 90%;height: 90%"> </div>
@@ -228,42 +353,64 @@ setSessionTraffic();
 </section>
 <section class="bg-light py-5 my-5">
     <div class="container text-center">
-        <div class="row mb-4">
+        <div class="row mb-5">
             <span class="fs-3 fw-bold ">Why you should travel with AirAsia</span>
         </div>
-        <div class="row">
-            <div class="col">
-                <div class="row h-100">
-                    <h4>Simplify Your Booking Experience</h4>
+        <div class="row align-items-stretch">
+            <div class="col-4">
+                <div class="row">
+                    <div class="row justify-content-center">
+                        <img src="/assets/img/simplifyBooking.svg" class="img-fluid" style="height: 140px; width: auto;">
+                    </div>
+
+                    <div class="row mt-3">
+                        <h4>Simplify Your Booking Experience</h4>
+                    </div>
                 </div>
+
                 <div class="row">
                     <p>Feel the flexibility and simplicity throughout your booking process</p>
                 </div>
 
             </div>
             <div class="col">
-                <div class="row  h-100">
-                    <h4>Wide Selections of Travel Product</h4>
+                <div class="row">
+                    <div class="row justify-content-center">
+                        <img src="/assets/img/travelProducts.svg" class="img-fluid" style="height: 140px; width: auto;">
+                    </div>
+
+                    <div class="row mt-3">
+                        <h4>Wide Selections of Travel Product</h4>
+                    </div>
                 </div>
+
                 <div class="row">
                     <p>Enjoy your memorable moments with millions of favorable flights and accommodations</p>
                 </div>
             </div>
             <div class="col">
-                <div class="row  h-100">
-                    <h4>Affectionate Customer Support</h4>
-                </div>
+
                 <div class="row">
+                    <div class="row justify-content-center">
+                        <img src="/assets/img/customerSupport.svg" class="img-fluid" style="height: 140px; width: auto;">
+                    </div>
+                    <div class="row mt-3">
+                        <h4>Affectionate Customer Support</h4>
+                    </div>
+                </div>
+
+                <div class="row" >
                     <p>Giving best assistance, our customer support is available 24/7 with your local language</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
+<div  id="features"></div>
 <?php footer() ?>
 
 <?php body_script_tag_content(); ?>
+<script type="text/javascript" src="/assets/js/search.js"></script>
 <script>
     var timeOut = 3000;
     var slideIndex = 0;

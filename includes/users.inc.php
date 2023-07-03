@@ -352,3 +352,121 @@ function updateUser($userID, $fname, $lname, $username, $email) {
 
     return false;
 }
+
+function retrieveUserTotalSpend($userID) {
+    $sql = "SELECT sum(b.booking_cost) as 'income' FROM bookings b
+            WHERE b.booking_status = 'COMPLETED' AND b.user_id = ?";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve income!");
+    }
+
+    return null;
+}
+
+function retrieveBookingCountUser($userID) {
+    $sql = "SELECT COUNT(booking_id) as 'count' FROM bookings WHERE user_id = ?";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve user booking!");
+    }
+
+    return null;
+}
+
+function retrieveFlightCountUser($userID) {
+    $sql = "SELECT COUNT(flight_id) as 'count' 
+            FROM flights WHERE flight_id IN (
+                SELECT fa.flight_id 
+                FROM flight_addons fa
+                INNER JOIN passengers p on fa.passenger_id = p.passenger_id
+                INNER JOIN bookings b on p.booking_id = b.booking_id AND b.user_id = ?
+            )";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve user flight count!");
+    }
+
+    return null;
+}
+
+
+
+function retrieveAllCustomerLike($query) {
+
+    $sql = "SELECT us.*, c.* FROM users us
+        INNER JOIN customers c ON us.user_id = c.user_id
+        WHERE us.email LIKE ? OR us.username LIKE ? OR us.user_fname LIKE ? OR us.user_lname LIKE ?";
+    $query = "%{$query}%";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$query, $query, $query, $query]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot customer like query!");
+    }
+
+    return null;
+}
+function retrieveAllAdminLike($query) {
+    $query = "%{$query}%";
+    $sql = "SELECT us.*, a.* FROM users us
+            INNER JOIN admins a on us.user_id = a.user_id
+            WHERE us.email LIKE ? OR us.username LIKE ? OR us.user_fname LIKE ? OR us.user_lname LIKE ?
+            OR a.admin_code LIKE ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$query, $query, $query, $query ,$query]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot admin like query!");
+    }
+
+    return null;
+}

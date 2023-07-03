@@ -83,6 +83,7 @@ function updateSelect(changedSelect, selectId) {
         return;
     }
     otherSelect.options[changedSelect.selectedIndex].disabled = true;
+    otherSelect.options[0].disabled = true;
 }
 
 function updatePassenger(changedInput, otherId1, otherId2, otherId3) {

@@ -120,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         mb_substr($flightInfo["trip_type"], 0, 1) . "-" . $departureFlight["origin_airport_code"]
                         . $departureFlight["destination_airport_code"];
                     $fileNameNew = "#" . $bookingReference . "." . $fileActualExt;
-                    $fileDestination = $_SERVER['DOCUMENT_ROOT'] . '/payments/' . $fileNameNew;
+                    $fileDestination = $_SERVER['DOCUMENT_ROOT'] . 'payments/' . $fileNameNew;
 
                     move_uploaded_file($fileTmpName, $fileDestination);
 

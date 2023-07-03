@@ -193,7 +193,7 @@ $token = getToken();
                                         <th scope="col">Username</th>
                                         <th scope="col">Full Name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Date of Birth</th>
+                                        <th scope="col">DOB</th>
                                         <th scope="col">Phone</th>
                                         <th scope="col">Registration</th>
                                         <th scope="col" class="text-center">Action</th>
