@@ -148,14 +148,86 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     die();
 }
 
+try{
+    $flightInfo = $_SESSION["book"]["flightInfo"];
+    $baggageOptions = baggageOptionsAssocAll();
+
+    $departureFlight = retrieveFlight($flightInfo["departure_flight_id"]);
+    $departureFlightAddons = retrieveFlightAddon($departureFlight["flight_id"], $flightInfo["travel_class"]);
+
+    $returnFlight = null;
+    $returnFlightAddons = null;
+    //flights
+    //ok first retrieve from flights again
+    $departureFlight = retrieveFlight($flightInfo["departure_flight_id"]);
+    $returnFlight = null;
+    if (isset($flightInfo["return_flight_id"])) {
+        $returnFlight = retrieveFlight($flightInfo["return_flight_id"]);
+        $returnFlightAddons = retrieveFlightAddon($returnFlight["flight_id"], $flightInfo["travel_class"]);
+    }
+
+    $travelClass = travelClassAssoc($flightInfo["travel_class"]);
+
+    $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"],
+        "senior"=>$flightInfo["senior"],"infant"=>$flightInfo["infant"]];
+
+    $baggagesBookArr = $_SESSION["book"]["baggages"];
+
+    $XSM = 0; $SML = 0; $STD = 0; $LRG = 0; $XLG = 0;
+    foreach ($baggagesBookArr as $baggageAgeCategory) {
+        foreach ($baggageAgeCategory as $baggage) {
+            if ($baggage == "XSM"){
+                $XSM++;
+            }
+            else if ($baggage == "SML"){
+                $SML++;
+            }
+            else if ($baggage == "STD"){
+                $STD++;
+            }
+            else if ($baggage == "LRG"){
+                $LRG++;
+            }
+            else if ($baggage == "XLG"){
+                $XLG++;
+            }
+        }
+    }
+
+    $baggageArr = ["XSM"=>$XSM, "SML"=>$SML, "STD"=>$STD, "LRG"=>$LRG, "XLG"=>$XLG];
+    $departureFlightCost = calculateFlightPriceAlternate($departureFlight["flight_base_price"], $ageCategoryArr, $flightInfo["travel_class"],
+        $baggageArr);
+    $departureDiscount = $departureFlight["flight_discount"];
+    $departureDiscountCost = $departureFlightCost * $departureDiscount;
+
+    if ($flightInfo["trip_type"] == "RETURN") {
+        $returnFlightCost = calculateFlightPriceAlternate($returnFlight["flight_base_price"], $ageCategoryArr, $flightInfo["travel_class"],
+            $baggageArr);
+        $returnDiscount = $returnFlight["flight_discount"];
+        $returnDiscountCost = $returnFlightCost * $returnDiscount;
+    }
+
+    $total = $departureFlightCost + ($returnFlightCost ?? 0);
+    $discountTotal = $departureDiscountCost + ($returnDiscountCost ?? 0);
+
+    $netTotal = $departureFlightCost + ($returnFlightCost ?? 0) - $discountTotal;
+}
+catch (exception $e){
+    makeToast("error", $e->getMessage(), "Error");
+    header("Location: /flight/booking-payment.php");
+    die();
+}
+
+
 
 displayToast();
 $token = getToken();
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <?php head_tag_content(); ?>
-    <link rel="stylesheet" href="/assets/css/plane.css">
+    <link rel="stylesheet" href="/assets/css/progress.css">
     <title><?= config("name") ?> | Booking Payment</title>
 </head>
 <body>
@@ -168,8 +240,20 @@ $token = getToken();
             <?php header_bar("Booking Payment") ?>
 
             <div class="container py-2 px-4 pb-5 mt-3 border rounded-4">
+                <div class="row my-4">
+                    <div class="position-relative">
+                        <div id="msform">
+                            <!-- progressbar -->
+                            <ul id="progressbar">
+                                <li class="active"><strong>Guest</strong></li>
+                                <li class="active"><strong>Add-ons</strong></li>
+                                <li class="active"><strong>Payment</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <div class="row mt-4 ms-3">
-                    <div class="col-lg-8 mx-auto shadow p-3 mb-5 bg-body rounded container-md">
+                    <div class="col-lg-6 mx-auto shadow p-3 mb-5 bg-body rounded-4 container-md">
                         <form method="post" action="<?php current_page(); ?>" enctype="multipart/form-data">
                             <div class="row text-center">
                                 <strong class="fs-3">PROOF OF PAYMENT</strong>
@@ -240,6 +324,80 @@ $token = getToken();
                             </div>
 
                         </form>
+                    </div>
+                    <div class="col-lg-5 col-sm-auto text-end">
+                        <div class="shadow p-3 bg-body rounded-4 sticky-top">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title text-center mb-3 icon-red fw-bolder">Price Details</h2>
+                                    <div class="row mx-2">
+                                        <table class="table table-sm text-end">
+                                            <thead class="table-light">
+                                            <tr>
+                                                <th class="text-start">Item</th>
+                                                <th>Price</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td class="text-start">
+                                                    <div class="fw-bold">
+                                                        Depart
+                                                    </div>
+                                                    <div class="baggage mt-3">
+                                                        <p class="small">
+                                                            <?= "Adult x{$ageCategoryArr["adult"]}, Child x{$ageCategoryArr["child"]},
+                                                Senior x{$ageCategoryArr["senior"]}, Infant x{$ageCategoryArr["infant"]}" ?>
+                                                        </p>
+                                                        <p class="small">
+                                                            <?= "XSM x{$baggageArr["XSM"]}, SML x{$baggageArr["SML"]}, 
+                                                                STD x{$baggageArr["STD"]}, LRG x{$baggageArr["LRG"]}, XLG x{$baggageArr["LRG"]}" ?>
+                                                        </p>
+                                                    </div>
+
+                                                </td>
+                                                <td id="departureCost">RM<?= number_format($departureFlightCost, 2); ?></td>
+                                            </tr>
+                                            <?php if (isset($returnFlight)) {?>
+                                                <tr>
+                                                    <td class="text-start">
+                                                            <span class="fw-bold">
+                                                                Return
+                                                            </span>
+                                                        <div class="baggage mt-3">
+                                                            <p class="small">
+                                                                <?= "Adult x{$ageCategoryArr["adult"]}, Child x{$ageCategoryArr["child"]},
+                                                Senior x{$ageCategoryArr["senior"]}, Infant x{$ageCategoryArr["infant"]}" ?>
+                                                            </p>
+                                                            <p class="small">
+                                                                <?= "XSM x{$baggageArr["XSM"]}, SML x{$baggageArr["SML"]}, 
+                                                                STD x{$baggageArr["STD"]}, LRG x{$baggageArr["LRG"]}, XLG x{$baggageArr["LRG"]}" ?>
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                    <td id="returnCost">RM<?= number_format($returnFlightCost, 2); ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            </tbody>
+                                            <tfoot class="table-light">
+                                            <tr>
+                                                <td class="fw-bold text-start">Subtotal</td>
+                                                <td id="subtotal">RM<?= number_format($total, 2) ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-start">Discount</td>
+                                                <td id="discount">-RM<?= number_format($discountTotal, 2) ?></td>
+                                            </tr>
+                                            <tr class="highlight-top-border">
+                                                <td class="fw-bold text-start">Total Price</td>
+                                                <td id="total">RM<?= number_format($netTotal, 2) ?></td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -86,3 +86,10 @@
 body {
     font-family: Poppins, Lato,sans-serif,BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell;
 }
+
+.btn-red {
+    background: #f30000;
+}
+.btn-red:hover {
+    background: #be0000;
+}

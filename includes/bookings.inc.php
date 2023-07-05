@@ -15,16 +15,18 @@ function createBooking($parameters) {
 
     $departureCost = calculateFlightPrice($departureFlight["flight_base_price"], $passengers, $flightInfo["travel_class"],
     "departure");
+    //net cost is departure (full) + return (full) + discount
+    $discountDeparture = $departureCost * $departureFlight["flight_discount"];
+
     if (!empty($returnFlight)) {
         $returnCost = calculateFlightPrice($returnFlight["flight_base_price"], $passengers, $flightInfo["travel_class"],
             "return");
         $discountReturn = $returnCost * $returnFlight["flight_discount"];
     }
-    //net cost is departure (full) + return (full) + discount
-    $discountDeparture = $departureCost * $departureFlight["flight_discount"];
+
 
     $discount = $discountDeparture + ($discountReturn ?? 0);
-    $netCost = $departureCost + ($returnCost ?? 0) + $discount;
+    $netCost = $departureCost + ($returnCost ?? 0) - $discount;
 
     $conn = OpenConn();
     //insert in bookings table
@@ -341,12 +343,37 @@ function retrieveBookingAgeCategoryCount($bookingID, $ageCategory) {
 
     $sql = "SELECT COUNT(p.passenger_id) as 'count' FROM bookings b
             INNER JOIN passengers p on b.booking_id = p.booking_id
-            INNER JOIN flight_addons fa on p.passenger_id = fa.passenger_id AND fa.age_category_price_code = ?
-            WHERE b.booking_id = ?";
+            WHERE p.passenger_id IN (
+                SELECT fa.passenger_id FROM flight_addons fa
+                WHERE fa.age_category_price_code = ?
+            ) AND b.booking_id = ?";
     $conn = OpenConn();
 
     try {
         $result = $conn->execute_query($sql, [$ageCategoryAssoc["code"], $bookingID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve booking pass. count!");
+    }
+
+    return null;
+}
+
+function retrieveBookingBaggageCount($bookingID, $baggageCode) {
+    $sql = "SELECT COUNT(p.passenger_id) as 'count' FROM bookings b
+            INNER JOIN passengers p on b.booking_id = p.booking_id
+            INNER JOIN flight_addons fa on p.passenger_id = fa.passenger_id AND fa.baggage_price_code = ?
+            WHERE b.booking_id = ?";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$baggageCode, $bookingID]);
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {

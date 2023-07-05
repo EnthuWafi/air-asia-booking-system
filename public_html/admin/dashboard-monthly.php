@@ -6,14 +6,16 @@ session_start();
 
 admin_login_required();
 
-$userCount = retrieveCountUsers()["count"] ?? 0;
-$flight = retrieveCountFlights()["count"] ?? 0;
-$booking = retrieveCountBookings()["count"] ?? 0;
-$income = retrieveIncome()["income"] ?? 0;
+$userCount = retrieveCountUsersMonthly()["count"] ?? 0;
+$flight = retrieveCountFlightsMonthly()["count"] ?? 0;
+$booking = retrieveCountBookingsMonthly()["count"] ?? 0;
+$income = retrieveIncomeMonthly()["income"] ?? 0;
 
 $incomeDecimal =  number_format((float)$income, 2, '.', '');
 
 $bookings = retrieveAllBookingsLIMIT5();
+$users = retrieveAllCustomerUsersLIMIT5();
+
 $today = date_create("now");
 $date = date_format($today, "D, d M Y");
 
@@ -82,16 +84,13 @@ displayToast();
                         <li class="nav-item">
                             <a class="nav-link icon-red interact" href="/admin/dashboard-monthly.php">Monthly</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link icon-red interact" href="/admin/dashboard-daily.php">Daily</a>
-                        </li>
                     </ul>
                 </div>
 
                 <div class="row mt-4 gx-4 ms-3">
                     <!-- USER COUNT -->
                     <div class="col">
-                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
+                        <div class="shadow p-3 bg-body rounded row gx-3">
                             <div class="col">
                                 <div class="row">
                                     <span class="fs-2"><?= $userCount; ?></span>
@@ -108,7 +107,7 @@ displayToast();
 
                     <!-- BOOKINGS COUNT -->
                     <div class="col">
-                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
+                        <div class="shadow p-3 bg-body rounded row gx-3">
                             <div class="col">
                                 <div class="row">
                                     <span class="fs-2"><?= $booking; ?></span>
@@ -125,7 +124,7 @@ displayToast();
 
                     <!-- FLIGHTS COUNT -->
                     <div class="col">
-                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
+                        <div class="shadow p-3 bg-body rounded row gx-3">
                             <div class="col">
                                 <div class="row">
                                     <span class="fs-2"><?= $flight; ?></span>
@@ -158,14 +157,25 @@ displayToast();
                     </div>
 
                 </div>
-                <div class="row mt-1 ms-3">
-                    <div class="col">
-                        <div class="shadow p-3 mb-5 bg-body rounded">
+                <div class="row mt-2 ms-2">
+                    <div class="col-8">
+                        <div class="shadow p-3 mb-5 bg-body rounded h-100">
                             <?php makeChart($dataPoints, "chart", $max); ?>
                         </div>
                     </div>
+                    <div class="col">
+                        <div class="shadow p-3 mb-5 bg-body rounded row h-100">
+                            <div class="row">
+                                <span class="h3">Recent Customers</span>
+                            </div>
+
+                            <div class="row h-100 py-4">
+                                <?php admin_displayCustomerUserDashboard($users); ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="row mt-1 ms-3">
+                <div class="row mt-5 ms-3">
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
                             <div class="row">

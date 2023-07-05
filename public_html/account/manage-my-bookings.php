@@ -174,7 +174,7 @@ displayToast();
                   <ul class=\"dropdown-menu\" aria-labelledby=\"dropdown\">
                     <li><a class=\"dropdown-item\" data-bs-toggle='modal' data-bs-target='#cancelStatic' onclick='updateElement({$booking["booking_id"]}, \"cancel\", \"booking_id\")'>
                     <i class='bi bi-x-circle'></i> Cancel</a></li>
-                    <li><a class=\"dropdown-item\" href=\"/flight/view-booking.php?booking_id={$booking["booking_id"]}\"><i class='bi bi-eye'></i> View</a></li>
+                    <li><a class=\"dropdown-item\" href=\"/account/view-booking.php?booking_id={$booking["booking_id"]}\"><i class='bi bi-eye'></i> View</a></li>
                   </ul>
                 </div>
                 

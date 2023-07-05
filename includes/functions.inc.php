@@ -258,6 +258,37 @@ function calculateFlightPriceBase($flightBasePrice, $ageCategoryArr, $travelClas
 
     return $finalPrice;
 }
+function calculateFlightPriceAlternate($flightBasePrice, $ageCategoryArr, $travelClassCode, $baggageArr) {
+    $travelClassAssoc = travelClassAssoc($travelClassCode);
+    $ageCategoryAll = ageCategoryAssocAll();
+    $baggageOptionsAll = baggageOptionsAssocAll();
+
+    $finalPrice = 0;
+
+    //age category
+    foreach ($ageCategoryAll as $ageCategoryKey => $ageCategoryValue) {
+        foreach ($ageCategoryArr as $ageCategoryCountKey => $ageCategoryCountValue) {
+            // Age category match
+            if ($ageCategoryCountKey === $ageCategoryKey) {
+                // Calculate the price for each age category
+                $ageCategoryPrice = $flightBasePrice * $ageCategoryValue["cost_multiplier"];
+                $passengerPrice = $ageCategoryPrice * $ageCategoryCountValue;
+                $finalPrice += $passengerPrice * $travelClassAssoc["cost_multiplier"];
+                break;
+            }
+        }
+    }
+    //baggage
+    foreach ($baggageOptionsAll as $baggageOptionKey => $baggageOptionValue) {
+        foreach ($baggageArr as $baggageKey => $baggageValue) {
+            if ($baggageKey === $baggageOptionKey) {
+                $finalPrice += $baggageOptionValue["cost"] * $baggageValue;
+            }
+        }
+    }
+
+    return $finalPrice;
+}
 function calculateFlightPrice($flightBasePrice, $passengers, $travelClassCode, $flightType) {
     $travelClassAssoc = travelClassAssoc($travelClassCode);
     $ageCategoryAll = ageCategoryAssocAll();
@@ -277,33 +308,6 @@ function calculateFlightPrice($flightBasePrice, $passengers, $travelClassCode, $
     }
 
     return $finalPrice;
-}
-//calculate price flights
-function calculateSearchFlightPrice($flightBasePrice, $flightDiscount, $ageCategoryArr, $travelClassCode, $baggageOptionCode) {
-    $travelClassAssoc = travelClassAssoc($travelClassCode);
-    $ageCategoryAll = ageCategoryAssocAll();
-    $baggageOption = baggageOptionsAssoc($baggageOptionCode);
-
-    $finalPrice = 0;
-    //maybe here well calculate the cost for adult, senior, infant, child first
-
-    foreach ($ageCategoryAll as $ageCategoryKey => $ageCategoryValue) {
-        foreach ($ageCategoryArr as $ageCategoryCountKey => $ageCategoryCountValue) {
-            //age category match
-            if ($ageCategoryCountKey === $ageCategoryKey) {
-                if ($ageCategoryCountValue > 0 || $ageCategoryCountValue == null){
-                    $finalPrice += $baggageOption["cost"];
-                }
-                //price is base_price * age_multiplier * travel_multiplier + baggage_cost for each passenger
-                $finalPrice += ((($flightBasePrice * $ageCategoryValue["cost_multiplier"]) * $ageCategoryCountValue) *
-                    $travelClassAssoc["cost_multiplier"]);
-                break;
-            }
-        }
-    }
-    $discount = $finalPrice * $flightDiscount;
-
-    return $finalPrice - $discount;
 }
 
 function makeChart($dataPoints, $name, $max) {
@@ -371,3 +375,4 @@ function formatDiscount($discount)
 {
     return number_format($discount * 100) . '%';
 }
+

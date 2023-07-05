@@ -48,7 +48,25 @@ try{
             }
         }
     }
+    $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"],
+        "senior"=>$flightInfo["senior"],"infant"=>$flightInfo["infant"]];
 
+    $departureFlightCost = calculateFlightPriceAlternate($departureFlight["flight_base_price"], $ageCategoryArr, $flightInfo["travel_class"],
+        ["XSM"=>$flightInfo["passenger_count"]]);
+    $departureDiscount = $departureFlight["flight_discount"];
+    $departureDiscountCost = $departureFlightCost * $departureDiscount;
+
+    if ($flightInfo["trip_type"] == "RETURN") {
+        $returnFlightCost = calculateFlightPriceAlternate($returnFlight["flight_base_price"], $ageCategoryArr, $flightInfo["travel_class"],
+            ["XSM"=>$flightInfo["passenger_count"]]);
+        $returnDiscount = $returnFlight["flight_discount"];
+        $returnDiscountCost = $returnFlightCost * $returnDiscount;
+    }
+
+    $total = $departureFlightCost + ($returnFlightCost ?? 0);
+    $discountTotal = $departureDiscountCost + ($returnDiscountCost ?? 0);
+
+    $netTotal = $departureFlightCost + ($returnFlightCost ?? 0) - $discountTotal;
 }
 catch (exception $e){
     makeToast("error", $e->getMessage(), "Error");
@@ -56,114 +74,207 @@ catch (exception $e){
     die();
 }
 
+
+
 displayToast();
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title>Flight Proceed</title>
+    <?php head_tag_content(); ?>
+    <style>
+        *{
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            box-sizing: border-box;
+            outline: none; border: none;
+            text-transform: capitalize;
+        }
+        body{
+            max-width: 1600px;
+            margin: auto;
+        }
+        .parent{
+            padding: 2rem 2rem;
+            text-align: center;
+        }
+        .box{
+            padding: 2rem 2rem;
+            border-radius: 4.5%;
+            text-align: center;
+            background-color: #F5F5F5;
+        }
+        .child{
+            display: inline-block;
+            height: auto;
+            width: auto;
+            padding: 0 1rem 0 1rem;
+            vertical-align: middle;
+            vertical-align: top;
+        }
+        .child-1{
+            display: inline-block;
+            height: auto;
+            width: 100%;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding: 1rem 1rem;
+            border-radius: 4.5%;
+        }
+        .child-1 table{
+            width: 100%;
+        }
+        .child-2{
+            display: inline-block;
+            height: auto;
+            width: 100%;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding: 1rem 1rem;
+            border-radius: 4.5%;
+        }
+        .child-2 table{
+            width: 100%;
+        }
+        .child-3{
+            display: inline-block;
+            height: auto;
+            width: 350px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding: 1rem 1rem;
+            border-radius: 4.5%;
+        }
+        .child-3 table{
+            width: 100%;
+        }
+        .child-3 .proceed-btn{
+            background-color: #FF0303;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .child-3 .proceed-btn:hover{
+            background: #ED2B2A;
+        }
+        .top-border {
+            border-top-width: 2px;
+            border-top-style: solid;
+            border-top-color: black;
+        }
+    </style>
+    <title><?= config("name") ?> | Flight Proceed</title>
 </head>
 
 <body>
-    <div class="d-flex flex-row">
-        <a class="navbar-brand" href="/index.php">
-            <img class="img-fluid w-50" src="/assets/img/airasiacom_logo.svg">
-        </a>
+
+<div class="container-fluid">
+<div class="row flex-nowrap">
+    <div class="col-auto px-0">
+        <?php side_bar() ?>
     </div>
-    <div class="container">
-        <h1>Flight Proceed</h1>
-        <p>Flight Details</p>
-        <div id="departure-flight">
-            <?php
-            //departure
-            if (isset($departureFlight)){
-                $departDate = date_create($departureFlight["departure_time"]);
-                $departDate_date = date_format($departDate, 'd M Y');
-                $departDate_time = date_format($departDate, 'H:i');
+    <main class="col ps-md-2 pt-2">
 
-                $arrivalDate = date_create($departureFlight["arrival_time"]);
-                $arrivalDate_date = date_format($arrivalDate, 'd M Y');
-                $arrivalDate_time = date_format($arrivalDate, 'H:i');
+        <div class="bg-light">
+            <?php header_bar("Flight Proceed") ?>
+            <div class="container py-5">
+                <div class="row ms-3">
+                    <h1 class="ms-3 mb-4">Flight Details</h1>
+                    <hr/>
+                    <div class="col-7">
+                        <div class="child-1 p-4">
+                            <h3>Selected Departure Flight</h3>
 
-                echo "<div class='w-50'>
-<h4>Selected Departure Flight</h4>
-<p>{$departureFlight["origin_airport_country"]} ({$departureFlight["origin_airport_code"]}) -> 
-{$departureFlight["destination_airport_state"]} ({$departureFlight["destination_airport_code"]})</p>
-<span>{$flightInfo["passenger_count"]} Passengers</span><br>
-<div class='modal-body row'>
-  <div class='col-md-6'>
-    <span>{$departDate_time}</span><br>
-    <small>{$departDate_date}</small>
-  </div>
-  <div class='col-md-6'>
-<span>{$departureFlight["origin_airport_state"]} ({$departureFlight["origin_airport_code"]})</span><br>
-<small>{$departureFlight["origin_airport_name"]}</small>
-  </div>
-</div>
-<br>
-<div class='row'>
-  <div class='col-md-6'>
-    <span>{$arrivalDate_time}</span><br>
-    <small>{$arrivalDate_date}</small>
-  </div>
-  <div class='col-md-6'>
-<span>{$departureFlight["destination_airport_state"]} ({$departureFlight["destination_airport_code"]})</span><br>
-<small>{$departureFlight["destination_airport_name"]}</small>
-  </div>
-</div>
+                            <?php
+                            flightProceed_flightDetails($departureFlight, $flightInfo);
+                            ?>
+                        </div>
+                        <?php
+                        if (isset($returnFlight)){
+                            ?>
+                            <div class="child-2 p-4 mt-3">
+                                <h3>Selected Return Flight</h3>
 
+                                <?php
+                                flightProceed_flightDetails($returnFlight, $flightInfo);
+                                ?>
+                            </div>
+                            <?php
+                        }
+                        ?>
 
-    </div>";
-            }
-            ?>
+                    </div>
+                    <div class="col text-end">
+                        <div class="child sticky-top">
+                            <div class="child-3 text-center">
+                                <h2 class="title text-center mb-3">Price Details</h2>
+
+                                <table class="table table-hover">
+                                    <caption class="small">Disclaimer: these prices are with all 5kg baggage. Actual price may differ.</caption>
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" class="text-start">Item</th>
+                                        <th scope="col" class="text-end">Price</th>
+                                    </tr>
+
+                                    </thead>
+                                    <tbody>
+                                    <tr class="top-border">
+                                        <td align="left" class="fw-bold">Depart</td>
+                                        <td align="right">RM<?= number_format((float)$departureFlightCost, 2, '.',',') ?></td>
+                                    </tr>
+                                    <?php
+                                    if ($flightInfo["trip_type"] == "RETURN") {
+                                        ?>
+
+                                        <tr>
+                                            <td class="fw-bold text-start">Return</td>
+                                            <td class="text-end">RM<?= number_format((float)$returnFlightCost, 2, '.',',') ?></td>
+                                        </tr>
+
+                                        <?php
+                                    }
+                                    ?>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr class="top-border">
+                                        <td align="left" class="fw-bold">Subtotal</td>
+                                        <td align="right">RM<?= number_format((float)$total, 2, '.',',') ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" class="fw-bold">Discount</td>
+                                        <td align="right">-RM<?= number_format((float)$discountTotal, 2, '.',',') ?></td>
+                                    </tr>
+                                    <tr class="top-border">
+                                        <td align="left" class="fw-bold">Total Price</td>
+                                        <td align="right">RM<?= number_format((float)$netTotal, 2, '.',',') ?></td>
+                                    </tr>
+                                    </tfoot>
+
+                                </table>
+
+                                <button id="btn-proceed" class="proceed-btn my-3">Proceed</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <hr>
-        <div id="return-flight">
-            <?php
-            //departure
-            if (isset($returnFlight)){
-                $departDate = date_create($returnFlight["departure_time"]);
-                $departDate_date = date_format($departDate, 'd M Y');
-                $departDate_time = date_format($departDate, 'H:i');
 
-                $arrivalDate = date_create($returnFlight["arrival_time"]);
-                $arrivalDate_date = date_format($arrivalDate, 'd M Y');
-                $arrivalDate_time = date_format($arrivalDate, 'H:i');
 
-                echo "<div class='w-50'>
-<h4>Selected Return Flight</h4>
-<p>{$returnFlight["origin_airport_country"]} ({$returnFlight["origin_airport_code"]}) -> 
-{$returnFlight["destination_airport_state"]} ({$returnFlight["destination_airport_code"]})</p>
-<span>{$flightInfo["passenger_count"]} Passengers</span><br>
-<div class='modal-body row'>
-  <div class='col-md-6'>
-    <span>{$departDate_time}</span><br>
-    <small>{$departDate_date}</small>
-  </div>
-  <div class='col-md-6'>
-<span>{$returnFlight["origin_airport_state"]} ({$returnFlight["origin_airport_code"]})</span><br>
-<small>{$returnFlight["origin_airport_name"]}</small>
-  </div>
+
+        <?php footer(); ?>
+    </main>
 </div>
-<br>
-<div class='modal-body row'>
-  <div class='col-md-6'>
-    <span>{$arrivalDate_time}</span><br>
-    <small>{$arrivalDate_date}</small>
-  </div>
-  <div class='col-md-6'>
-<span>{$returnFlight["destination_airport_state"]} ({$returnFlight["destination_airport_code"]})</span><br>
-<small>{$returnFlight["destination_airport_name"]}</small>
-  </div>
 </div>
-    </div>";
-            }
-            ?>
-        </div>
-        <button id="btn-proceed" class="btn btn-outline-primary">Proceed</button>
-    </div>
-    <?php body_script_tag_content(); ?>
-    <script type="module" src="/assets/js/proceed.js"></script>
+
+<?php body_script_tag_content(); ?>
+<script type="module" src="/assets/js/proceed.js"></script>
+
 </body>
 </html>

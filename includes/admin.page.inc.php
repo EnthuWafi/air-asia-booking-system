@@ -631,3 +631,38 @@ function admin_displayAircraftLite($aircrafts) {
     </table>
     <?php
 }
+
+function admin_displayCustomerUserDashboard($users) {
+    ?>
+    <table class="table table-responsive table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Customer</th>
+            <th scope="col" class="text-center">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        if ($users != null) {
+            $count = 1;
+            foreach ($users as $usersEntry) {
+                echo "<tr class='align-middle'>
+                <th scope='row'>$count</th>
+                <td>{$usersEntry["username"]}</td>
+                <td class='text-center'><a class='btn btn-outline-primary' href='/admin/manage-users.php/#{$usersEntry["user_id"]}'>
+                    <i class='bi bi-three-dots'></i> See More                                    
+                </a></td>
+                </tr>";
+                $count++;
+            }
+            $count--;
+        } else {
+            echo "<tr><td colspan='3' class='text-center'>No customers found</td></tr>";
+        }
+        ?>
+        </tbody>
+    </table>
+
+<?php
+}

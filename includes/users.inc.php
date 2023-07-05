@@ -136,6 +136,28 @@ function retrieveCountBookings() {
     return null;
 }
 
+function retrieveCountBookingsMonthly() {
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    $sql = "SELECT COUNT(booking_id) as 'count' FROM bookings
+            WHERE YEAR(date_created) = $currentYear AND MONTH(date_created) = $currentMonth";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count bookings!");
+    }
+
+    return null;
+}
 
 function retrieveCountUsers() {
     $sql = "SELECT count(user_id) as 'count' FROM users";
@@ -156,6 +178,29 @@ function retrieveCountUsers() {
 
     return null;
 }
+
+function retrieveCountUsersMonthly() {
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    $sql = "SELECT COUNT(user_id) as `count` FROM users WHERE YEAR(registration_date) = $currentYear AND MONTH(registration_date) = $currentMonth";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count users!");
+    }
+
+    return null;
+}
+
 
 function retrieveCountAdminUsers() {
     $sql = "SELECT count(user_id) as 'count' FROM users where user_type = 'admin'";
@@ -217,6 +262,29 @@ function retrieveIncome() {
     return null;
 }
 
+function retrieveIncomeMonthly() {
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    $sql = "SELECT sum(b.booking_cost) as 'income' FROM bookings b
+            WHERE b.booking_status = 'COMPLETED' AND YEAR(date_created) = $currentYear AND MONTH(date_created) = $currentMonth";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql,);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve income!");
+    }
+
+    return null;
+}
+
 function retrieveAllAdminUsers() {
     $sql = "SELECT u.*, a.admin_code
             FROM users u
@@ -244,6 +312,31 @@ function retrieveAllCustomerUsers() {
     $sql = "SELECT u.*, c.customer_phone, c.customer_dob
             FROM users u
             INNER JOIN customers c on u.user_id = c.user_id";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get users!");
+    }
+
+    return null;
+}
+
+function retrieveAllCustomerUsersLIMIT5() {
+    $sql = "SELECT u.*, c.customer_phone, c.customer_dob
+            FROM users u
+            INNER JOIN customers c on u.user_id = c.user_id
+            ORDER BY u.registration_date DESC
+            LIMIT 5";
 
     $conn = OpenConn();
 

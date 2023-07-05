@@ -83,40 +83,41 @@ function book_guestDetails($flightInfo)
     $ageCategoriesArr = ["adult", "child", "infant", "senior"];
     foreach ($ageCategoriesArr as $key) {
         for ($i = 0, $n = $flightInfo[$key]; $i < $n; $i++) {
-            echo "<div class='row mb-3'>
-    <div class='col'>
+            echo "
+<div class='mb-3'>
+    <div class='row'>
         <h5>" . ucfirst($key) . " " . ($i + 1) . "</h5>
     </div>
-</div>
-<div class='row'>
-    <div class='col-md-3'>
-        <label for='passengers[{$key}][{$i}][first_name]' class='form-label'>First Name</label>
-        <input type='text' class='form-control' id='passengers[{$key}][{$i}][first_name]' name='passengers[{$key}][{$i}][first_name]' placeholder='First Name'>
+    <div class='row row-cols-2'>
+        <div class='col mt-2'>
+            <label for='passengers[{$key}][{$i}][first_name]' class='form-label'>First Name</label>
+            <input type='text' class='form-control' id='passengers[{$key}][{$i}][first_name]' name='passengers[{$key}][{$i}][first_name]' placeholder='First Name'>
+        </div>
+        <div class='col mt-2'>
+            <label for='passengers[{$key}][{$i}][last_name]' class='form-label'>Last Name</label>
+            <input type='text' class='form-control' id='passengers[{$key}][{$i}][last_name]' name='passengers[{$key}][{$i}][last_name]' placeholder='Last Name'>
+        </div>
+        <div class='col mt-2'>
+            <label for='passengers[{$key}][{$i}][gender]' class='form-label'>Gender</label>
+            <select class='form-select' id='passengers[{$key}][{$i}][gender]' name='passengers[{$key}][{$i}][gender]'>
+                <option value='Male'>Male</option>
+                <option value='Female'>Female</option>
+            </select>
+        </div>
+        <div class='col mt-2'>
+            <label for='passengers[{$key}][{$i}][dob]' class='form-label'>Date of Birth</label>
+            <input type='date' class='form-control' id='passengers[{$key}][{$i}][dob]' name='passengers[{$key}][{$i}][dob]' placeholder='Date of Birth'>
+        </div>
     </div>
-    <div class='col-md-3'>
-        <label for='passengers[{$key}][{$i}][last_name]' class='form-label'>Last Name</label>
-        <input type='text' class='form-control' id='passengers[{$key}][{$i}][last_name]' name='passengers[{$key}][{$i}][last_name]' placeholder='Last Name'>
-    </div>
-    <div class='col-md-3'>
-        <label for='passengers[{$key}][{$i}][gender]' class='form-label'>Gender</label>
-        <select class='form-select' id='passengers[{$key}][{$i}][gender]' name='passengers[{$key}][{$i}][gender]'>
-            <option value='Male'>Male</option>
-            <option value='Female'>Female</option>
-        </select>
-    </div>
-    <div class='col-md-3'>
-        <label for='passengers[{$key}][{$i}][dob]' class='form-label'>Date of Birth</label>
-        <input type='date' class='form-control' id='passengers[{$key}][{$i}][dob]' name='passengers[{$key}][{$i}][dob]' placeholder='Date of Birth'>
-    </div>
-</div>
-<div class='row mt-2'>
-    <div class='col'>
-        <input type='hidden' name='passengers[{$key}][{$i}][special_assistance]' value='0'>
-        <div class='form-check'>
-            <input class='form-check-input' type='checkbox' id='passengers[{$key}][{$i}][special_assistance]' name='passengers[{$key}][{$i}][special_assistance]' value='1'>
-            <label class='form-check-label' for='passengers[{$key}][{$i}][special_assistance]'>
-                Special Assistance
-            </label>
+    <div class='row mt-2'>
+        <div class='col'>
+            <input type='hidden' name='passengers[{$key}][{$i}][special_assistance]' value='0'>
+            <div class='form-check'>
+                <input class='form-check-input' type='checkbox' id='passengers[{$key}][{$i}][special_assistance]' name='passengers[{$key}][{$i}][special_assistance]' value='1'>
+                <label class='form-check-label' for='passengers[{$key}][{$i}][special_assistance]'>
+                    Special Assistance
+                </label>
+            </div>
         </div>
     </div>
 </div>";
@@ -136,11 +137,11 @@ function book_baggageAddon($flightInfo, $baggageOptions)
                 <div class='row mb-2'>
                     <h5>" . ucfirst($key) . " {$j}</h5>
                 </div>
-                <div class='col-5'>
-                <select class='form-select' name='baggages[{$key}][{$i}]' required>
+                <div class='col'>
+                <select class='form-select' name='baggages[{$key}][{$i}]' onchange='updateCost(this);' required>
                     <option selected disabled>Select baggage option</option>";
             foreach ($baggageOptions as $baggage) {
-                $str .= "<option value='{$baggage["baggage_price_code"]}'>{$baggage["baggage_name"]}</option>";
+                $str .= "<option value='{$baggage["code"]}'>{$baggage["name"]}</option>";
             }
             $str .= "</select>
                     </div>
@@ -315,39 +316,66 @@ function book_invoiceBooking($booking) {
 
             // Retrieve count for adult age category
             $adultCount = retrieveBookingAgeCategoryCount($bookingID, "adult")["count"];
-
             // Retrieve count for child age category
             $childCount = retrieveBookingAgeCategoryCount($bookingID, "child")["count"];
-
             // Retrieve count for senior age category
             $seniorCount = retrieveBookingAgeCategoryCount($bookingID, "senior")["count"];
-
             // Retrieve count for infant age category
             $infantCount = retrieveBookingAgeCategoryCount($bookingID, "infant")["count"];
-
             $ageCategoryArr = ["adult"=>$adultCount, "child"=>$childCount, "senior"=>$seniorCount,
                 "infant"=>$infantCount];
 
             $bookingTravelClass = retrieveBookingTravelClass($bookingID);
             $travelClass = $bookingTravelClass["travel_class_price_code"];
+
+            $baggageDepartArr = ["XSM"=>retrieveBookingBaggageCount($bookingID, "XSM")["count"],
+                "SML"=>retrieveBookingBaggageCount($bookingID, "SML")["count"],
+                "STD"=>retrieveBookingBaggageCount($bookingID, "STD")["count"],
+                "LRG"=>retrieveBookingBaggageCount($bookingID, "LRG")["count"],
+                "XLG"=>retrieveBookingBaggageCount($bookingID, "XLG")["count"]];
+
+            $ageCategoryAll = ageCategoryAssocAll();
+
             $count = 0;
-            $total = 0;
             foreach ($bookingFlight as $flight) {
-                $cost = calculateFlightPriceBase($flight["flight_base_price"], $ageCategoryArr, $travelClass);
+                $cost = calculateFlightPriceAlternate($flight["flight_base_price"], $ageCategoryArr, $travelClass, $baggageArr);
                 $path = "<em>({$flight["origin_airport_code"]} <i class='bi bi-arrow-right'></i> {$flight["destination_airport_code"]})</em>";
 
-                $str = $count == 0 ? "Depart $path" : "Return $path";
+                $flightType = $count == 0 ? "Depart $path" : "Return $path";
                 $costFormat = number_format((float)$cost, 2, ".", ",");
                 echo "
-                                            <tr class='item'>
-                                                <td>$str</td>        
-                                                <td>RM$costFormat</td>        
-                                            </tr>";
-                $count++;
+                <tr class='item py-2'>
+                    <td>$flightType</td>        
+                    <td>RM$costFormat</td>
+                </tr>";
 
-                $total += $cost;
+                echo "
+                <tr class='item'>
+                    <td class='ps-4'>";
+                    foreach ($ageCategoryAll as $ageCategoryKey => $ageCategoryValue) {
+                        echo "{$ageCategoryValue["name"]} x{$ageCategoryArr[$ageCategoryKey]}";
+                        echo end($ageCategoryAll) == $ageCategoryValue ? "" : ", ";
+                    }
+                echo "
+                    </td>
+                    <td></td>
+                <tr class='item'>";
+
+                echo "
+                <tr class='item'>
+                    <td class='ps-4'>";
+                foreach ($baggageArr as $baggageArrKey => $baggageArrValue) {
+                    echo "{$baggageArrKey} x{$baggageArrValue}";
+                    echo "XLG" == $baggageArrKey? "" : ", ";
+                }
+                echo "
+                    </td>
+                    <td></td>
+                <tr class='item'>";
+
+                $count++;
             }
-            $netCost = $total - $booking["booking_discount"];
+            $netCost = $booking["booking_cost"];
             $netFormatted = number_format((float)$netCost, 2, ".", ",");
 
             ?>

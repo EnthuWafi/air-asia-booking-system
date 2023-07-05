@@ -230,7 +230,8 @@ function retrieveAllFlights() {
             INNER JOIN airlines al on f.airline_id = al.airline_id
             INNER JOIN aircrafts ac on f.aircraft_id = ac.aircraft_id
             INNER JOIN admins a on f.user_id = a.user_id
-            INNER JOIN users u on a.user_id = u.user_id";
+            INNER JOIN users u on a.user_id = u.user_id
+            ORDER BY f.date_created DESC";
 
     $conn = OpenConn();
 
@@ -350,6 +351,29 @@ function updateFlight($flightID, $discount) {
 
 function retrieveCountFlights() {
     $sql = "SELECT COUNT(flight_id) as 'count' FROM flights";
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to retrieve count flights!");
+    }
+
+    return null;
+}
+
+function retrieveCountFlightsMonthly() {
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    $sql = "SELECT COUNT(flight_id) as 'count' FROM flights
+            WHERE YEAR(date_created) = $currentYear AND MONTH(date_created) = $currentMonth";
     $conn = OpenConn();
 
     try {

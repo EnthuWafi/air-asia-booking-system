@@ -44,8 +44,15 @@ ORDER BY `date` ASC";
     return null;
 }
 
-function retrieveTrafficCount() {
-    $sql = "";
+
+function retrieveTrafficMonthly() {
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    $sql = "SELECT DATE(timestamp) AS `date`, COUNT(traffic_id) AS `count`
+FROM traffic
+WHERE YEAR(timestamp) = $currentYear AND MONTH(timestamp) = $currentMonth
+GROUP BY DATE(timestamp)
+ORDER BY `date` ASC";
     $conn = OpenConn();
 
     try {
@@ -53,12 +60,12 @@ function retrieveTrafficCount() {
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_assoc($result);
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
         }
     }
     catch (mysqli_sql_exception){
         createLog($conn->error);
-        die("Error: unable to retrieve traffic count!");
+        die("Error: unable to retrieve traffic!");
     }
 
     return null;

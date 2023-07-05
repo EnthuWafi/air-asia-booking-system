@@ -47,33 +47,6 @@ function getInputs(fieldName) {
     return inputs;
 }
 
-function updateTotalCost() {
-    const totalCost = document.getElementById("total-cost");
-    var departureBaggageInputs = getInputs('departure_baggage');
-    var returnBaggageInputs = getInputs('return_baggage');
-
-    var flightPrice = originalCostDeparture + originalCostReturn;
-    for (const baggage of baggageJSON) {
-        for (let i = 0; i < departureBaggageInputs.length; i++){
-            let obj = departureBaggageInputs[i];
-            if (baggage["baggage_price_code"] === obj.value){
-                flightPrice += parseFloat(baggage["cost"]);
-            }
-        }
-        for (let i = 0; i < returnBaggageInputs.length; i++){
-            let obj = returnBaggageInputs[i];
-            if (baggage["baggage_price_code"] === obj.value){
-                flightPrice += parseFloat(baggage["cost"]);
-            }
-        }
-    }
-
-    //update here
-    let val = flightPrice.toFixed(2);
-    totalCost.textContent = `RM ${val}`;
-}
-updateTotalCost();
-
 
 
 // failed attempts (don't mind it)

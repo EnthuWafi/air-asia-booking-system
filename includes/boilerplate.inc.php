@@ -88,7 +88,7 @@ function nav_bar(){
 
 //This header is specifically for side_bar(), so it is  only to be used in conjunction with side_bar
 function header_bar($pageName){
-    echo "<div class='navbar navbar-expand-lg shadow navbar-white'>
+    echo "<div class='navbar navbar-expand-lg shadow navbar-white bg-white'>
         <div class='container-fluid w-100'>
             <div class='d-flex'>
                 <span class='navbar-brand order-first mb-4'>

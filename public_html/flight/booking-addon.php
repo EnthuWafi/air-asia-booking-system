@@ -47,21 +47,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 
-$flightInfo = $_SESSION["book"]["flightInfo"];
-$baggageOptions = retrieveBaggageOptions();
 
-$departureFlight = retrieveFlight($flightInfo["departure_flight_id"]);
-$departureFlightAddons = retrieveFlightAddon($departureFlight["flight_id"], $flightInfo["travel_class"]);
 
-$returnFlight = null;
-$returnFlightAddons = null;
+try{
+    $flightInfo = $_SESSION["book"]["flightInfo"];
+    $baggageOptions = baggageOptionsAssocAll();
 
-if (isset($flightInfo["return_flight_id"])) {
-    $returnFlight = retrieveFlight($flightInfo["return_flight_id"]);
-    $returnFlightAddons = retrieveFlightAddon($returnFlight["flight_id"], $flightInfo["travel_class"]);
+    $departureFlight = retrieveFlight($flightInfo["departure_flight_id"]);
+    $departureFlightAddons = retrieveFlightAddon($departureFlight["flight_id"], $flightInfo["travel_class"]);
+
+    $returnFlight = null;
+    $returnFlightAddons = null;
+    //flights
+    //ok first retrieve from flights again
+    $departureFlight = retrieveFlight($flightInfo["departure_flight_id"]);
+    $returnFlight = null;
+    if (isset($flightInfo["return_flight_id"])) {
+        $returnFlight = retrieveFlight($flightInfo["return_flight_id"]);
+        $returnFlightAddons = retrieveFlightAddon($returnFlight["flight_id"], $flightInfo["travel_class"]);
+    }
+
+    $travelClass = travelClassAssoc($flightInfo["travel_class"]);
+
+    $ageCategoryArr = ["adult"=>$flightInfo["adult"], "child"=>$flightInfo["child"],
+        "senior"=>$flightInfo["senior"],"infant"=>$flightInfo["infant"]];
+
+    $departureFlightCost = calculateFlightPriceAlternate($departureFlight["flight_base_price"], $ageCategoryArr, $flightInfo["travel_class"],
+        ["XSM"=>$flightInfo["passenger_count"]]);
+    $departureDiscount = $departureFlight["flight_discount"];
+    $departureDiscountCost = $departureFlightCost * $departureDiscount;
+
+    if ($flightInfo["trip_type"] == "RETURN") {
+        $returnFlightCost = calculateFlightPriceAlternate($returnFlight["flight_base_price"], $ageCategoryArr, $flightInfo["travel_class"],
+            ["XSM"=>$flightInfo["passenger_count"]]);
+        $returnDiscount = $returnFlight["flight_discount"];
+        $returnDiscountCost = $returnFlightCost * $returnDiscount;
+    }
+
+    $total = $departureFlightCost + ($returnFlightCost ?? 0);
+    $discountTotal = $departureDiscountCost + ($returnDiscountCost ?? 0);
+
+    $netTotal = $departureFlightCost + ($returnFlightCost ?? 0) - $discountTotal;
+}
+catch (exception $e){
+    makeToast("error", $e->getMessage(), "Error");
+    header("Location: /flight/booking-addon.php");
+    die();
 }
 
-$travelClass = travelClassAssoc($flightInfo["travel_class"]);
 
 displayToast();
 $token = getToken();
@@ -70,6 +103,7 @@ $token = getToken();
 <head>
     <?php head_tag_content(); ?>
     <link rel="stylesheet" href="/assets/css/plane.css">
+    <link rel="stylesheet" href="/assets/css/progress.css">
     <title><?= config("name") ?> | Booking Flight Add-ons</title>
 </head>
 <body>
@@ -79,163 +113,241 @@ $token = getToken();
             <?php side_bar() ?>
         </div>
         <main class="col ps-md-2 pt-2">
-            <?php header_bar("Flight Add-ons") ?>
+            <div class="bg-light">
+                <?php header_bar("Flight Add-ons") ?>
 
-            <div class="container py-2 px-4 pb-5 mt-3 border rounded-4">
-                <div class="row mt-4 gx-4 ms-3">
-                    <div class="shadow p-3 mb-5 bg-body rounded row">
-                        <form id="addon" method="post" action="<?php current_page(); ?>">
-                            <div class="row mt-3">
-                                <h2 class="fs-2 mb-3">Passengers Baggage</h2>
+                <div class="container py-2 px-4">
+                    <div class="row my-4">
+                        <div class="position-relative">
+                            <div id="msform">
+                                <!-- progressbar -->
+                                <ul id="progressbar">
+                                    <li class="active"><strong>Guest</strong></li>
+                                    <li class="active"><strong>Add-ons</strong></li>
+                                    <li><strong>Payment</strong></li>
+                                </ul>
                             </div>
-                            <div class="row mt-2 container">
-                                <div class='col'>
-                                    <?php
-                                    $baggageDepart = book_baggageAddon($flightInfo, $baggageOptions);
-                                    echo "<div class='row'>
+                        </div>
+                    </div>
+                    <div class="row mt-4 ms-3">
+                        <div class="col-lg-7 col-sm-auto">
+                            <div class="shadow p-3 mb-5 bg-body rounded-4 row">
+                                <form id="addon" method="post" action="<?php current_page(); ?>">
+                                    <div class="row mt-3">
+                                        <h2 class="fs-2 mb-3">Passengers Baggage</h2>
+                                    </div>
+                                    <div class="row mt-2 container">
+                                        <div class='col-6'>
+                                            <?php
+                                            $baggageDepart = book_baggageAddon($flightInfo, $baggageOptions);
+                                            echo "<div class='row'>
                                             <h2 class='fs-4 mb-3'>Departure Flight</h2>
                                           </div>
                                           <div class='row'>
                                             {$baggageDepart}                                    
                                           </div>";
-                                    ?>
-                                </div>
-                                <?php
-                                if (isset($returnFlight)) {
-                                    echo "<div class='col'>";
-                                    $baggageReturn = book_baggageAddon($flightInfo, $baggageOptions);
-                                    echo "<div class='row'>
+                                            ?>
+                                        </div>
+                                        <?php
+                                        if (isset($returnFlight)) {
+                                            echo "<div class='col-6'>";
+                                            $baggageReturn = book_baggageAddon($flightInfo, $baggageOptions);
+                                            echo "<div class='row'>
                                             <h2 class='fs-4 mb-3'>Return Flight</h2>
                                           </div>
                                           <div class='row'>
                                             {$baggageReturn}                                    
                                           </div>";
-                                    echo "</div>";
-                                }
-                                ?>
-                            </div>
-                            <div class="row mt-5 container">
-                                <h2 class="fs-2 mb-3">Passengers Seating</h2>
-                            </div>
-                            <div class="row mt-3 container">
-                                <div class="col">
-                                    <?php
-                                    echo "<div class='row'>
-                                        <h2 class='fs-4 mb-3'>Departure Flight</h2>
+                                            echo "</div>";
+                                        }
+                                        ?>
                                     </div>
-                                    <div class='row'>
-                                        <div class='col'>
-                                            <button type='button' class='btn btn-danger p-3' data-bs-toggle='modal' data-bs-target='#staticDeparture'>
+                                    <div class="row mt-5 container">
+                                        <h2 class="fs-2 mb-3">Passengers Seating</h2>
+                                    </div>
+                                    <div class="row mt-3 align-content-stretch justify-content-evenly container">
+                                        <div class="col-5">
+                                            <?php
+                                            echo "
+                                            <button type='button' class='btn btn-danger btn-red p-3' data-bs-toggle='modal' data-bs-target='#staticDeparture'>
                                                 Departure Flight Seating
-                                            </button>
+                                            </button>";
+                                            ?>
                                         </div>
-                                    </div>";
-                                    ?>
-                                </div>
-                                <?php
-                                if (isset($returnFlight)){
-                                    echo "<div class='col'>";
+                                        <?php
+                                        if (isset($returnFlight)){
+                                            echo "<div class='col-5'>";
 
-                                    echo "<div class='row'>
-                                        <h2 class='fs-4 mb-3'>Departure Flight</h2>
-                                      </div>
-                                      <div class='row'>
-                                        <div class='col'>
-                                            <button type='button' class='btn btn-danger p-3' data-bs-toggle='modal' data-bs-target='#staticReturn'>
+                                            echo "
+                                            <button type='button' class='btn btn-danger btn-red p-3' data-bs-toggle='modal' data-bs-target='#staticReturn'>
                                             Return Flight Seating
-                                            </button>                                  
-                                        </div>                                
-                                      </div>";
+                                            </button>";
 
-                                    echo "</div>";
-                                }
-                                ?>
-                            </div>
-                            <div class="row mt-4">
-                                <input type="hidden" name="token" value="<?= $token ?>">
-                                    <div class="text-end">
-                                        <a type="button" class="btn btn-outline-primary mt-3" href="/flight/booking-guest.php">Back</a>
-                                        <button type="submit" id="btn-submit" class="btn btn-outline-primary mt-3" onclick="return validateInputs()">Next</button>
+                                            echo "</div>";
+                                        }
+                                        ?>
                                     </div>
-                                </div>
-
-
-
-                            <!-- Modal departure -->
-                            <div class="modal fade" id="staticDeparture" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $departureFlight["aircraft_name"] ?></span></h3>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <div class="row mt-5">
+                                        <input type="hidden" name="token" value="<?= $token ?>">
+                                        <div class="text-end">
+                                            <a type="button" class="btn btn-danger btn-red mt-3" href="/flight/booking-guest.php">Back</a>
+                                            <button type="submit" id="btn-submit" class="btn btn-danger btn-red mt-3" onclick="return validateInputs();">Next</button>
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="plane">
 
-                                                <div class="cockpit">
-                                                    <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
-                                                </div>
-                                                <div class="exit exit--front fuselage"></div>
-
-                                                <ol class="cabin fuselage">
-                                                <?php
-                                                book_cabinSeating($travelClass, $departureFlight, $departureFlightAddons, "depart");
-                                                ?>
-                                                </ol>
-                                                <div class="exit exit--back fuselage">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="button" id="btn-confirm-depart-seat" class="btn btn-outline-primary">Confirm Selection</button>
-                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- Modal return -->
 
-                            <?php if (isset($returnFlight)) { ?>
 
-                                <div class="modal fade" id="staticReturn" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $returnFlight["aircraft_name"] ?></span></h3>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="plane">
+                                    <!-- Modal departure -->
+                                    <div class="modal fade" id="staticDeparture" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $departureFlight["aircraft_name"] ?></span></h3>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="plane">
 
-                                                    <div class="cockpit">
-                                                        <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
-                                                    </div>
-                                                    <div class="exit exit--front fuselage"></div>
+                                                        <div class="cockpit">
+                                                            <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
+                                                        </div>
+                                                        <div class="exit exit--front fuselage"></div>
 
-                                                    <ol class="cabin fuselage">
-                                                        <?php
-                                                        book_cabinSeating($travelClass, $returnFlight, $returnFlightAddons, "return");
-                                                        ?>
-                                                    </ol>
-                                                    <div class="exit exit--back fuselage">
+                                                        <ol class="cabin fuselage">
+                                                            <?php
+                                                            book_cabinSeating($travelClass, $departureFlight, $departureFlightAddons, "depart");
+                                                            ?>
+                                                        </ol>
+                                                        <div class="exit exit--back fuselage">
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="button" id="btn-confirm-return-seat" class="btn btn-outline-danger">Confirm Selection</button>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" id="btn-confirm-depart-seat" class="btn btn-outline-primary">Confirm Selection</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                            <?php } ?>
-                            <div id="hiddenInputs-depart"></div>
-                            <div id="hiddenInputs-return"></div>
-                        </form>
+                                    <!-- Modal return -->
+
+                                    <?php if (isset($returnFlight)) { ?>
+
+                                        <div class="modal fade" id="staticReturn" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $returnFlight["aircraft_name"] ?></span></h3>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="plane">
+
+                                                            <div class="cockpit">
+                                                                <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
+                                                            </div>
+                                                            <div class="exit exit--front fuselage"></div>
+
+                                                            <ol class="cabin fuselage">
+                                                                <?php
+                                                                book_cabinSeating($travelClass, $returnFlight, $returnFlightAddons, "return");
+                                                                ?>
+                                                            </ol>
+                                                            <div class="exit exit--back fuselage">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" id="btn-confirm-return-seat" class="btn btn-outline-danger">Confirm Selection</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    <?php } ?>
+                                    <div id="hiddenInputs-depart"></div>
+                                    <div id="hiddenInputs-return"></div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-sm-auto text-end">
+                            <div class="shadow p-3 bg-body rounded-4 sticky-top">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h2 class="card-title text-center mb-3 icon-red fw-bolder">Price Details</h2>
+                                        <div class="row mx-2">
+                                            <table class="table table-sm text-end">
+                                                <thead class="table-light">
+                                                <tr>
+                                                    <th class="text-start">Item</th>
+                                                    <th>Price</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr>
+                                                    <td class="text-start">
+                                                        <div class="fw-bold">
+                                                            Depart
+                                                        </div>
+                                                        <div class="baggage mt-3">
+                                                            <p class="small">
+                                                                <?= "Adult x{$ageCategoryArr["adult"]}, Child x{$ageCategoryArr["child"]},
+                                                Senior x{$ageCategoryArr["senior"]}, Infant x{$ageCategoryArr["infant"]}" ?>
+                                                            </p>
+                                                            <p class="small">
+                                                                <?= "XSM x{$flightInfo["passenger_count"]}, SML x0, STD x0, LRG x0, XLG x0" ?>
+                                                            </p>
+                                                        </div>
+
+                                                    </td>
+                                                    <td id="departureCost">RM<?= number_format($departureFlightCost, 2); ?></td>
+                                                </tr>
+                                                <?php if (isset($returnFlight)) {?>
+                                                    <tr>
+                                                        <td class="text-start">
+                                                            <span class="fw-bold">
+                                                                Return
+                                                            </span>
+                                                            <div class="baggage mt-3">
+                                                                <p class="small">
+                                                                    <?= "Adult x{$ageCategoryArr["adult"]}, Child x{$ageCategoryArr["child"]},
+                                                Senior x{$ageCategoryArr["senior"]}, Infant x{$ageCategoryArr["infant"]}" ?>
+                                                                </p>
+                                                                <p class="small">
+                                                                    <?= "XSM x{$flightInfo["passenger_count"]}, SML x0, STD x0, LRG x0, XLG x0" ?>
+                                                                </p>
+                                                            </div>
+                                                        </td>
+                                                        <td id="returnCost">RM<?= number_format($returnFlightCost, 2); ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                                </tbody>
+                                                <tfoot class="table-light">
+                                                <tr>
+                                                    <td class="fw-bold text-start">Subtotal</td>
+                                                    <td id="subtotal">RM<?= number_format($total, 2) ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold text-start">Discount</td>
+                                                    <td id="discount">-RM<?= number_format($discountTotal, 2) ?></td>
+                                                </tr>
+                                                <tr class="highlight-top-border">
+                                                    <td class="fw-bold text-start">Total Price</td>
+                                                    <td id="total">RM<?= number_format($netTotal, 2) ?></td>
+                                                </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <?php footer(); ?>
@@ -246,8 +358,11 @@ $token = getToken();
 
 <?php body_script_tag_content();?>
 <script>
+
+</script>
+<script>
+
     $(document).ready(function() {
-        var maxSeats = <?= $flightInfo["passenger_count"]?>; // Maximum number of seats allowed
 
         // Function to handle seat selection
         function handleSeatSelection(seatSelector, hiddenInputsContainer, modalName) {
@@ -292,6 +407,7 @@ $token = getToken();
         }
         ?>
 
+
         function validateInputs() {
             var selectedSeatsDepart = document.querySelectorAll('.seat.depart input[type="checkbox"]:checked');
             var selectedSeatsReturn = document.querySelectorAll('.seat.return input[type="checkbox"]:checked');
@@ -316,7 +432,69 @@ $token = getToken();
 
             return true; // Proceed with form submission
         }
+
     });
+
+    var maxSeats = <?= $flightInfo["passenger_count"] ?>; // Maximum number of seats allowed
+    const baggageArr = <?= json_encode($baggageOptions); ?>;
+
+    var baseDeparturePrice = <?php echo ($departureFlightCost - ($baggageOptions["XSM"]["cost"] * $flightInfo["passenger_count"])) ?>;
+    <?php if ($returnFlight){ ?>
+    var baseReturnPrice = <?php echo ($returnFlightCost - ($baggageOptions["XSM"]["cost"] * $flightInfo["passenger_count"])) ?>;
+    <?php } ?>
+
+    const departureDiv = document.getElementById("departureCost");
+    const returnDiv = document.getElementById("returnCost");
+    const subtotal = document.getElementById("subtotal");
+    const discount = document.getElementById("discount");
+    const total = document.getElementById("total");
+
+
+    function updateCost(baggageSelect) {
+        var selectedValue = baggageSelect.value;
+
+        var total = 0;
+        var subtotal = 0;
+        var discount = 0;
+        var net = 0;
+
+        var xsm = 0, sml = 0, std = 0, lrg = 0, xlg = 0;
+
+        var baggageElements = document.querySelectorAll("[name^='baggages']");
+
+        baggageElements.forEach(function(element) {
+            var baggageOption = baggageArr.find(option => option.code === element.value);
+            if (baggageOption) {
+                if (baggageOption.code == "XSM"){xsm++;}
+                else if (baggageOption.code == "SML"){sml++;}
+                else if (baggageOption.code == "STD"){std++;}
+                else if (baggageOption.code == "LRG"){lrg++;}
+                else if (baggageOption.code == "XLG"){xlg++;}
+
+                total += baggageOption.cost;
+            }
+        });
+
+        var departureCost = baseDeparturePrice + total;
+        <?php
+        if ($returnFlight) {
+            echo "var returnCost = baseReturnPrice + total;";
+        }
+        ?>
+
+        var baggageAge = document.getElementsByClassName('baggageAge');
+        for (var i = 0; i < baggageAge.length; i++) {
+            baggageAge[i].innerHTML =
+                `<p class="small">
+                <?= "Adult x{$ageCategoryArr["adult"]}, Child x{$ageCategoryArr["child"]},
+    Senior x{$ageCategoryArr["senior"]}, Infant x{$ageCategoryArr["infant"]}" ?>
+            </p>
+            <p class="small">
+               XSM x${xsm}, SML x${sml}, STD x${std}, LRG x${lrg}, XLG x${xlg}
+            </p>`;
+        }
+    }
+
 </script>
 </body>
 </html>
