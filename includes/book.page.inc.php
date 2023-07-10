@@ -315,7 +315,7 @@ function book_invoiceBooking($booking) {
             $bookingFlight = retrieveBookingFlights($bookingID);
 
             // Retrieve count for adult age category
-            $adultCount = retrieveBookingAgeCategoryCount($bookingID, "adult")["count"];
+            $adultCount = retrieveBookingAgeCategoryCount($bookingID,  "adult")["count"];
             // Retrieve count for child age category
             $childCount = retrieveBookingAgeCategoryCount($bookingID, "child")["count"];
             // Retrieve count for senior age category
@@ -328,21 +328,23 @@ function book_invoiceBooking($booking) {
             $bookingTravelClass = retrieveBookingTravelClass($bookingID);
             $travelClass = $bookingTravelClass["travel_class_price_code"];
 
-            $baggageDepartArr = ["XSM"=>retrieveBookingBaggageCount($bookingID, "XSM")["count"],
-                "SML"=>retrieveBookingBaggageCount($bookingID, "SML")["count"],
-                "STD"=>retrieveBookingBaggageCount($bookingID, "STD")["count"],
-                "LRG"=>retrieveBookingBaggageCount($bookingID, "LRG")["count"],
-                "XLG"=>retrieveBookingBaggageCount($bookingID, "XLG")["count"]];
-
             $ageCategoryAll = ageCategoryAssocAll();
 
             $count = 0;
             foreach ($bookingFlight as $flight) {
+                //baggage
+                $baggageArr = ["XSM"=>retrieveBookingBaggageCount($bookingID, $flight["flight_id"], "XSM")["count"],
+                    "SML"=>retrieveBookingBaggageCount($bookingID, $flight["flight_id"],  "SML")["count"],
+                    "STD"=>retrieveBookingBaggageCount($bookingID, $flight["flight_id"], "STD")["count"],
+                    "LRG"=>retrieveBookingBaggageCount($bookingID, $flight["flight_id"], "LRG")["count"],
+                    "XLG"=>retrieveBookingBaggageCount($bookingID, $flight["flight_id"], "XLG")["count"]];
+
                 $cost = calculateFlightPriceAlternate($flight["flight_base_price"], $ageCategoryArr, $travelClass, $baggageArr);
                 $path = "<em>({$flight["origin_airport_code"]} <i class='bi bi-arrow-right'></i> {$flight["destination_airport_code"]})</em>";
 
                 $flightType = $count == 0 ? "Depart $path" : "Return $path";
                 $costFormat = number_format((float)$cost, 2, ".", ",");
+                //item main
                 echo "
                 <tr class='item py-2'>
                     <td>$flightType</td>        
@@ -375,16 +377,26 @@ function book_invoiceBooking($booking) {
 
                 $count++;
             }
+            $discount = $booking["booking_discount"];
+            $discountFormatted = number_format((float)$discount, 2);
+
             $netCost = $booking["booking_cost"];
             $netFormatted = number_format((float)$netCost, 2, ".", ",");
 
+            $subTotal = $discount + $netCost;
+            $subTotalFormatted = number_format((float)$subTotal, 2);
+
             ?>
 
+            <tr class="item">
+                <td>Subtotal</td>
+                <td><?= "RM{$subTotalFormatted}"; ?></td>
+            </tr>
 
             <tr class="item last">
                 <td>Discount</td>
 
-                <td><?= "RM{$booking["booking_discount"]}"; ?></td>
+                <td><?= "RM{$discountFormatted}"; ?></td>
             </tr>
 
             <tr class="total">
@@ -395,4 +407,114 @@ function book_invoiceBooking($booking) {
         </table>
     </div>
     <?php
+}
+
+function book_ticketList($booking) {
+    $bookingID = $booking["booking_id"];
+    $passengers = retrieveBookingPassengers($bookingID);
+    $flights = retrieveBookingFlights($bookingID);
+
+    //flight depart and return
+    $count = 0;
+    foreach ($flights as $flight) {
+        $flightType = $count == 0 ? "Departure Tickets" : "Return Tickets";
+        ?>
+        <div class="row my-2">
+            <h3 class="text-center card-title"><?= $flightType ?></h3>
+        </div>
+        <hr>
+        <div class="row my-5">
+            <?php
+            foreach ($passengers as $passenger) {
+                $flightAddon = retrieveFlightPassengerAddon($flight["flight_id"], $passenger["passenger_id"]);
+
+                $date = date_create($flight["departure_time"]);
+
+                $dateFormatted = date_format($date, "h:iA d F Y");
+
+                $specialAssistance = $flightAddon["special_assistance"] == 1 ? "<span class='special-assistance'><i class='bx bx-handicap'></i></span>" : "" ;
+                ?>
+
+                    <div class="position-relative" style="height: 300px">
+                        <div class="box">
+                            <ul class="left">
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+
+                            <ul class="right">
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                            <div class="ticket">
+                                <span class="airline"><img src="/assets/img/airasiacom_logo.svg" style="width: 80px; height: auto; filter: brightness(0) invert(1);">
+                                </span>
+                                <span class="airline airlineslip"><img src="/assets/img/airasiacom_logo.svg" style="width: 80px; height: auto; filter: brightness(0) invert(1);"></span>
+                                <span class="boarding">Boarding pass</span>
+                                <?= $specialAssistance ?>
+                                <div class="content">
+                                    <img src="<?= $flight["airline_image"] ?>" class="airline-img">
+                                    <span class="jfk"><?= $flight["origin_airport_code"] ?></span>
+                                    <span class="plane"><svg class="ms-1 mt-1" clip-rule="evenodd" fill-rule="evenodd" height="60" width="60" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><g stroke="#222"><line fill="none" stroke-linecap="round" stroke-width="30" x1="300" x2="55" y1="390" y2="390"/><path d="M98 325c-9 10 10 16 25 6l311-156c24-17 35-25 42-50 2-15-46-11-78-7-15 1-34 10-42 16l-56 35 1-1-169-31c-14-3-24-5-37-1-10 5-18 10-27 18l122 72c4 3 5 7 1 9l-44 27-75-15c-10-2-18-4-28 0-8 4-14 9-20 15l74 63z" fill="#222" stroke-linejoin="round" stroke-width="10"/></g></svg></span>
+                                    <span class="sfo"><?= $flight["destination_airport_code"] ?></span>
+                                    <span class="jfk jfkslip"><?= $flight["origin_airport_code"] ?></span>
+                                    <span class="plane planeslip"><svg class="ms-1 mt-1" clip-rule="evenodd" fill-rule="evenodd" height="50" width="50" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><g stroke="#222"><line fill="none" stroke-linecap="round" stroke-width="30" x1="300" x2="55" y1="390" y2="390"/><path d="M98 325c-9 10 10 16 25 6l311-156c24-17 35-25 42-50 2-15-46-11-78-7-15 1-34 10-42 16l-56 35 1-1-169-31c-14-3-24-5-37-1-10 5-18 10-27 18l122 72c4 3 5 7 1 9l-44 27-75-15c-10-2-18-4-28 0-8 4-14 9-20 15l74 63z" fill="#222" stroke-linejoin="round" stroke-width="10"/></g></svg></span>
+                                    <span class="sfo sfoslip"><?= $flight["destination_airport_code"] ?></span>
+
+
+                                    <div class="sub-content">
+                                        <span class="watermark">airasia</span>
+                                        <span class="name">PASSENGER NAME<br><span><?= "{$flightAddon["passenger_fname"]}, {$flightAddon["passenger_lname"]}" ?></span></span>
+                                        <span class="flight">FLIGHT NO<br><span><?= $flight["flight_id"] ?></span></span>
+                                        <span class="baggage">BAGGAGE<br><span><?= $flightAddon["baggage_price_code"] ?></span></span>
+                                        <span class="seat">SEAT<br><span><?= $flightAddon["seat_number"] ?></span></span>
+                                        <span class="boardingtime">BOARDING TIME<br><span><?= $dateFormatted ?></span></span>
+                                        <span class="age">AGE GROUP<br><span><?= $flightAddon["age_category_price_code"] ?></span></span>
+                                        <span class="travel-class">TRAVEL CLASS<br><span><?php echo $flightAddon["travel_class_name"] != "Premium Economy" ? $flightAddon["travel_class_name"] : "Pre. Economy"; ?></span></span>
+
+
+                                        <span class="flight flightslip">FLIGHT NO<br><span><?= $flight["flight_id"] ?></span></span>
+                                        <span class="seat seatslip">SEAT<br><span><?= $flightAddon["seat_number"] ?></span></span>
+                                        <span class="name nameslip">PASSENGER NAME<br><span><?= "{$flightAddon["passenger_fname"]}, {$flightAddon["passenger_lname"]}" ?></span></span>
+                                    </div>
+                                </div>
+                                <div class="barcode"></div>
+                                <div class="barcode slip"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                <?php
+            }
+            ?>
+
+        </div>
+        <?php
+        $count++;
+    }
 }

@@ -72,8 +72,13 @@ displayToast();
             <div class="container">
                 <div class="row mt-4 gx-4 ms-3">
                     <div class="row">
-                        <span class="h3">Hello there, <?= $name ?? "-" ?></span>
-                        <span class="lead">Today is <?= $date ?></span>
+                        <div class="col">
+                            <span class="h3">Hello there, <?= $name ?? "-" ?></span><br>
+                            <span class="lead">Today is <?= $date ?></span>
+                        </div>
+                        <div class="col-3 text-end">
+                            <span class="h3 text-muted">#<?= $user["admin_code"] ?? "-" ?></span>
+                        </div>
                     </div>
                 </div>
                 <div class="row mt-4 ms-3">
@@ -87,7 +92,7 @@ displayToast();
                     </ul>
                 </div>
 
-                <div class="row mt-4 gx-4 ms-3">
+                <div class="row mt-4 gx-4 gy-2 ms-3 row-cols-sm-2 row-cols-lg-4">
                     <!-- USER COUNT -->
                     <div class="col">
                         <div class="shadow p-3 bg-body rounded row gx-3">
@@ -140,7 +145,7 @@ displayToast();
                     </div>
 
                     <!-- INCOME -->
-                    <div class="col-4">
+                    <div class="col-5">
                         <div class="shadow p-3 mb-5 gradient-primary rounded row gx-3">
                             <div class="col">
                                 <div class="row">
@@ -157,19 +162,16 @@ displayToast();
                     </div>
 
                 </div>
-                <div class="row mt-2 ms-2">
+                <div class="row mt-2 ms-2 justify-content-center">
                     <div class="col-8">
-                        <div class="shadow p-3 mb-5 bg-body rounded h-100">
+                        <div class="shadow p-3 mb-5 bg-body rounded">
                             <?php makeChart($dataPoints, "chart", $max); ?>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="shadow p-3 mb-5 bg-body rounded row h-100">
-                            <div class="row">
-                                <span class="h3">Recent Customers</span>
-                            </div>
-
-                            <div class="row h-100 py-4">
+                    <div class="col px-3 d-xl-flex justify-content-end">
+                        <div class="shadow p-3 mb-5 bg-body rounded align-self-stretch">
+                            <h3 class="mx-2">Recent Customers</h3>
+                            <div class="row my-2 px-3">
                                 <?php admin_displayCustomerUserDashboard($users); ?>
                             </div>
                         </div>

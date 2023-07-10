@@ -67,12 +67,12 @@ function returnUserType($userID){
 
 //verify user (return customer/admin)
 function verifyUser($username, $password) {
-    $sql = "SELECT us.* FROM users us WHERE us.username = ?";
+    $sql = "SELECT us.* FROM users us WHERE us.username = ? OR us.email = ?";
 
     $conn = OpenConn();
 
     try{
-        $result = $conn->execute_query($sql, [$username]);
+        $result = $conn->execute_query($sql, [$username, $username]);
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {
@@ -402,6 +402,31 @@ function retrieveCustomer($userID) {
     return null;
 }
 
+function retrieveAdmin($userID) {
+    $sql = "SELECT us.*, a.* FROM users us
+            INNER JOIN admins a on us.user_id = a.user_id
+            WHERE us.user_id = ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the admin!");
+    }
+
+    return null;
+
+}
+
+
 function deleteUser($userID) {
     $sql = "DELETE FROM users WHERE user_id = ?";
 
@@ -562,4 +587,32 @@ function retrieveAllAdminLike($query) {
     }
 
     return null;
+}
+
+function updateAccount($userID, $contact) {
+    $sqlFirst = "UPDATE users 
+        SET user_fname = ?, user_lname = ?
+        WHERE user_id = ?";
+    $sqlSecond = "UPDATE customers
+    SET customer_phone = ?, customer_dob = ?
+    WHERE user_id = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $conn->execute_query($sqlFirst, [$contact["first_name"], $contact["last_name"], $userID]);
+
+        $result = $conn->execute_query($sqlSecond, [$contact["phone"], $contact["dob"], $userID]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to update user details!");
+    }
+
+    return false;
 }

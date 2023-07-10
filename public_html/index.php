@@ -408,7 +408,11 @@ else { ?>
 </section>
 <div  id="features"></div>
 <?php footer() ?>
-
+<?php
+if ($userType !== "admin") {
+    showWhatsappWidget();
+}
+?>
 <?php body_script_tag_content(); ?>
 <script type="text/javascript" src="/assets/js/search.js"></script>
 <script>

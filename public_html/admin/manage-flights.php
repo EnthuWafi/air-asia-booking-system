@@ -30,6 +30,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $aircraft = htmlspecialchars($_POST['aircraft']);
                     $airline = htmlspecialchars($_POST['airline']);
 
+                    if ($originAirport == $destinationAirport) {
+                        throw new Exception("Origin airport cannot be the same as destination airport");
+                    }
+
 
                     $userID = $_SESSION["user_data"]["user_id"];
 
@@ -142,7 +146,6 @@ $token = getToken();
                                         <th scope="col">Price</th>
                                         <th scope="col">Discount</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Aircraft</th>
                                         <th scope="col">Creator</th>
                                         <th scope="col" class="text-center">Action</th>
                                     </tr>

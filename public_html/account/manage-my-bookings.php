@@ -114,27 +114,18 @@ displayToast();
                             $departureReturnFormatted = date_format($departureReturnUnformatted, "d M Y");
                         }
 
-                        $status = "";
-                        if ($departureUnformatted > $today) {
-                            $status = "Upcoming";
-                        }
-                        else if ($today < $arrivalUnformatted) {
-                            $status = "In Progress";
-                        }
-                        else {
-                            $status = "Departed";
-                        }
 
                         //elements
                         $arrow = $isReturnTicket ? "<i class='bi bi-arrow-left-right'></i>" : "<i class='bi bi-arrow-right'></i>";
                         $returnDepartureText = $isReturnTicket ? "Return: {$departureReturnFormatted}" : "";
 
+                        //just borrowing hehe
                         $flightDiv = admin_bookingFlightsDisplay($flights);
 
                         $statusLower = strtolower($booking["booking_status"]);
 
                         echo "
-<div class='shadow p-5 bg-body rounded my-2'>
+<div class='shadow p-5 bg-body rounded my-2' id='{$booking["booking_id"]}'>
     <div class='row'>
         <div class='col'>
             <div class='row'>
@@ -205,7 +196,7 @@ displayToast();
                                 <span class="text-black mt-3">This action will notify administrator!<br>It may take a little while.</span>
                             </div>
                             <div id="wait" class="align-middle ms-auto me-auto py-4">
-                                <div class="spinner-border text-warning" role="status">
+                                <div class="spinner-border text-warning ms-4" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                                 <span class="ms-2">This will take a little while...</span>

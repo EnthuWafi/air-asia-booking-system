@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         makeToast("error", $e->getMessage(), "Error");
     }
 
-    header("Location: /flight/booking-addon.php");
+    header("Location: /flight/booking-guest.php");
     die();
 }
 
@@ -332,7 +332,7 @@ $token = getToken();
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold text-start">Discount</td>
-                                                    <td id="discount">-RM<?= number_format($discountTotal, 2) ?></td>
+                                                    <td id="discount" class="text-nowrap">-RM<?= number_format($discountTotal, 2) ?></td>
                                                 </tr>
                                                 <tr class="highlight-top-border">
                                                     <td class="fw-bold text-start">Total Price</td>

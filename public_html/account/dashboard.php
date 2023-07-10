@@ -8,6 +8,7 @@ customer_login_required();
 
 displayToast();
 
+//I FUCKING HATE THIS SHIT
 $user = $_SESSION["user_data"];
 $name = $user["user_fname"] ?? "";
 $today = date_create("now");

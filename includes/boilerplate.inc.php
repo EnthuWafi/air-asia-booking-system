@@ -9,7 +9,6 @@ function head_tag_content(): void
     <script src='https://unpkg.com/@popperjs/core@2'></script>
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ' crossorigin='anonymous'>
     <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js' integrity='sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe' crossorigin='anonymous'></script>
-    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css' integrity='sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==' crossorigin='anonymous' referrerpolicy='no-referrer' />
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css'>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -21,6 +20,9 @@ function body_script_tag_content() {
     echo "
     <script src='/assets/js/main.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js' integrity='sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/additional-methods.min.js'></script>
     <script src='https://cdn.canvasjs.com/ga/canvasjs.min.js'></script>
     ";
 }
@@ -45,8 +47,8 @@ function nav_bar(){
 
     if (empty($_SESSION["user_data"])) {
         $navMenu = "<a class='nav-link' href='/'>Home</a>
-                <a class='nav-link' href='/contact-us.php'>Contact Us</a>
-                <a class='nav-link' href='/about.php'>About</a>";
+                <a class='nav-link' href='/contact-us.php'>Contact</a>
+                <a class='nav-link' href='/about-us.php'>About</a>";
     }
     else if ($_SESSION["user_data"]["user_type"] == "customer") {
         $navMenu = "<a class='nav-link' href='/'>Home</a>
@@ -273,8 +275,9 @@ function footer(){
     <ul class='nav col-md-4 justify-content-end'>
       <li class='nav-item'><a href='/' class='nav-link px-2 text-muted'>Home</a></li>
       <li class='nav-item'><a href='/index.php/#features' class='nav-link px-2 text-muted'>Features</a></li>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>About Us</a></li>
-      <li class='nav-item'><a href='#' class='nav-link px-2 text-muted'>Contact Us</a></li>
+      <li class='nav-item'><a href='/about-us.php' class='nav-link px-2 text-muted'>About Us</a></li>
+      <li class='nav-item'><a href='/contact-us.php' class='nav-link px-2 text-muted'>Contact Us</a></li>
+      <li class='nav-item'><a href='/faqs.php' class='nav-link px-2 text-muted'>FAQs</a></li>
     </ul>
   </footer>
     ";

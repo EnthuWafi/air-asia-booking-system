@@ -14,17 +14,20 @@ function sendMail($recipientEmail, $subject, $body)
     $mail = new PHPMailer(true);
 
 // Server settings
-//$mail->SMTPDebug = SMTP::DEBUG_SERVER;    //Enable verbose debug output
+
+    //$mail->SMTPDebug = SMTP::DEBUG_SERVER;    //Enable verbose debug output
     $mail->isSMTP();                            // Set mailer to use SMTP
     $mail->Host = 'smtp.gmail.com';           // Specify main and backup SMTP servers
     $mail->SMTPAuth = true;                     // Enable SMTP authentication
-    $mail->Username = 'kerepekfunz5@gmail.com';       // SMTP username
-    $mail->Password = 'jlmcoseoyexindtz';         // SMTP password
-    $mail->SMTPSecure = 'ssl';                  // Enable TLS encryption, `ssl` also accepted
-    $mail->Port = 465;                          // TCP port to connect to
+    $mail->Username = 'airasiainformationsystem@gmail.com';       // SMTP username
+    $mail->Password = 'nnuxbymxgvzezsqh';         // SMTP password pgykyjmqnbqmvpny
+                                                    //bnhgreaizspqgeks
+    $mail->Port = 587;
+    $mail->SMTPSecure = 'tls';
+
 
 // Sender info
-    $mail->setFrom('airasia@gmail.com', 'Air Asia Information System');
+    $mail->setFrom('airasiainformationsystem@gmail.com', 'Air Asia Information System');
 
 // Add a recipient
     $mail->addAddress($recipientEmail);
@@ -44,6 +47,7 @@ function sendMail($recipientEmail, $subject, $body)
 
 // Send email
     if (!$mail->send()) {
+        $mail->smtpClose();
         return false;
     } else {
         return true;

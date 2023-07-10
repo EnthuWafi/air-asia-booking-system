@@ -11,6 +11,8 @@ require("traffic.inc.php");
 require("book.page.inc.php");
 require("search.page.inc.php");
 require("admin.page.inc.php");
+
+date_default_timezone_set('Asia/Kuala_Lumpur');
 //functions
 function current_page(): void
 {
@@ -72,7 +74,7 @@ function customer_login_required(): void
         header("Location: /login.php");
         die();
     }
-    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]) or logout();
+    $_SESSION["user_data"] = retrieveCustomer($_SESSION["user_data"]["user_id"]) or logout();
 
     if (returnUserType($_SESSION["user_data"]["user_id"]) != "customer"){
         makeToast("warning", "You are forbidden from accessing this page!", "Warning");
@@ -93,7 +95,7 @@ function admin_login_required() {
         header("Location: /login.php");
         die();
     }
-    $_SESSION["user_data"] = retrieveUser($_SESSION["user_data"]["user_id"]) or logout();
+    $_SESSION["user_data"] = retrieveAdmin($_SESSION["user_data"]["user_id"]) or logout();
     if (returnUserType($_SESSION["user_data"]["user_id"]) != "admin"){
         makeToast("warning", "You are forbidden from accessing this page!", "Warning");
         header("Location: /index.php");
@@ -376,3 +378,22 @@ function formatDiscount($discount)
     return number_format($discount * 100) . '%';
 }
 
+function statusFlight($departureUnformatted, $arrivalUnformatted) {
+    $today = date_create("now");
+    if ($departureUnformatted > $today) {
+        return ["status"=>"Upcoming", "css"=>"upcoming"];
+    }
+    else if ($arrivalUnformatted > $today) {
+        return ["status"=>"In Progress", "css"=>"in-progress"];
+    }
+    else {
+        return ["status"=>"Departed", "css"=>"departed"];
+    }
+}
+
+function showWhatsappWidget() {
+    ?>
+    <script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>
+    <div class="elfsight-app-8cd72c8c-bc3c-48e6-be12-fd0c53f57cda"></div>
+<?php
+}

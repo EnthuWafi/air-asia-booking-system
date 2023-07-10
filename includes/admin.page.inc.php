@@ -98,8 +98,8 @@ function admin_displayBookingsLite($bookings) {
 {$booking["booking_reference"]}</a></td>
     <td>{$booking["username"]}</td>
     <td>{$tripTypeStr}</td>
-    <td>RM{$bookingCost}</td>
     <td><span class='{$status["class"]}'>{$status["status"]}</span></td>
+    <td>RM{$bookingCost}</td>
     <td class='text-center'>
         <a type='button' class='btn btn-outline-primary' href='/admin/manage-bookings.php/#{$booking["booking_id"]}'>
             <i class='bi bi-three-dots'></i> See More
@@ -111,7 +111,7 @@ function admin_displayBookingsLite($bookings) {
             $count--;
             echo "<script>$('#booking-count').html(\"{$count}\");</script>";
         } else {
-            echo "<tr><td colspan='12' class='text-center'>No bookings found</td></tr>";
+            echo "<tr><td colspan='7' class='text-center'>No bookings found</td></tr>";
         }
         ?>
         </tbody>
@@ -124,7 +124,7 @@ function admin_displayFlights($flights) {
         foreach ($flights as $flight) {
 
             //status = upcoming, departed, in progress
-            $today = date_create();
+            $today = date_create("now");
 
             $departureDate = $flight["departure_time"];
             $arrivalDate = $flight["arrival_time"];
@@ -142,23 +142,14 @@ function admin_displayFlights($flights) {
             $discount = $flight["flight_discount"];
             $discountPercentage = $discount * 100;
 
-            $status = [];
-            if ($departureUnformatted > $today) {
-                $status = ["status"=>"Upcoming", "css"=>"upcoming"];
-            }
-            else if ($arrivalUnformatted > $today) {
-                $status = ["status"=>"In Progress", "css"=>"in-progress"];
-            }
-            else {
-                $status = ["status"=>"Departed", "css"=>"departed"];
-            }
+            $status = statusFlight($departureUnformatted, $arrivalUnformatted);
 
             echo
             "<tr class='align-middle' id='{$flight["flight_id"]}'>
                 <th scope='row'>
                     <a href='/admin/view-flight.php?flight_id={$flight["flight_id"]}' class='text-decoration-none fw-bold'>$count</a>
                 </th>
-                <td><img src='{$flight["airline_image"]}' width='50' height='40'></td>
+                <td><img src='{$flight["airline_image"]}' class='img-fluid'></td>
                 <td>{$flight["origin_airport_code"]}</td>
                 <td>{$flight["destination_airport_code"]}</td>
                 <td>{$departureFormatted}</td>
@@ -166,8 +157,6 @@ function admin_displayFlights($flights) {
                 <td>RM{$flightBaseCost}</td>
                 <td class='text-center'>{$discountPercentage}%</td>
                 <td><span class='{$status["css"]}'>{$status["status"]}</span></td>
-                
-                <td>{$flight["aircraft_name"]}</td>
                 <td class='text-muted'>{$flight["username"]}</td>
                 <td class='text-center'>
                     <a type='button' data-bs-toggle='modal' data-bs-target='#updateStatic' 
@@ -367,16 +356,8 @@ function admin_bookingFlightsDisplay($flights) {
         $hourArrival = date_format($arrival, "H:i A");
 
         $today = date_create("now");
-        $status = "";
-        if ($departure > $today) {
-            $status = "Upcoming";
-        }
-        else if ($today < $arrival) {
-            $status = "In Progress";
-        }
-        else {
-            $status = "Departed";
-        }
+
+        $status = statusFlight($departure, $arrival);
 
         $hour = formatDuration($flight["duration"]);
 
@@ -417,6 +398,9 @@ function admin_bookingFlightsDisplay($flights) {
                 </div>
             </div>     
         </div>   
+    </div>
+    <div class='col'>
+        <span class='{$status["css"]}'>{$status["status"]}</span>
     </div>
     <div class='col-auto ms-1'>
         <span class='h4 text-secondary text-center'> 
@@ -647,12 +631,27 @@ function admin_displayCustomerUserDashboard($users) {
         if ($users != null) {
             $count = 1;
             foreach ($users as $usersEntry) {
-                echo "<tr class='align-middle'>
+                echo "<tr class='align-middle py-3' style='height: 70px;'>
                 <th scope='row'>$count</th>
-                <td>{$usersEntry["username"]}</td>
-                <td class='text-center'><a class='btn btn-outline-primary' href='/admin/manage-users.php/#{$usersEntry["user_id"]}'>
-                    <i class='bi bi-three-dots'></i> See More                                    
-                </a></td>
+                <td>
+                <div class='row d-flex'>
+                    <div class='col-4'>
+                       <img src='/assets/img/default-profile.svg' width='32' height='32' class='rounded-circle me-2'>             
+                    </div>
+                    <div class='col mt-1'>
+                        <span class='text-muted'>{$usersEntry["username"]}</span>                                
+                    </div> 
+                </div>
+                
+                </td>
+                <td class='text-center'>
+                    <a href='mailto:{$usersEntry["email"]}' class='h4 text-decoration-none'>
+                        <i class='bi bi-envelope'></i>
+                    </a>
+                    <a class='h4' href='/admin/manage-users.php/#{$usersEntry["user_id"]}'>
+                        <i class='bi bi-eye'></i>                                 
+                    </a>
+                </td>
                 </tr>";
                 $count++;
             }

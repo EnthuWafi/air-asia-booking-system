@@ -11,17 +11,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try{
         if(!empty($postedToken)){
             if(isTokenValid($postedToken)){
-                if (!array_keys_isset(["address", "postcode", "city", "state", "phone"], $_POST)){
+                if (!array_keys_isset(["first_name", "last_name", "phone", "dob"], $_POST)){
                     throw new Exception("Values not found!");
                 }
 
-                $contact = ["address"=>htmlspecialchars($_POST["address"]), "postcode"=>htmlspecialchars($_POST["postcode"]),
-                    "city"=>htmlspecialchars($_POST["city"]), "state_code"=>htmlspecialchars($_POST["state"]),
-                    "phone"=>htmlspecialchars($_POST["phone"])];
+                $contact = ["phone"=>htmlspecialchars($_POST["phone"]), "first_name"=>htmlspecialchars($_POST["first_name"]),
+                    "last_name"=>htmlspecialchars($_POST["last_name"]), "dob"=>htmlspecialchars($_POST["dob"])];
                 $userID = $_SESSION["user_data"]["user_id"];
 
-                if (updateContact($userID, $contact)){
-                    makeToast('success', "Contact info is successfully updated!", "Success");
+                if (updateAccount($userID, $contact)){
+                    makeToast('success', "Account info is successfully updated!", "Success");
                 }
                 else{
                     throw new Exception("Contact info wasn't able to be updated!");
@@ -53,6 +52,7 @@ if ($date) {
 }
 
 
+
 $token = getToken();
 ?>
 <!DOCTYPE html>
@@ -60,7 +60,7 @@ $token = getToken();
 
 <head>
     <?php head_tag_content(); ?>
-    <title>Kerepek Funz | Profile</title>
+    <title><?= config("name") ?> | Profile</title>
 </head>
 <body>
 <div class="container-fluid">
@@ -74,13 +74,45 @@ $token = getToken();
             <!-- todo DASHBOARD here  -->
             <div class="container">
                 <div class="row mt-4 gx-4 ms-3">
-                    <div class="col-5">
+                    <div class="col-lg-5 col-md-auto">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
-                            <span class="fs-2">Details Update</span>
+                            <span class="fs-2">Account Details</span>
                             <div class="mt-2">
-                                <form method="post" action="<?php current_page(); ?>">
+                                <form method="post" action="<?php current_page(); ?>" class="needs-validation" novalidate>
                                     <div class="container">
+                                        <div class="row gx-1 mb-2">
+                                            <div class="col">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter your first name" value="<?= $user["user_fname"] ?? "" ?>" required>
+                                                    <label for="first_name">First Name</label>
+                                                    <div class="invalid-feedback" id="first_name_error">Please enter your first name.</div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter your last name" value="<?= $user["user_lname"] ?? "" ?>" required>
+                                                    <label for="last_name">Last Name</label>
+                                                    <div class="invalid-feedback" id="last_name_error">Please enter your last name.</div>
+                                                </div>
+                                            </div>
+                                        </div>
 
+                                        <div class="form-floating mb-2">
+                                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" value="<?= $user["customer_phone"] ?? "" ?>" required>
+                                            <label for="phone">Phone</label>
+                                            <div class="invalid-feedback" id="phone_error">Please enter a valid phone number.</div>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="date_of_birth" name="dob" value="<?= $user["customer_dob"] ?? "" ?>" required>
+                                            <label for="date_of_birth">Date of Birth</label>
+                                            <div class="invalid-feedback" id="dob_error">Please enter a valid date of birth.</div>
+                                        </div>
+                                        <div class="row mt-4 text-end">
+                                            <div class="col">
+                                                <button type="submit" class="btn btn-danger">Update</button>
+                                                <input type="hidden" name="token" value="<?= $token ?>">
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -108,16 +140,16 @@ $token = getToken();
                             </div>
                             <div class="col mt-2">
                                 <div class="row">
-                                    <span class="fw-semibold"><?= $user["username"]  ?? "-" ?></span>
+                                    <span class="fw-semibold"><?= !empty($user["username"]) ? $user["username"]  : "-" ?></span>
                                 </div>
                                 <div class="row">
-                                    <span class="fw-semibold"><?= $user["user_fname"]  ?? "-" ?></span>
+                                    <span class="fw-semibold"><?= !empty($user["user_fname"]) ? $user["user_fname"]  : "-" ?></span>
                                 </div>
                                 <div class="row">
-                                    <span class="fw-semibold"><?= $user["user_lname"]  ?? "-" ?></span>
+                                    <span class="fw-semibold"><?= !empty($user["user_lname"]) ? $user["user_lname"] : "-" ?></span>
                                 </div>
                                 <div class="row">
-                                    <span class="fw-semibold"><?= $user["email"]  ?? "-" ?></span>
+                                    <span class="fw-semibold"><?= !empty($user["email"]) ? $user["email"] : "-"  ?></span>
                                 </div>
                                 <div class="row">
                                     <span class="fw-semibold"><?php if (!empty($user["registration_date"])) {
@@ -139,7 +171,7 @@ $token = getToken();
                             </div>
                             <div class="col mt-2">
                                 <div class="row">
-                                    <span class="fw-semibold"><?= $user["customer_phone"] ?? "-" ?></span>
+                                    <span class="fw-semibold"><?= !empty($user["customer_phone"]) ? $user["customer_phone"] : "-" ?></span>
                                 </div>
                                 <div class="row">
                                     <span class="fw-semibold"><?= $dob ?? "-"  ?></span>
@@ -157,6 +189,81 @@ $token = getToken();
     </div>
 </div>
 <?php body_script_tag_content();?>
+<script>
+    $(document).ready(function() {
+
+        document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
+            if (!validateForm()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+
+        function validateForm() {
+            // Get the form inputs
+            var firstNameInput = document.getElementById('first_name');
+            var lastNameInput = document.getElementById('last_name');
+            var phoneInput = document.getElementById('phone');
+            var dobInput = document.getElementById('date_of_birth');
+
+            // Validate first name
+            if (firstNameInput.value.trim() === '') {
+                displayErrorMessage(firstNameInput, 'first_name_error', 'Please enter your first name.');
+                return false;
+            }
+
+            // Validate last name
+            if (lastNameInput.value.trim() === '') {
+                displayErrorMessage(lastNameInput, 'last_name_error', 'Please enter your last name.');
+                return false;
+            }
+
+            // Validate phone number
+            if (!/^(\+\d{1,3})?\d{10}$/.test(phoneInput.value.trim())) {
+                displayErrorMessage(phoneInput, 'phone_error', 'Please enter a valid phone number.');
+                return false;
+            }
+
+            // Validate date of birth
+            var dobDate = new Date(dobInput.value);
+            var currentDate = new Date();
+            var minAgeDate = new Date(currentDate.getFullYear() - 18, currentDate.getMonth(), currentDate.getDate());
+            if (dobDate > minAgeDate) {
+                displayErrorMessage(dobInput, 'dob_error', 'You must be at least 18 years old.');
+                return false;
+            }
+
+            // Clear any error messages if validation passes
+            clearErrorMessage(firstNameInput, 'first_name_error');
+            clearErrorMessage(lastNameInput, 'last_name_error');
+            clearErrorMessage(phoneInput, 'phone_error');
+            clearErrorMessage(dobInput, 'dob_error');
+
+            return true; // Form is valid
+        }
+
+        function displayErrorMessage(input, errorId, message) {
+            input.classList.add('is-invalid');
+            var errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+        }
+
+        function clearErrorMessage(input, errorId) {
+            input.classList.remove('is-invalid');
+            var errorElement = document.getElementById(errorId);
+            errorElement.textContent = '';
+        }
+
+
+        <?php if (empty($user["customer_dob"])) { ?>
+        // Set default value for Date of Birth 18 years prior to the current date
+        var dateOfBirthInput = document.getElementById('date_of_birth');
+        var currentDate = new Date();
+        var eighteenYearsAgo = new Date(currentDate.getFullYear() - 18, currentDate.getMonth(), currentDate.getDate());
+        dateOfBirthInput.valueAsDate = eighteenYearsAgo;
+        <?php } ?>
+    });
+</script>
+
 </body>
 
 </html>

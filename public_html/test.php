@@ -2,6 +2,10 @@
 
 require("../includes/functions.inc.php");
 
+require("../mail.inc.php");
+
+sendMail("wafithird@gmail.com", "Testing", "Testing");
+
 $travelClass = "ECO";
 //testing the result
 $passengers = [

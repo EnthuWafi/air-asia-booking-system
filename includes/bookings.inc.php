@@ -272,10 +272,9 @@ ORDER BY fl.departure_time ASC";
 }
 
 function retrieveBookingPassengers($bookingID) {
-    $sql = "SELECT bo.*, pa.*
+    $sql = "SELECT pa.*
 FROM bookings bo
 INNER JOIN passengers pa on bo.booking_id = pa.booking_id
-INNER JOIN flight_addons fa on pa.passenger_id = fa.passenger_id
 WHERE bo.booking_id = ?";
     $conn = OpenConn();
 
@@ -295,19 +294,20 @@ WHERE bo.booking_id = ?";
     return null;
 }
 
-function retrievePassengerAddon($passengerID) {
-    $sql = "SELECT pa.*
+function retrieveFlightPassengerAddon($flightID, $passengerID) {
+    $sql = "SELECT pa.*, fa.*, tcp.*
 FROM passengers pa
-INNER JOIN flight_addons fa on pa.passenger_id = fa.passenger_id
+INNER JOIN flight_addons fa on pa.passenger_id = fa.passenger_id AND fa.flight_id = ?
+INNER JOIN travel_class_prices tcp on fa.travel_class_price_code = tcp.travel_class_price_code
 WHERE pa.passenger_id = ?";
     $conn = OpenConn();
 
     try {
-        $result = $conn->execute_query($sql, [$passengerID]);
+        $result = $conn->execute_query($sql, [$flightID, $passengerID]);
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+            return mysqli_fetch_assoc($result);
         }
     }
     catch (mysqli_sql_exception){
@@ -365,15 +365,15 @@ function retrieveBookingAgeCategoryCount($bookingID, $ageCategory) {
     return null;
 }
 
-function retrieveBookingBaggageCount($bookingID, $baggageCode) {
+function retrieveBookingBaggageCount($bookingID, $flightID, $baggageCode) {
     $sql = "SELECT COUNT(p.passenger_id) as 'count' FROM bookings b
             INNER JOIN passengers p on b.booking_id = p.booking_id
-            INNER JOIN flight_addons fa on p.passenger_id = fa.passenger_id AND fa.baggage_price_code = ?
+            INNER JOIN flight_addons fa on p.passenger_id = fa.passenger_id AND fa.baggage_price_code = ? AND fa.flight_id = ?
             WHERE b.booking_id = ?";
     $conn = OpenConn();
 
     try {
-        $result = $conn->execute_query($sql, [$baggageCode, $bookingID]);
+        $result = $conn->execute_query($sql, [$baggageCode, $flightID, $bookingID]);
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {
@@ -437,6 +437,31 @@ function retrieveAllBookingLike($query) {
     return null;
 }
 
+function retrieveAllBookingUserLike($userID, $query) {
+    $query = "%{$query}%";
+    $sql = "SELECT bo.*, c.*, u.* FROM bookings bo
+            INNER JOIN customers c on bo.user_id = c.user_id
+            INNER JOIN users u on c.user_id = u.user_id
+            WHERE bo.booking_reference LIKE ? OR bo.booking_status LIKE ?
+            AND u.user_id = ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$query, $query, $userID]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot bookings user like query!");
+    }
+
+    return null;
+}
 function retrieveAllAircraftLike($query) {
     $query = "%{$query}%";
     $sql = "SELECT ac.* FROM aircrafts ac

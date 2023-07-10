@@ -101,7 +101,4 @@
     #sidebar, .navbar, footer * {
         display: none;
     }
-    .card-body {
-        page-break-inside: avoid;
-    }
 }

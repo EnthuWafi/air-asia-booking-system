@@ -129,7 +129,7 @@ $flights = retrieveBookingFlights($booking["booking_id"]);?>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button class="btn btn-danger d-print-none" onclick="window.print()">Print</button>
+                                    <button class="btn btn-danger d-print-none" onclick="window.print();window.close();">Print</button>
                                 </div>
                             </div>
                         </div>

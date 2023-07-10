@@ -81,7 +81,7 @@ try{
 }
 catch (exception $e){
     makeToast("error", $e->getMessage(), "Error");
-    header("Location: /flight/booking-guest.php");
+    header("Location: /flight/search.php");
     die();
 }
 

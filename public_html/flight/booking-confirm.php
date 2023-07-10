@@ -11,8 +11,16 @@ if (!isset($_SESSION["booking_id"])) {
     die();
 }
 
-$bookingID = $_SESSION["booking_id"];
-$booking = retrieveBooking($bookingID);
+try {
+    $bookingID = $_SESSION["booking_id"];
+    $booking = retrieveBookingByUser($bookingID, $_SESSION["user_data"]["user_id"]);
+}
+catch (Exception $e) {
+    makeToast("error", $e->getMessage(), "Error");
+    header("Location: /index.php");
+    die();
+}
+
 
 
 displayToast();
@@ -42,7 +50,7 @@ displayToast();
                 <div class="row mt-4">
                     <div class="col">
                         <div class="card">
-                            <div class="card-body p-3 my-5">
+                            <div class="card-body p-3 my-5" id="invoice">
                                 <h3 class="text-center card-title">Booking Confirmation</h3>
 
                                 <?php book_invoiceBooking($booking); ?>

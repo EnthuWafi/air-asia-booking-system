@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $baggages = $_SESSION["book"]["baggages"];
                     $seats = $_SESSION["book"]["seats"];
 
-                    //special index for seats
+                    //index for seats
                     $indexSpecial = 0;
                     //passenger[adult][1][first_name]
                     foreach ($passengers as $ageCategoryKey => $ageCategoryValue) {
@@ -214,7 +214,7 @@ try{
 }
 catch (exception $e){
     makeToast("error", $e->getMessage(), "Error");
-    header("Location: /flight/booking-payment.php");
+    header("Location: /flight/booking-guest.php");
     die();
 }
 
