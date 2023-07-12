@@ -19,23 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     "last_name"=>htmlspecialchars($_POST["last_name"]), "dob"=>htmlspecialchars($_POST["dob"])];
                 $userID = $_SESSION["user_data"]["user_id"];
 
-                //dob
-                $dateDob = $contact["dob"];
-                $currentDate = date_create("now");
-                $minAge = date_modify(clone $currentDate, "-100 years");
-                $maxAge = date_modify(clone $currentDate, "-18 years");
-
-                $isValidAge = false;
-
-                if ($dateDob >= $minAge && $dateDob <= $maxAge) {
-                    $isValidAge = true;
-                }
-
-                if (!$isValidAge) {
-                    throw new Exception("Date of birth can only be between 18 and 100!");
-                }
-
-
                 if (updateAccount($userID, $contact)){
                     makeToast('success', "Account info is successfully updated!", "Success");
                 }

@@ -67,10 +67,10 @@ $token = getToken();
         <div class="row overflow-x-auto">
             <div class="container my-4">
                 <div class="row my-5">
-                    <div class="col-md-6 offset-md-3 bg-body p-5 rounded-3">
+                    <div class="col-md-6 offset-md-3 bg-body p-5 rounded-3"  style="scale: 0.95;" id="registration">
                         <h2 class="text-center mb-3">Registration</h2>
                         <hr>
-                        <form action="<?php current_page(); ?>" method="post" class="needs-validation" id="signup-form">
+                        <form action="<?php current_page(); ?>" method="post" class="needs-validation" id="signup-form" >
                             <div class="row mb-3 mt-4">
                                 <div class="col">
                                     <div class="form-floating">
@@ -126,6 +126,15 @@ $token = getToken();
 <script type="text/javascript" src="/assets/js/register.js"></script>
 <script>
     $(document).ready(function() {
+        // Pop-out animation
+        gsap.to("#registration", {
+            scale: 1,
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out",
+            yoyo: true
+        });
+
         $('#signup-form').validate({
             errorElement: 'div', // Use 'div' element for error messages
             errorClass: 'invalid-feedback', // Bootstrap's invalid-feedback class for error styling
