@@ -70,7 +70,7 @@ $token = getToken();
                     <div class="col-md-6 offset-md-3 bg-body p-5 rounded-3">
                         <h2 class="text-center mb-3">Registration</h2>
                         <hr>
-                        <form action="<?php current_page(); ?>" method="post">
+                        <form action="<?php current_page(); ?>" method="post" class="needs-validation" id="signup-form">
                             <div class="row mb-3 mt-4">
                                 <div class="col">
                                     <div class="form-floating">
@@ -110,7 +110,7 @@ $token = getToken();
                                 </div>
                             </div>
                             <div class="text-center">
-                                <input type="submit" value="Sign-Up" />
+                                <input type="submit" value="Sign-Up" class="submit-red"/>
                             </div>
                             <div class="signup_link">Already a member? <a href="/login.php">Login</a></div>
                         </form>
@@ -124,6 +124,59 @@ $token = getToken();
 <?php footer(); ?>
 <?php body_script_tag_content(); ?>
 <script type="text/javascript" src="/assets/js/register.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#signup-form').validate({
+            errorElement: 'div', // Use 'div' element for error messages
+            errorClass: 'invalid-feedback', // Bootstrap's invalid-feedback class for error styling
+            highlight: function(element) {
+                $(element).addClass('is-invalid'); // Add is-invalid class to invalid fields
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid'); // Remove is-invalid class from valid fields
+            },
+            errorPlacement: function(error, element) {
+                // Add the invalid-feedback class to the error message container
+                error.addClass('invalid-feedback');
+                // Insert the error message after the invalid field
+                error.insertAfter(element);
+            },
+            rules: {
+                fname: 'required', // First Name field is required
+                lname: 'required', // Last Name field is required
+                username: 'required', // Username field is required
+                email: {
+                    required: true, // Email field is required
+                    email: true // Email field should be a valid email address
+                },
+                password: 'required', // Password field is required
+                'confirm-password': {
+                    required: true,
+                    equalTo: '#password' // Confirm Password field should match the Password field
+                }
+            },
+            messages: {
+                fname: 'Please enter a valid first name.',
+                lname: 'Please enter a valid last name.',
+                username: 'Please enter a valid username.',
+                email: {
+                    required: 'Please enter a valid email address.',
+                    email: 'Please enter a valid email address.'
+                },
+                password: 'Please enter a password.',
+                'confirm-password': {
+                    required: 'Please confirm your password.',
+                    equalTo: 'Passwords do not match.'
+                }
+            },
+            submitHandler: function(form) {
+                // Form is valid, submit it
+                form.submit();
+            }
+        });
+    });
+
+</script>
 </body>
 </html>
 
