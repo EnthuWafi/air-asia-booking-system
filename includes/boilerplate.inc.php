@@ -69,7 +69,7 @@ function nav_bar(){
     }
 
 
-    echo "<nav class='navbar navbar-expand-lg shadow p-3 bg-white rounded sticky-top'>
+    echo "<nav class='navbar navbar-expand-lg shadow p-3 bg-white rounded sticky-top' id='navHeader'>
         <div class='container-fluid'>
             <div class='d-flex'>
                 <a class='navbar-brand order-first' href='index.php'>

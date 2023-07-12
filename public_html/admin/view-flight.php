@@ -65,7 +65,7 @@ $flightCode = sprintf("%05d",$flight["flight_id"]);
                             <div class="col-lg-8 col-sm-auto">
                                 <div class="row mt-5">
                                     <div class="col-md-12">
-                                        <h2><img src="<?= "{$flight["airline_image"]}" ?>" class="img-fluid object-fit-cover" style="width: 80px; height: 40px"> Flight Details</h2>
+                                        <h2><img src="<?= "{$flight["airline_image"]}" ?>" class="img-fluid object-fit-contain" style="width: 80px; height: 40px"> Flight Details</h2>
                                     </div>
                                 </div>
                                 <hr>
@@ -202,7 +202,7 @@ $flightCode = sprintf("%05d",$flight["flight_id"]);
                                             </div>
                                         </div>
                                         <div class="col-lg-4 col-sm-auto">
-                                            <div class="shadow px-2 py-5 rounded-4">
+                                            <div class="shadow px-2 py-5 rounded-4 sticky-top">
                                                 <h3 class="text-center text-decoration-underline">Seat Guide</h3>
                                                 <div class="row align-items-center mt-3">
                                                     <div class="col-2">
