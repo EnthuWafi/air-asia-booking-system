@@ -66,7 +66,7 @@ $token = getToken();
     <div class="container-fluid">
         <div class="row overflow-x-auto">
             <div class="container my-4">
-                <div class="row mt-5">
+                <div class="row my-5">
                     <div class="col-md-6 offset-md-3 bg-body p-5 rounded-3">
                         <h2 class="text-center mb-3">Registration</h2>
                         <hr>

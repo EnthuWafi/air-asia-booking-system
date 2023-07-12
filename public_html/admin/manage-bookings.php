@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                              <p>Sincerely,</p>
                              <p>AirAsia Team</p>";
 
-                    sendMail($booking["booking_email"], $subject, $body) or throw new Exception("Message wasn't sent!");;
+                    sendMail($booking["booking_email"], $subject, $body) or throw new Exception("Message wasn't sent!");
 
                     makeToast("success", "Transaction status successfully updated!", "Success");
                 }

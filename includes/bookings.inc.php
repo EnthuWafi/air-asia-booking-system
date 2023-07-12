@@ -441,14 +441,13 @@ function retrieveAllBookingUserLike($userID, $query) {
     $query = "%{$query}%";
     $sql = "SELECT bo.*, c.*, u.* FROM bookings bo
             INNER JOIN customers c on bo.user_id = c.user_id
-            INNER JOIN users u on c.user_id = u.user_id
-            WHERE bo.booking_reference LIKE ? OR bo.booking_status LIKE ?
-            AND u.user_id = ?";
+            INNER JOIN users u on c.user_id = u.user_id AND u.user_id = ?
+            WHERE bo.booking_reference LIKE ? OR bo.booking_status LIKE ?";
 
     $conn = OpenConn();
 
     try{
-        $result = $conn->execute_query($sql, [$query, $query, $userID]);
+        $result = $conn->execute_query($sql, [$userID, $query, $query]);
         CloseConn($conn);
 
         if (mysqli_num_rows($result) > 0) {

@@ -371,7 +371,7 @@ function admin_bookingFlightsDisplay($flights) {
     </div>
     <div class='col-2 mt-3'>
         <div class='row'>
-            <h3 class='text-nowrap'>{$flight["airline_name"]}</h3>
+            <h4 >{$flight["airline_name"]}</h4>
         </div>
         <div class='row'>
             <p class='text-muted'>{$flight["aircraft_name"]}</p>
@@ -531,7 +531,7 @@ function admin_displayAircraft($aircrafts) {
                 echo
                 "<tr class='align-middle' id='{$aircraft["aircraft_id"]}'>
                 <th scope='row'>$count</th>
-                <td>{$aircraft["aircraft_name"]}</td>
+                <td>{$aircraft["aircraft_name"]} <i class='bx bxs-plane-alt h4 icon-red'></i> </td>
                 <td>{$dateFormatted}</td>
                 <td class='text-center'>{$aircraft["economy_capacity"]}</td>
                 <td class='text-center'>{$aircraft["premium_economy_capacity"]}</td>
@@ -664,4 +664,47 @@ function admin_displayCustomerUserDashboard($users) {
     </table>
 
 <?php
+}
+
+function admin_cabinSeating($flightAddons, $flightCapacity, $type) {
+
+    //seat disabled
+    $seatDisabled = [];
+    if ($flightAddons != null) {
+        foreach ($flightAddons as $flightAddon) {
+            $seatNumber = $flightAddon["seat_number"];
+            array_push($seatDisabled, $seatNumber);
+        }
+    }
+
+    $seats = "";
+    $maxColumnLength = 6;
+
+    $seatLabels = range('A', 'Z'); // Generate an array of seat labels from A to Z
+
+    $rowCount = 1; //rows
+    $colCount = 0; //col
+    $i = 0; //for counting till capacity is reached
+    while ($i < $flightCapacity){
+        if ($i % $maxColumnLength == 0) {
+            $seats .= "<li class=''><ol class='seats'>";
+        }
+        $i++;
+        $colCount++;
+
+        $label = $rowCount . $seatLabels[$colCount - 1]; // Generate the seat label
+        $disabledCheck = in_array($label, $seatDisabled) ? "disabled" : "";
+
+        $seats .= "<li class='seat $type'>
+          <input type='checkbox' id='{$label}{$type}' value='$label' $disabledCheck readonly>
+          <label for='{$label}{$type}'>$label</label>
+        </li>";
+
+        if ($i % $maxColumnLength == 0) {
+            $seats .= "</ol></li>";
+            $colCount = 0;
+            $rowCount++;
+        }
+    }
+    echo $seats;
 }

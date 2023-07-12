@@ -180,8 +180,13 @@ displayToast();
                 <div class="row mt-2 ms-3">
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
-                            <div class="row">
-                                <span class="h3">Recent Bookings</span>
+                            <div class="row justify-content-between mb-3">
+                                <div class="col-auto">
+                                    <span class="h3">Recent Bookings</span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h5"><span id="booking-count">0</span> Bookings</span>
+                                </div>
                             </div>
                             <div class="row">
                                 <?php admin_displayBookingsLite($bookings); ?>

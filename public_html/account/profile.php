@@ -19,6 +19,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     "last_name"=>htmlspecialchars($_POST["last_name"]), "dob"=>htmlspecialchars($_POST["dob"])];
                 $userID = $_SESSION["user_data"]["user_id"];
 
+                //dob
+                $dateDob = $contact["dob"];
+                $currentDate = date_create("now");
+                $minAge = date_modify(clone $currentDate, "-100 years");
+                $maxAge = date_modify(clone $currentDate, "-18 years");
+
+                $isValidAge = false;
+
+                if ($dateDob >= $minAge && $dateDob <= $maxAge) {
+                    $isValidAge = true;
+                }
+
+                if (!$isValidAge) {
+                    throw new Exception("Date of birth can only be between 18 and 100!");
+                }
+
+
                 if (updateAccount($userID, $contact)){
                     makeToast('success', "Account info is successfully updated!", "Success");
                 }
@@ -75,12 +92,16 @@ $token = getToken();
             <div class="container">
                 <div class="row mt-4 gx-4 ms-3">
                     <div class="col-lg-5 col-md-auto">
-                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
+                        <div class="shadow p-2 mb-5 bg-body rounded-3 row gx-3">
                             <span class="fs-2">Account Details</span>
                             <div class="mt-2">
                                 <form method="post" action="<?php current_page(); ?>" class="needs-validation" novalidate>
                                     <div class="container">
-                                        <div class="row gx-1 mb-2">
+
+                                        <div class="row gx-1 mb-2 align-items-center">
+                                            <div class="col-auto me-1">
+                                                <i class="bi bi-person icon-red h5 fw-bold me-3"></i>
+                                            </div>
                                             <div class="col">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter your first name" value="<?= $user["user_fname"] ?? "" ?>" required>
@@ -97,16 +118,32 @@ $token = getToken();
                                             </div>
                                         </div>
 
-                                        <div class="form-floating mb-2">
-                                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" value="<?= $user["customer_phone"] ?? "" ?>" required>
-                                            <label for="phone">Phone</label>
-                                            <div class="invalid-feedback" id="phone_error">Please enter a valid phone number.</div>
+                                        <div class="row mb-2 align-items-center">
+                                            <div class="col-auto">
+                                                <i class="bi bi-telephone icon-red h5 fw-bold"></i>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-2">
+                                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" value="<?= $user["customer_phone"] ?? "" ?>" required>
+                                                    <label for="phone">Phone</label>
+                                                    <div class="invalid-feedback" id="phone_error">Please enter a valid phone number.</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="form-floating">
-                                            <input type="date" class="form-control" id="date_of_birth" name="dob" value="<?= $user["customer_dob"] ?? "" ?>" required>
-                                            <label for="date_of_birth">Date of Birth</label>
-                                            <div class="invalid-feedback" id="dob_error">Please enter a valid date of birth.</div>
-                                        </div>
+
+                                       <div class="row align-items-center">
+                                           <div class="col-auto">
+                                               <i class="bi bi-calendar icon-red h5 fw-bold"></i>
+                                           </div>
+                                           <div class="col">
+                                               <div class="form-floating">
+                                                   <input type="date" class="form-control" id="date_of_birth" name="dob" value="<?= $user["customer_dob"] ?? "" ?>" required>
+                                                   <label for="date_of_birth">Date of Birth</label>
+                                                   <div class="invalid-feedback" id="dob_error">Please enter a valid date of birth.</div>
+                                               </div>
+                                           </div>
+                                       </div>
+
                                         <div class="row mt-4 text-end">
                                             <div class="col">
                                                 <button type="submit" class="btn btn-danger">Update</button>
@@ -227,8 +264,13 @@ $token = getToken();
             var dobDate = new Date(dobInput.value);
             var currentDate = new Date();
             var minAgeDate = new Date(currentDate.getFullYear() - 18, currentDate.getMonth(), currentDate.getDate());
+            var maxAgeDate = new Date(currentDate.getFullYear() - 100, currentDate.getMonth(), currentDate.getDate());
             if (dobDate > minAgeDate) {
                 displayErrorMessage(dobInput, 'dob_error', 'You must be at least 18 years old.');
+                return false;
+            }
+            if (dobDate < maxAgeDate) {
+                displayErrorMessage(dobInput, 'dob_error', 'You must be at most 100 years old.');
                 return false;
             }
 

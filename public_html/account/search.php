@@ -10,6 +10,7 @@ if (isset($_GET["q"])){
     $query = htmlspecialchars($_GET["q"]);
 
     $bookings = retrieveAllBookingUserLike($_SESSION["user_data"]["user_id"], $query);
+    makeToast("success", "Query results returned!", "Success");
 }
 else {
     makeToast("Warning", "Query was not found!", "Warning");

@@ -13,8 +13,12 @@ if (!$_GET || empty($_GET["booking_id"])){
     die();
 }
 
-$booking = retrieveBooking(htmlspecialchars($_GET["booking_id"]));
-$flights = retrieveBookingFlights($booking["booking_id"]);?>
+$booking = retrieveBooking(htmlspecialchars($_GET["booking_id"])) or header("Location: /admin/manage-bookings.php");
+$flights = retrieveBookingFlights($booking["booking_id"]);
+
+
+?>
+
 <!DOCTYPE html>
 <html>
 

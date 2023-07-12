@@ -76,7 +76,7 @@ form .txt_field {
 .pass:hover {
   text-decoration: underline;
 }
-input[type="submit"] {
+.submit-red {
   width: 100%;
   height: 50px;
   background: #ff2424;
@@ -89,7 +89,7 @@ input[type="submit"] {
   transition: 0.5s;
   border: none;
 }
-input[type="submit"]:hover {
+.submit-red:hover {
   border-color: #ff2424;
 }
 .signup_link {

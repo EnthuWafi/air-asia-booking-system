@@ -7,6 +7,7 @@ require("bookings.inc.php");
 require("flights.inc.php");
 require("users.inc.php");
 require("traffic.inc.php");
+require("messages.inc.php");
 
 require("book.page.inc.php");
 require("search.page.inc.php");
@@ -64,6 +65,7 @@ function setSessionTraffic() {
     if (!isset($_SESSION["traffic"])) {
         $_SESSION["traffic"] = 1;
         createTraffic();
+        header("Location: landing.php");
     }
 }
 

@@ -85,8 +85,29 @@ body {
 }
 
 .btn-red {
-    background: #f30000;
+    background: #ff2424;
+    transition: 0.5s;
 }
 .btn-red:hover {
-    background: #be0000;
+    border-color: #ff2424;
+}
+
+
+.problem {
+    color: #FF0000; /* Red */
+    font-weight: bold;
+    text-decoration: none;
+}
+
+
+.feedback {
+    color: #008000; /* Green */
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.others {
+    color: #ffab17; /* Orange */
+    font-weight: bold;
+    text-decoration: none;
 }

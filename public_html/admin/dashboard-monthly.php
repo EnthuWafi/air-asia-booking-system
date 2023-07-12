@@ -23,7 +23,7 @@ $user = $_SESSION["user_data"];
 $name = "{$user["user_fname"]} {$user["user_lname"]}";
 
 //chart
-$traffics = retrieveTraffic(); //all
+$traffics = retrieveTrafficMonthly(); //all
 
 $visitedToday = false;
 
@@ -92,7 +92,7 @@ displayToast();
                     </ul>
                 </div>
 
-                <div class="row mt-4 gx-4 gy-2 ms-3 row-cols-sm-2 row-cols-lg-4">
+                <div class="row mt-4 gx-4 ms-3">
                     <!-- USER COUNT -->
                     <div class="col">
                         <div class="shadow p-3 bg-body rounded row gx-3">
@@ -145,7 +145,7 @@ displayToast();
                     </div>
 
                     <!-- INCOME -->
-                    <div class="col-5">
+                    <div class="col-4">
                         <div class="shadow p-3 mb-5 gradient-primary rounded row gx-3">
                             <div class="col">
                                 <div class="row">
@@ -177,18 +177,22 @@ displayToast();
                         </div>
                     </div>
                 </div>
-                <div class="row mt-5 ms-3">
+                <div class="row mt-2 ms-3">
                     <div class="col">
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
-                            <div class="row">
-                                <span class="h3">Recent Bookings</span>
+                            <div class="row justify-content-between mb-3">
+                                <div class="col-auto">
+                                    <span class="h3">Recent Bookings</span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h5"><span id="booking-count">0</span> Bookings</span>
+                                </div>
                             </div>
                             <div class="row">
                                 <?php admin_displayBookingsLite($bookings); ?>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 

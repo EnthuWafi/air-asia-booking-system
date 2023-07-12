@@ -86,16 +86,12 @@ $token = getToken();
         <main class="col ps-md-2 pt-2">
             <?php admin_header_bar("Manage Aircrafts") ?>
 
-            <!-- todo DASHBOARD here  -->
             <div class="container">
                 <div class="row mt-4 ms-3">
                     <div class="shadow-sm p-3 px-4 mb-5 bg-body rounded row gx-3">
-                        <div class="row mb-4">
-                            <span class="h2"><?= $aircraftCount ?> aircrafts found</span>
-                        </div>
                         <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
                             <div class="col">
-                                <span class="fs-1 mb-3">Aircrafts</span>
+                                <span class="h2"><?= $aircraftCount ?> aircrafts found</span>
                             </div>
                             <div class="col text-end">
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#aircraftStatic">

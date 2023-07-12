@@ -116,6 +116,4 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/phpstorm
 
-.txt
-
-/public_html/payments/
+/public_html/logs/

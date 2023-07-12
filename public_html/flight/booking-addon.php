@@ -200,28 +200,62 @@ $token = getToken();
 
                                     <!-- Modal departure -->
                                     <div class="modal fade" id="staticDeparture" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                                        <div class="modal-dialog">
+                                        <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $departureFlight["aircraft_name"] ?></span></h3>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div class="plane">
+                                                    <div class="row justify-content-end">
+                                                        <div class="col-auto">
+                                                            <div class="plane">
 
-                                                        <div class="cockpit">
-                                                            <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
+                                                                <div class="cockpit">
+                                                                    <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
+                                                                </div>
+                                                                <div class="exit exit--front fuselage"></div>
+
+                                                                <ol class="cabin fuselage">
+                                                                    <?php
+                                                                    book_cabinSeating($travelClass, $departureFlight, $departureFlightAddons, "depart");
+                                                                    ?>
+                                                                </ol>
+                                                                <div class="exit exit--back fuselage">
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="exit exit--front fuselage"></div>
-
-                                                        <ol class="cabin fuselage">
-                                                            <?php
-                                                            book_cabinSeating($travelClass, $departureFlight, $departureFlightAddons, "depart");
-                                                            ?>
-                                                        </ol>
-                                                        <div class="exit exit--back fuselage">
+                                                        <div class="col-4">
+                                                            <div class="shadow px-2 py-5 rounded-4">
+                                                                <h3 class="text-center text-decoration-underline">Seat Guide</h3>
+                                                                <div class="row align-items-center mt-3">
+                                                                    <div class="col-2">
+                                                                        <img src="/assets/img/taken-seat.png">
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <span>Unavailable/Booked Seat</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row align-items-center">
+                                                                    <div class="col-2">
+                                                                        <img src="/assets/img/available-seat.png">
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <span>Available Seat</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row align-items-center">
+                                                                    <div class="col-2">
+                                                                        <img src="/assets/img/selected-seat.png">
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <span>Selected Seat</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
+
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
@@ -236,28 +270,62 @@ $token = getToken();
                                     <?php if (isset($returnFlight)) { ?>
 
                                         <div class="modal fade" id="staticReturn" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                                            <div class="modal-dialog">
+                                            <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $returnFlight["aircraft_name"] ?></span></h3>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <div class="plane">
+                                                        <div class="row justify-content-end">
+                                                            <div class="col-auto">
+                                                                <div class="plane">
 
-                                                            <div class="cockpit">
-                                                                <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
+                                                                    <div class="cockpit">
+                                                                        <h1 class="text-center pb-3 text-body-emphasis"><?= $travelClass["name"] ?> Class Section</h1>
+                                                                    </div>
+                                                                    <div class="exit exit--front fuselage"></div>
+
+                                                                    <ol class="cabin fuselage">
+                                                                        <?php
+                                                                        book_cabinSeating($travelClass, $returnFlight, $returnFlightAddons, "return");
+                                                                        ?>
+                                                                    </ol>
+                                                                    <div class="exit exit--back fuselage">
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="exit exit--front fuselage"></div>
-
-                                                            <ol class="cabin fuselage">
-                                                                <?php
-                                                                book_cabinSeating($travelClass, $returnFlight, $returnFlightAddons, "return");
-                                                                ?>
-                                                            </ol>
-                                                            <div class="exit exit--back fuselage">
+                                                            <div class="col-4">
+                                                                <div class="shadow px-2 py-5 rounded-4">
+                                                                    <h3 class="text-center text-decoration-underline">Seat Guide</h3>
+                                                                    <div class="row align-items-center mt-3">
+                                                                        <div class="col-2">
+                                                                            <img src="/assets/img/taken-seat.png">
+                                                                        </div>
+                                                                        <div class="col">
+                                                                            <span>Unavailable/Booked Seat</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row align-items-center">
+                                                                        <div class="col-2">
+                                                                            <img src="/assets/img/available-seat.png">
+                                                                        </div>
+                                                                        <div class="col">
+                                                                            <span>Available Seat</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row align-items-center">
+                                                                        <div class="col-2">
+                                                                            <img src="/assets/img/selected-seat.png">
+                                                                        </div>
+                                                                        <div class="col">
+                                                                            <span>Selected Seat</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>

@@ -115,6 +115,31 @@ function retrieveAllUserBookings($userId) {
     return null;
 }
 
+//retrieve bookings
+function retrieveAllUserBookingsLIMIT5($userId) {
+    $sql = "SELECT b.* FROM bookings b
+            WHERE b.user_id = ?
+            LIMIT 5";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$userId]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_all($result, MYSQLI_BOTH);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the user!");
+    }
+
+    return null;
+}
+
+
 //counts (specifically for admins)
 function retrieveCountBookings() {
     $sql = "SELECT COUNT(booking_id) as 'count' FROM bookings";
@@ -612,6 +637,116 @@ function updateAccount($userID, $contact) {
     catch (mysqli_sql_exception){
         createLog($conn->error);
         die("Error: unable to update user details!");
+    }
+
+    return false;
+}
+
+function createPasswordReset($email, $token, $expires) {
+    $sql = "INSERT INTO password_reset(password_reset_email, password_reset_token, password_reset_expires)
+            VALUES(?, ?, ?)";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$email, $token, $expires]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to reset password!");
+    }
+
+    return false;
+}
+
+function retrieveUserByEmail($email) {
+    $sql = "SELECT us.* FROM users us 
+            WHERE us.email = ?";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$email]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the user!");
+    }
+
+    return null;
+
+}
+
+function retrievePasswordReset($token) {
+    $sql = "SELECT pr.* FROM password_reset pr
+            WHERE pr.password_reset_token = ? AND pr.password_reset_expires > NOW()";
+
+    $conn = OpenConn();
+
+    try{
+        $result = $conn->execute_query($sql, [$token]);
+        CloseConn($conn);
+
+        if (mysqli_num_rows($result) > 0) {
+            return mysqli_fetch_assoc($result);
+        }
+    }
+    catch (mysqli_sql_exception) {
+        createLog($conn->error);
+        die("Error: cannot get the password reset!");
+    }
+
+    return null;
+}
+
+function updatePassword($userEmail, $password) {
+    $sql = "UPDATE users 
+SET password = ? WHERE email = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [password_hash($password, PASSWORD_DEFAULT), $userEmail]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to reset password!");
+    }
+
+    return false;
+}
+
+function updateCheckPasswordReset($token) {
+    $sql = "UPDATE password_reset SET check_used = TRUE WHERE password_reset_token = ?";
+
+    $conn = OpenConn();
+
+    try {
+        $result = $conn->execute_query($sql, [$token]);
+        CloseConn($conn);
+
+        if ($result) {
+            return true;
+        }
+    }
+    catch (mysqli_sql_exception){
+        createLog($conn->error);
+        die("Error: unable to reset password!");
     }
 
     return false;

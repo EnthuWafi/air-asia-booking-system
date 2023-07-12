@@ -15,11 +15,11 @@ $today = date_create("now");
 $date = date_format($today, "D, d M Y");
 
 $bookingsCount = retrieveBookingCountUser($user["user_id"])["count"] ?? 0;
-$totalSpend = retrieveUserTotalSpend($user["user_id"])["sum"] ?? 0;
+$totalSpend = retrieveUserTotalSpend($user["user_id"])["income"] ?? 0;
 $flightCount = retrieveFlightCountUser($user["user_id"])["count"] ?? 0;
 
 $totalSpendDecimal = number_format((float)$totalSpend, 2, ".", ",");
-
+$bookings = retrieveAllUserBookingsLIMIT5($user["user_id"]);
 
 ?>
 <!DOCTYPE html>
@@ -42,10 +42,11 @@ $totalSpendDecimal = number_format((float)$totalSpend, 2, ".", ",");
             <div class="container">
                 <div class="row mt-4 gx-4 ms-3">
                     <div class="row">
-                        <span class="h3">Hello there, <?= $name ?? "-" ?></span>
-                        <span class="lead">Today is <?= $date ?></span>
+                        <div class="col-auto">
+                            <span class="h3">Hello there, <?= $name ?? "-" ?></span><br>
+                            <span class="lead">Today is <?= $date ?></span>
+                        </div>
                     </div>
-
                 </div>
                 <div class="row mt-4 gx-4 ms-3">
                     <div class="col">
@@ -91,6 +92,77 @@ $totalSpendDecimal = number_format((float)$totalSpend, 2, ".", ",");
                             </div>
                             <div class="col text-end">
                                 <i class="bi bi-cash-coin h2 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2 ms-3">
+                    <div class="col">
+                        <div class="shadow p-3 mb-5 bg-body rounded row gx-3">
+                            <div class="row justify-content-between mb-3">
+                                <div class="col-auto">
+                                    <span class="h3">Recent User Bookings</span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h5"><span id="booking-count">0</span> Bookings</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table class="table table-responsive table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Booking Reference</th>
+                                        <th scope="col">Trip Type</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Cost</th>
+                                        <th scope="col" class="text-center">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $bookingStatus = retrieveBookingStatus();
+                                    $optionContent = "";
+                                    foreach ($bookingStatus as $status) {
+                                        $statusUC = ucfirst(strtolower($status["booking_status"]));
+                                        $optionContent .= "<option value='{$status["booking_status"]}'>{$statusUC}</option>";
+                                    }
+
+                                    if ($bookings != null) {
+                                        $count = 1;
+                                        foreach ($bookings as $booking) {
+                                            $tripType = $booking["trip_type"];
+                                            $tripTypeStr = $tripType == "ONE-WAY" ? "One-way Trip" :
+                                                ($tripType == "RETURN" ? "Round-trip" : "null");
+
+                                            $status = ["status"=>ucfirst(strtolower($booking["booking_status"])), "class"=>strtolower($booking["booking_status"])];
+                                            $bookingCost = number_format((float)$booking["booking_cost"], 2, '.', '');
+
+
+                                            echo "
+<tr class='align-middle'>
+    <th scope='row'>$count</th>
+    <td><a class='text-decoration-none fw-bold' href='/admin/view-booking.php?booking_id={$booking["booking_id"]}'>
+{$booking["booking_reference"]}</a></td>
+    <td>{$tripTypeStr}</td>
+    <td><span class='{$status["class"]}'>{$status["status"]}</span></td>
+    <td>RM{$bookingCost}</td>
+    <td class='text-center'>
+        <a type='button' class='btn btn-outline-primary' href='/account/manage-my-bookings.php/#{$booking["booking_id"]}'>
+            <i class='bi bi-three-dots'></i> See More
+        </a>
+    </td>
+</tr>";
+                                            $count++;
+                                        }
+                                        $count--;
+                                        echo "<script>$('#booking-count').html(\"{$count}\");</script>";
+                                    } else {
+                                        echo "<tr><td colspan='7' class='text-center'>No bookings found</td></tr>";
+                                    }
+                                    ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

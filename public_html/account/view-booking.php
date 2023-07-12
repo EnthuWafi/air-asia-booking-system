@@ -12,9 +12,9 @@ if (!isset($_GET["booking_id"])) {
 }
 
 $bookingID = $_GET["booking_id"];
-$booking = retrieveBookingByUser($bookingID, $_SESSION["user_data"]["user_id"]);
+$flight = retrieveBookingByUser($bookingID, $_SESSION["user_data"]["user_id"]);
 
-if (empty($booking)) {
+if (empty($flight)) {
     makeToast("warning", "Booking doesn't exist!", "Warning");
     header("Location: /index.php");
     die();
@@ -45,19 +45,19 @@ displayToast();
                             <div class="card-body p-3 my-5">
                                 <h3 class="text-center card-title">Booking Invoice</h3>
 
-                                <?php book_invoiceBooking($booking); ?>
+                                <?php book_invoiceBooking($flight); ?>
 
                                 <div class="text-center">
-                                    <button class="btn btn-danger d-print-none me-2 px-4" onclick="history.back();">Back</button>
+                                    <button class="btn btn-danger d-print-none me-2 px-4" onclick="history.back();"><i class="bi bi-arrow-left-circle"></i> Back</button>
                                     <?php
-                                    if ($booking["booking_status"] === "COMPLETED") {
+                                    if ($flight["booking_status"] === "COMPLETED") {
                                         ?>
-                                        <a class="btn btn-danger d-print-none px-4" href="/account/view-tickets.php?booking_id=<?= $booking["booking_id"] ?>">Tickets</a>
+                                        <a class="btn btn-danger d-print-none px-4" href="/account/view-tickets.php?booking_id=<?= $flight["booking_id"] ?>"><i class="bi bi-ticket"></i> Tickets</a>
                                     <?php
                                     }
                                     ?>
 
-                                    <button class="btn btn-danger d-print-none px-4" onclick="window.print();">Print</button>
+                                    <button class="btn btn-danger d-print-none px-4" onclick="window.print();"><i class="bi bi-printer"></i> Print</button>
                                 </div>
                             </div>
                         </div>

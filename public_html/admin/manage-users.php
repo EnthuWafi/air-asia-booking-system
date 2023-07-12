@@ -6,7 +6,6 @@ session_start();
 
 admin_login_required();
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $postedToken = $_POST["token"];
     try{
@@ -60,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 }
                 else if (isset($_POST["update"])) {
+
                     $userID = htmlspecialchars($_POST["user_id"]);
                     $fname = htmlspecialchars($_POST["fname"]);
                     $lname = htmlspecialchars($_POST["lname"]);
@@ -67,6 +67,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $email = htmlspecialchars($_POST["email"]);
 
                     $user = retrieveUser($userID) or throw new Exception("User wasn't found!");
+
+                    // Check if the user is the MAIN ADMIN account
+                    if ($user["username"] === "EnthuWafi") {
+                        throw new Exception("Cannot update the MAIN ADMIN account!");
+                    }
 
                     updateUser($userID, $fname, $lname, $username, $email) or throw new Exception("Wasn't able to update user!");
 
@@ -218,26 +223,33 @@ $token = getToken();
                                     <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                 </div>
                                 <div class='modal-body'>
-                                    <form id="admin" action="/admin/manage-users.php" method="post">
-                                        <div class="row mb-1">
+                                    <form id="admin" action="/admin/manage-users.php" method="post" class="needs-validation">
+                                        <div class="row mt-2">
                                             <div class="col" id="name">
                                                 <label for="first-name" class="form-label">First Name</label>
-                                                <input type="text" class="form-control" id="first-name" name="fname" placeholder="First name">
+                                                <input type="text" class="form-control" id="first-name" name="fname" placeholder="First name" required>
                                             </div>
                                             <div class="col">
                                                 <label for="last-name" class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" id="last-name" name="lname" placeholder="Last name">
+                                                <input type="text" class="form-control" id="last-name" name="lname" placeholder="Last name" required>
                                             </div>
                                         </div>
                                         <div class="row px-2 mb-1">
-                                            <label for="username" class="form-label">Username</label>
-                                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username here" required>
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email here" required>
-                                            <label for="password" class="form-label">Password</label>
-                                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password here" required>
+                                            <div class="row mt-2">
+                                                <label for="username" class="form-label">Username</label>
+                                                <input type="text" class="form-control" id="username" name="username" placeholder="Enter username here" required>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <label for="email" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email here" required>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <label for="password" class="form-label">Password</label>
+                                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password here" required>
+                                            </div>
                                         </div>
                                         <input type="hidden" name="token" value="<?= $token ?>">
+                                        <input type="hidden" name="admin" value="1">
                                     </form>
 
                                 </div>
@@ -259,26 +271,32 @@ $token = getToken();
                                     <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                 </div>
                                 <div class='modal-body'>
-                                    <form id="update" action="/admin/manage-users.php" method="post">
-                                        <div class="row mb-1">
+                                    <form id="update" class="needs-validation" action="/admin/manage-users.php" method="post">
+                                        <div class="row mt-2">
                                             <div class="col" id="name">
                                                 <label for="first-name-update" class="form-label">First Name</label>
-                                                <input type="text" class="form-control" id="first-name-update" name="fname" placeholder="First name">
+                                                <input type="text" class="form-control" id="first-name-update" name="fname" placeholder="First name" required>
                                             </div>
                                             <div class="col">
                                                 <label for="last-name-update" class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" id="last-name-update" name="lname" placeholder="Last name">
+                                                <input type="text" class="form-control" id="last-name-update" name="lname" placeholder="Last name" required>
                                             </div>
                                         </div>
                                         <div class="row px-2 mb-1">
-                                            <label for="username-update" class="form-label">Username</label>
-                                            <input type="text" class="form-control" id="username-update" name="username" placeholder="Enter username here" required>
-                                            <label for="email-update" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email-update" name="email" placeholder="Enter email here" required>
+                                            <div class="row mt-2">
+                                                <label for="username-update" class="form-label">Username</label>
+                                                <input type="text" class="form-control" id="username-update" name="username" placeholder="Enter username here" required>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <label for="email-update" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="email-update" name="email" placeholder="Enter email here" required>
+                                            </div>
                                         </div>
                                         <input type="hidden" name="token" value="<?= $token ?>">
                                         <input type="hidden" name="user_id" value="">
+                                        <input type="hidden" name="update" value="1">
                                     </form>
+
 
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
@@ -309,6 +327,7 @@ $token = getToken();
                                     <form id="delete" action="/admin/manage-users.php" method="post">
                                         <input type="hidden" name="token" value="<?= $token ?>">
                                         <input type="hidden" name="user_id" value="">
+                                        <input type="hidden" name="delete" value="1">
                                     </form>
                                 </div>
                                 <div class='modal-footer bg-light-subtle'>
@@ -332,6 +351,82 @@ $token = getToken();
     </div>
 </div>
 <?php body_script_tag_content();?>
+<script>
+    $(document).ready(function() {
+        $('#admin').validate({
+            rules: {
+                fname: 'required',
+                lname: 'required',
+                username: 'required',
+                email: {
+                    required: true,
+                    email: true
+                },
+                password: 'required'
+            },
+            messages: {
+                fname: 'Please enter a valid first name.',
+                lname: 'Please enter a valid last name.',
+                username: 'Please enter a valid username.',
+                email: 'Please enter a valid email address.',
+                password: 'Please enter a password.'
+            },
+            errorElement: 'div',
+            errorPlacement: function(error, element) {
+                error.addClass('invalid-feedback');
+                error.insertAfter(element);
+            },
+            highlight: function(element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function(form) {
+                form.submit();
+            }
+        });
+        $('#update').validate({
+            errorElement: 'div', // Use 'div' element for error messages
+            errorClass: 'invalid-feedback', // Bootstrap's invalid-feedback class for error styling
+            highlight: function(element) {
+                $(element).addClass('is-invalid'); // Add is-invalid class to invalid fields
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid'); // Remove is-invalid class from valid fields
+            },
+            errorPlacement: function(error, element) {
+                // Add the invalid-feedback class to the error message container
+                error.addClass('invalid-feedback');
+                // Insert the error message after the invalid field
+                error.insertAfter(element);
+            },
+            rules: {
+                fname: 'required', // First Name field is required
+                lname: 'required', // Last Name field is required
+                username: 'required', // Username field is required
+                email: {
+                    required: true, // Email field is required
+                    email: true // Email field should be a valid email address
+                }
+            },
+            messages: {
+                fname: 'Please enter a valid first name.',
+                lname: 'Please enter a valid last name.',
+                username: 'Please enter a valid username.',
+                email: {
+                    required: 'Please enter a valid email address.',
+                    email: 'Please enter a valid email address.'
+                }
+            },
+            submitHandler: function(form) {
+                // Form is valid, submit it
+                form.submit();
+            }
+        });
+    });
+</script>
+
 <script type="text/javascript" src="/assets/js/modal.js"></script>
 </body>
 

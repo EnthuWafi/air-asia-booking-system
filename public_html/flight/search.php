@@ -4,6 +4,7 @@ session_start();
 require("../../includes/functions.inc.php");
 customer_login_required();
 
+displayToast();
 $airports = retrieveAirports();
 $departure_flights = null;
 $return_flights = null;
@@ -78,7 +79,7 @@ catch(Exception $e) {
     makeToast("warning", $e->getMessage(), "Warning");
 }
 
-displayToast();
+
 
 ?>
 

@@ -4,12 +4,14 @@ require("../includes/functions.inc.php");
 
 session_start();
 
-displayToast();
+
 setSessionTraffic();
 
 $airports = retrieveAirports();
 
 $userType = $_SESSION["user_data"]["user_type"] ?? "";
+
+displayToast();
 
 ?>
 

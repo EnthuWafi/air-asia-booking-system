@@ -10,9 +10,11 @@ function head_tag_content(): void
     <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ' crossorigin='anonymous'>
     <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js' integrity='sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe' crossorigin='anonymous'></script>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css' integrity='sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css'>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel='stylesheet' href='/assets/css/main.css'>
+    <link rel='icon' href='/assets/img/airasiacom_monogram.png'>
      ";
 }
 
@@ -20,9 +22,9 @@ function body_script_tag_content() {
     echo "
     <script src='/assets/js/main.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js' integrity='sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
-    <script src='https://code.jquery.com/jquery-3.7.0.min.js' integrity='sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=' crossorigin='anonymous'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/additional-methods.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js'></script>
     <script src='https://cdn.canvasjs.com/ga/canvasjs.min.js'></script>
     ";
 }
@@ -47,8 +49,8 @@ function nav_bar(){
 
     if (empty($_SESSION["user_data"])) {
         $navMenu = "<a class='nav-link' href='/'>Home</a>
-                <a class='nav-link' href='/contact-us.php'>Contact</a>
-                <a class='nav-link' href='/about-us.php'>About</a>";
+                <a class='nav-link' href='/contact-us.php'>Contact Us</a>
+                <a class='nav-link' href='/about-us.php'>About Us</a>";
     }
     else if ($_SESSION["user_data"]["user_type"] == "customer") {
         $navMenu = "<a class='nav-link' href='/'>Home</a>
@@ -58,11 +60,12 @@ function nav_bar(){
     }
     else if ($_SESSION["user_data"]["user_type"] == "admin") {
         $navMenu = "<a class='nav-link' href='/'>Home</a>
-                <a class='nav-link' href='/admin/dashboard.php'>Admin Dashboard</a>
+                <a class='nav-link' href='/admin/dashboard.php'>Dashboard</a>
                 <a class='nav-link' href='/admin/manage-flights.php'>Flights</a>
                 <a class='nav-link' href='/admin/manage-bookings.php'>Bookings</a>
                 <a class='nav-link' href='/admin/manage-aircrafts.php'>Aircrafts</a>
-                <a class='nav-link' href='/admin/manage-users.php'>Users</a>";
+                <a class='nav-link' href='/admin/manage-users.php'>Users</a>
+                <a class='nav-link' href='/admin/manage-feedbacks.php'>Feedbacks</a>";
     }
 
 
@@ -91,14 +94,14 @@ function nav_bar(){
 //This header is specifically for side_bar(), so it is  only to be used in conjunction with side_bar
 function header_bar($pageName){
     echo "<div class='navbar navbar-expand-lg shadow navbar-white bg-white'>
-        <div class='container-fluid w-100'>
+        <div class='container-fluid w-100 mb-4 mt-3'>
             <div class='d-flex'>
-                <span class='navbar-brand order-first mb-4'>
+                <span class='navbar-brand order-first'>
                     <a data-bs-target='#sidebar' data-bs-toggle='collapse' class='border rounded-3 p-3 text-decoration-none'><i class='bi bi-list bi-lg py-2 p-1 text-black'></i></a>
                     <span class='fs-2 ms-3'>{$pageName}</span>
                 </span>
             </div>
-            <div class='navbar-nav ms-auto order-las'>
+            <div class='navbar-nav ms-auto order-last'>
                 <form class='d-flex' role='search' action='/account/search.php'>
                     <input class='form-control me-2' type='search' name='q' placeholder='Search' aria-label='Search'>
                     <button class='btn btn-outline-success' type='submit'>Search</button>
@@ -144,8 +147,8 @@ function side_bar() {
                 </a>
             </li>
             <li>
-                <a href='/flight/search.php' class='nav-link link-dark d-flex align-items-center'>
-                    <i class='bx bxs-plane-alt me-2 pt-1 $iconSize'></i>
+                <a href='/flight/search.php' class='nav-link link-dark'>
+                    <i class='bi bi-airplane me-2 $iconSize'></i>
                     Flight Search
                 </a>
             </li>
@@ -175,14 +178,12 @@ function side_bar() {
 //This header is specifically for admin (same thing just for admins)
 function admin_header_bar($pageName){
     echo "<div class='navbar navbar-expand-lg shadow navbar-white bg-white sticky-top'>
-        <div class='container-fluid w-100'>
-            <div class='d-flex align-middle'>
-                <span class='navbar-brand order-first mb-4'>
-                    <a data-bs-target='#sidebar' data-bs-toggle='collapse' class='border rounded-3 p-3 text-decoration-none'><i class='bi bi-list bi-lg py-2 p-1 text-black'></i></a>
-                    <span class='fs-2 ms-3 pt-2'>{$pageName}</span>
-                </span>
-            </div>
-            <div class='navbar-nav ms-auto order-las'>
+        <div class='container-fluid w-100 mb-4 mt-3'>
+            <span class='navbar-brand order-first'>
+                <a data-bs-target='#sidebar' data-bs-toggle='collapse' class='border rounded-3 p-3 text-decoration-none'><i class='bi bi-list bi-lg py-2 p-1 text-black'></i></a>
+                <span class='fs-2 ms-3 pt-2'>{$pageName}</span>
+            </span>
+            <div class='navbar-nav ms-auto order-last'>
                 <form class='d-flex' role='search' action='/admin/search.php'>
                     <input class='form-control me-2' type='search' name='q' placeholder='Search' aria-label='Search'>
                     <button class='btn btn-outline-success' type='submit'>Search</button>
@@ -244,6 +245,12 @@ function admin_side_bar() {
                 <a href='/admin/manage-users.php' class='nav-link link-dark'>
                     <i class='bi bi-people me-2 $iconSize'></i>
                     Users
+                </a>
+            </li>
+            <li>
+                <a href='/admin/manage-feedbacks.php' class='nav-link link-dark'>
+                    <i class='bi bi-rss me-2 $iconSize'></i>
+                    Feedbacks
                 </a>
             </li>
         </ul>

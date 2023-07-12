@@ -14,6 +14,8 @@ if (isset($_GET["q"])){
     $adminUsers = retrieveAllAdminLike($query);
     $flights = retrieveAllFlightLike($query);
     $aircrafts = retrieveAllAircraftLike($query);
+
+    makeToast("success", "Query results returned!", "Success");
 }
 else {
     makeToast("Warning", "Query was not found!", "Warning");

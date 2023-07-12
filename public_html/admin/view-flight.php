@@ -8,51 +8,21 @@ admin_login_required();
 
 displayToast();
 
-if (!$_GET) {
+if (!$_GET || empty($_GET["flight_id"])) {
     header("Location: /admin/manage-flights.php");
     die();
 }
 
 $flightID = htmlspecialchars($_GET["flight_id"]);
 $flight = retrieveFlight($flightID) or header("Location: /admin/manage-flights.php");
+//flight addons
+$flightAddonsFirstClass = retrieveFlightAddon($flightID, "FST");
+$flightAddonsBusiness = retrieveFlightAddon($flightID, "BUS");
+$flightAddonsPremium = retrieveFlightAddon($flightID, "PRE");
+$flightAddonsEconomy = retrieveFlightAddon($flightID, "ECO");
 
-$token = getToken();
 //flights details
 $flightCode = sprintf("%05d",$flight["flight_id"]);
-
-$flight_id = $flight['flight_id'];
-$user_id = $flight['user_id'];
-$username = $flight['username'];
-$password = $flight['password'];
-$email = $flight['email'];
-$user_fname = $flight['user_fname'];
-$user_lname = $flight['user_lname'];
-$registration_date = $flight['registration_date'];
-$user_type = $flight['user_type'];
-
-$origin_airport_code = $flight['origin_airport_code'];
-$origin_airport_name = $flight['origin_airport_name'];
-$origin_airport_country = $flight['origin_airport_country'];
-$origin_airport_state = $flight['origin_airport_state'];
-
-$destination_airport_code = $flight['destination_airport_code'];
-$destination_airport_name = $flight['destination_airport_name'];
-$destination_airport_country = $flight['destination_airport_country'];
-$destination_airport_state = $flight['destination_airport_state'];
-$departure_time = $flight['departure_time'];
-$duration = $flight['duration'];
-$flight_base_price = $flight['flight_base_price'];
-$flight_discount = $flight['flight_discount'];
-$aircraft_name = $flight['aircraft_name'];
-$airline_id = $flight['airline_id'];
-$arrival_time = $flight['arrival_time'];
-$economy_capacity = $flight['economy_capacity'];
-$business_capacity = $flight['business_capacity'];
-$premium_economy_capacity = $flight['premium_economy_capacity'];
-$first_class_capacity = $flight['first_class_capacity'];
-$airline_name = $flight['airline_name'];
-$airline_image = $flight['airline_image'];
-
 
 ?>
 <!DOCTYPE html>
@@ -60,6 +30,8 @@ $airline_image = $flight['airline_image'];
 
 <head>
     <?php head_tag_content(); ?>
+    <link rel="stylesheet" href="/assets/css/plane.css">
+
     <title><?= config("name") ?> | View Flights</title>
 </head>
 <body>
@@ -75,75 +47,194 @@ $airline_image = $flight['airline_image'];
 
             <div class="container">
                 <div class="row mt-4 gx-4 ms-3">
-                    <div class="shadow-sm p-3 mb-3 bg-body rounded row gx-3 justify-content-end align-middle">
-                        <div class="col">
-                            <a type="button" class="btn btn-outline-danger float-end" data-bs-toggle="modal" data-bs-target="#deleteStatic"><i class='bi bi-trash'></i> Delete</a>
+                    <div class="shadow p-4 mb-3 bg-body rounded-3 row gx-3">
+                        <div class="row justify-content-between">
+                            <div class="col-auto">
+                                <span class="h3">Flight <span class="text-info">#<?= $flightCode ?></span></span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h5 text-muted ">by <?= $flight["username"] ?> (<?= $flight["admin_code"] ?>)</span>
+                            </div>
+
                         </div>
-                    </div>
-                    <div class="shadow p-3 mb-3 bg-body rounded row gx-3">
                         <div class="row">
-                            <span class="fs-1" style="font-family: Roboto">Flight <span class="text-primary">#<?= $flightCode ?></span></span>
+                            <span class="text-muted">Created on <span class="text-body-secondary"><?= formatDateFriendly($flight["date_created"]) ?></span></span>
                         </div>
-                        <div class="row mt-4">
-                            <div class="col-7">
-                                <div class="container">
-                                    <h4>Flight Details</h4><hr>
-                                    <p><strong>Created by:</strong> <?php echo $username; ?></p>
-                                    <p><strong>Origin Airport:</strong> <?php echo "$origin_airport_name ($origin_airport_code)"; ?></p>
-                                    <p><strong>Destination Airport:</strong> <?php echo "$destination_airport_name ($destination_airport_code)"; ?></p>
-                                    <p><strong>Departure:</strong> <?php echo formatDateTime($departure_time); ?></p>
-                                    <p><strong>Duration:</strong> <?php echo formatDuration($duration); ?></p>
-                                    <p><strong>Arrival:</strong> <?php echo formatDateTime($arrival_time); ?></p>
-                                    <p><strong>Airline:</strong> <?php echo $airline_name; ?></p>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="container">
-                                    <h4>Aircraft Details</h4><hr>
-                                    <p><strong>Aircraft Name:</strong> <?php echo $aircraft_name; ?></p>
-                                    <p><strong>Economy Capacity:</strong> <?php echo $economy_capacity; ?></p>
-                                    <p><strong>Business Capacity:</strong> <?php echo $business_capacity; ?></p>
-                                    <p><strong>Premium Economy Capacity:</strong> <?php echo $premium_economy_capacity; ?></p>
-                                    <p><strong>First Class Capacity:</strong> <?php echo $first_class_capacity; ?></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <div class="container row justify-content-between">
 
-
-
-                    <!-- modal delete -->
-                    <div class='modal fade' id='deleteStatic' data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
-                        <div class='modal-dialog'>
-                            <div class='modal-content'>
-                                <div class='modal-header bg-light-subtle'>
-                                    <h5 class='modal-title' id='staticBackdropLabel'>Delete user?</h5>
-                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-                                </div>
-                                <div class='modal-body bg-danger-subtle'>
-                                    <div class="px-3">
-                                        <div class="mb-1">
-                                            <span class="fw-bolder">Warning</span>
-                                        </div>
-                                        <span class="text-black mt-3">This action cannot be reversed!<br>Proceed with caution.</span>
+                            <div class="col-lg-8 col-sm-auto">
+                                <div class="row mt-5">
+                                    <div class="col-md-12">
+                                        <h2><img src="<?= "{$flight["airline_image"]}" ?>" class="img-fluid object-fit-cover" style="width: 80px; height: 40px"> Flight Details</h2>
                                     </div>
-                                    <form id="delete" method="post" action="/admin/manage-flights.php">
-                                        <input type="hidden" name="flight_id" value="<?= $flight["flight_id"] ?>">
-                                        <input type="hidden" name="token" value="<?= $token ?>">
-                                    </form>
                                 </div>
-                                <div class='modal-footer bg-light-subtle'>
-                                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
-                                    <button type='submit' id="modal-btn-delete" form="delete" name="delete" value="1" class='btn btn-danger'>I understand</button>
+                                <hr>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <strong>Origin:</strong> <?= "{$flight["origin_airport_state"]} ({$flight["origin_airport_code"]})" ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Destination:</strong> <?= "{$flight["destination_airport_state"]} ({$flight["destination_airport_code"]})" ?>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <strong>Departure:</strong> <?= formatDateTime($flight["departure_time"]) ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Arrival:</strong> <?= formatDateTime($flight["arrival_time"]) ?>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <strong>Duration:</strong> <?= formatDuration($flight["duration"]) ?>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-lg-3 col-sm-auto">
+                                <div class="row mt-5">
+                                    <div class="col-md-12">
+                                        <h2>Aircraft</h2>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row mt-3">
+                                    <div class="col">
+                                        <strong>Aircraft:</strong> <span class="icon-red"><?= $flight["aircraft_name"] ?></span>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <strong>Economy:</strong> <?= $flight["economy_capacity"] ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Premium:</strong>  <?= $flight["premium_economy_capacity"] ?>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <strong>Business:</strong> <?= $flight["business_capacity"] ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>First Class:</strong>  <?= $flight["first_class_capacity"] ?>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center mt-5 mb-2">
+                                <div class="col-auto">
+                                    <a type="button" class="btn btn-danger btn-block" style="width: 110px;" href="/admin/manage-flights.php">
+                                        <i class="bi bi-arrow-left-circle"></i> Back
+                                    </a>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-danger btn-block" style="width: 150px;" data-bs-toggle="modal" data-bs-target="#staticSeating">
+                                        <i class='bx bx-chair'></i> View Seating
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Modal airplane -->
+                    <div class="modal fade" id="staticSeating" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title">Aircraft > <span class="text-danger"><?= $flight["aircraft_name"] ?></span></h3>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" style="pointer-events: none;">
+                                    <div class="row justify-content-end">
+                                        <div class="col-auto">
+                                            <div class="plane">
+
+                                                <div class="cockpit">
+                                                    <h1 class="text-center pb-3 text-body-emphasis">Flight <?= $flight["aircraft_name"] ?></h1>
+                                                </div>
+
+                                                <div class="exit exit--front fuselage"></div>
+
+                                                <ol class="cabin fuselage">
+                                                    <div class='row justify-content-center'>
+                                                        <span class='text-center h4'><i class="bi bi-caret-down-fill"></i> First Class <i class="bi bi-caret-down-fill"></i></span>
+                                                    </div>
+                                                    <?php
+
+                                                    echo admin_cabinSeating($flightAddonsFirstClass, $flight["first_class_capacity"], "FST");
+
+                                                    ?>
+                                                </ol>
+                                                <div class="exit exit--front fuselage"></div>
+                                                <ol class="cabin fuselage">
+                                                    <div class='row justify-content-center'>
+                                                        <span class='text-center h4'><i class="bi bi-caret-down-fill"></i> Business <i class="bi bi-caret-down-fill"></i></span>
+                                                    </div>
+                                                    <?php
+                                                    echo admin_cabinSeating($flightAddonsBusiness, $flight["business_capacity"], "BUS");
+
+                                                    ?>
+                                                </ol>
+                                                <div class="exit exit--front fuselage"></div>
+                                                <ol class="cabin fuselage">
+                                                    <div class='row justify-content-center'>
+                                                        <span class='text-center h4'><i class="bi bi-caret-down-fill"></i> Premium Eco <i class="bi bi-caret-down-fill"></i></span>
+                                                    </div>
+                                                    <?php
+
+                                                    echo admin_cabinSeating($flightAddonsPremium, $flight["premium_economy_capacity"], "PRE");
+
+                                                    ?>
+                                                </ol>
+                                                <div class="exit exit--front fuselage"></div>
+                                                <ol class="cabin fuselage">
+                                                    <div class='row justify-content-center'>
+                                                        <span class='text-center h4'><i class="bi bi-caret-down-fill"></i> Economy <i class="bi bi-caret-down-fill"></i></span>
+                                                    </div>
+                                                    <?php
+
+                                                    echo admin_cabinSeating($flightAddonsEconomy, $flight["economy_capacity"], "ECO");
+                                                    ?>
+                                                </ol>
+                                                <div class="exit exit--back fuselage"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-sm-auto">
+                                            <div class="shadow px-2 py-5 rounded-4">
+                                                <h3 class="text-center text-decoration-underline">Seat Guide</h3>
+                                                <div class="row align-items-center mt-3">
+                                                    <div class="col-2">
+                                                        <img src="/assets/img/taken-seat.png">
+                                                    </div>
+                                                    <div class="col">
+                                                        <span>Booked Seat</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row align-items-center">
+                                                    <div class="col-2">
+                                                        <img src="/assets/img/available-seat.png">
+                                                    </div>
+                                                    <div class="col">
+                                                        <span>Empty Seat</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
             </div>
-
-
 
 
             <?php footer(); ?>

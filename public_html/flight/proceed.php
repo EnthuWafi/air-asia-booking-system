@@ -68,7 +68,7 @@ try{
 
     $netTotal = $departureFlightCost + ($returnFlightCost ?? 0) - $discountTotal;
 }
-catch (exception $e){
+catch (Exception $e){
     makeToast("error", $e->getMessage(), "Error");
     header("Location: /flight/search.php");
     die();

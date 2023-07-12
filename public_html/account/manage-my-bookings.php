@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $amount = number_format((float)$booking["booking_cost"], 2, ".", ",");
 
                     $subject = "Request for Booking #{$booking["booking_reference"]} Cancellation";
-                    $content = "<p>Dear Every Admin,</p>
+                    $content = "<p>Dear every Admin,</p>
                     
                     <p>A cancellation has been requested by the user <strong>{$user["username"]}</strong> for the following booking:</p>
                     
@@ -128,8 +128,8 @@ displayToast();
 <div class='shadow p-5 bg-body rounded my-2' id='{$booking["booking_id"]}'>
     <div class='row'>
         <div class='col'>
-            <div class='row'>
-                <div class='col-md-9 col-sm-auto'>
+            <div class='row justify-content-between'>
+                <div class='col-auto col-sm-auto'>
                     <div class='row'>
                         <span class='fs-2'>
                               {$flights[0]["origin_airport_code"]} {$arrow} {$flights[0]["destination_airport_code"]}                  
@@ -140,10 +140,10 @@ displayToast();
                         <span class='text-muted'> {$returnDepartureText}</span>
                     </div>
                 </div>
-                <div class='col-3 mt-2'>
+                <div class='col-auto text-end mt-2'>
                     
                     <div class='row'>
-                        <strong>Booking Reference No:</strong><em>{$booking["booking_reference"]}</em>
+                        <strong>Booking Reference No:</strong><em class='fs-4'>{$booking["booking_reference"]}</em>
                     </div>
                     <div class='row'>
                         <strg>Booking Status:</strg><em class='$statusLower'>{$booking["booking_status"]}</em>
