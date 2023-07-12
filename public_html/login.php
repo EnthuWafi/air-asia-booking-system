@@ -39,8 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $url = $protocol . $domain . "/create-new-password.php?token=$urlToken";
 
                     //expires date
-                    $dateVal = date_create("Now");
+                    $dateVal = date_create("now");
                     date_add($dateVal, date_interval_create_from_date_string("3 days"));
+                    $dateStr = $dateVal->format('Y-m-d');
 
                     $subject = "Airasia Password Reset";
                     $body = "
@@ -59,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     sendMail($email, $subject, $body) or throw new Exception("Message wasn't sent!");
 
-                    createPasswordReset($email, $urlToken, $dateVal) or throw new Exception("Password reset failed!");
+                    createPasswordReset($email, $urlToken, $dateStr) or throw new Exception("Password reset failed!");
 
                     makeToast("success", "Password reset URL sent to your mail!", "Success");
                 }

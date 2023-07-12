@@ -191,7 +191,11 @@ function admin_displayAdminUsers($adminUsers) {
                 <td>{$dateFormatted}</td>
                 <td class='text-center'>
                     <a type='button' data-bs-toggle='modal' data-bs-target='#updateAdminStatic' 
-                    onclick='updateElement(\"{$user["user_id"]}\", \"update\", \"user_id\");' class='h4'>
+                    onclick='updateElement(\"{$user["user_id"]}\", \"update\", \"user_id\");
+                    updateElement(\"{$user["user_fname"]}\", \"update\", \"fname\"); 
+updateElement(\"{$user["user_lname"]}\", \"update\", \"lname\");
+updateElement(\"{$user["username"]}\", \"update\", \"username\");
+updateElement(\"{$user["email"]}\", \"update\", \"email\");' class='h4'>
                     <i class='bi bi-pencil-square'></i></a>
                     <a type='button' data-bs-toggle='modal' data-bs-target='#static' 
                     onclick='updateElement(\"{$user["user_id"]}\", \"delete\", \"user_id\");' class='h4'>
