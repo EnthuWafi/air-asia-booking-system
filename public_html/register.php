@@ -109,6 +109,7 @@ $token = getToken();
                                     <label for="confirm-password" class="form-label">Confirm Password</label>
                                 </div>
                             </div>
+                            <input type="hidden" name="token" value="<?= $token ?>">
                             <div class="text-center">
                                 <input type="submit" value="Sign-Up" class="submit-red"/>
                             </div>
