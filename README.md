@@ -11,9 +11,9 @@
 
 ## Table of Contents
 
-- [Introduction] (#introduction)
+- [Introduction](#introduction)
 - [Features](#features)
-- [Prerequisites](#prequisites)
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
@@ -35,8 +35,8 @@ The Air Asia Booking System is a web application built using PHP, CSS, and JavaS
 
 Before setting up the Air Asia Booking System, ensure that you have the following prerequisites installed on your system:
 
-- XAMPP v3.30 (with PHP 8.2.4)
-<img src="https://upload.wikimedia.org/wikipedia/en/thumb/7/78/XAMPP_logo.svg/1200px-XAMPP_logo.svg.png" width="30%">
+- <img src="https://upload.wikimedia.org/wikipedia/en/thumb/7/78/XAMPP_logo.svg/1200px-XAMPP_logo.svg.png" width="5%"> XAMPP v3.30 (with PHP 8.2.4)
+
 - Web browser (e.g., Google Chrome, Mozilla Firefox)
 
 ## Installation
