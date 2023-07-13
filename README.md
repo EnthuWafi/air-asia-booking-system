@@ -11,12 +11,12 @@
 
 ## Table of Contents
 
-- Introduction
-- Features
-- Prerequisites
-- Installation
-- Usage
-- Contributing
+- [Introduction] (#introduction)
+- [Features](#features)
+- [Prerequisites](#prequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
 
 ## Introduction
 
@@ -71,6 +71,8 @@ To install and set up the Air Asia Booking System, follow these steps:
 
 To use the Air Asia Booking System, follow these steps:
 
+### Customer Routes
+
 1. Register a new user account or log in with your existing account.
 
 2. Search for available flights by providing the origin and destination airports, departure date, and number of passengers.
@@ -79,11 +81,18 @@ To use the Air Asia Booking System, follow these steps:
 
 4. Provide passenger details and confirm your reservation.
 
-5. Make a payment for your reservation by paying via QR code or banking details, and sending the payment file.
+5. Make a payment for your reservation using the provided payment methods.
 
 6. After successful payment, you will receive a confirmation email with your booking details.
 
 7. You can manage your reservations and view your booking history in the user profile section.
+
+### Admin Routes
+
+To access the admin functionalities, use the following credentials:
+- Username: "EnthuWafi"
+- Password: "wafi"
+
 
 ## Contributing
 
