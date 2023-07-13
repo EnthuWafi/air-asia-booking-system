@@ -1,9 +1,3 @@
-## Requirements to run
-
-
-## How to setup
-
-
 # Air Asia Booking System
 
 ![Air Asia Booking System](./public_html/assets/img/airasiacom_logo.svg)
