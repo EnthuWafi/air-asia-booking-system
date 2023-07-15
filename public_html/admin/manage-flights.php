@@ -34,6 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         throw new Exception("Origin airport cannot be the same as destination airport");
                     }
 
+                    if (!is_numeric($flightDiscount)) {
+                        throw new Exception("Discount must be a number!");
+                    }
+                    if (!($flightDiscount >= 0 && $flightDiscount <= 1)) {
+                        throw new Exception("Discount must be between 0.00 and 1.00!");
+                    }
+
 
                     $userID = $_SESSION["user_data"]["user_id"];
 
@@ -49,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     if (!is_numeric($flightDiscount)) {
                         throw new Exception("Discount must be a number!");
                     }
-                    if (!($flightDiscount > 0 && $flightDiscount < 1)) {
+                    if (!($flightDiscount >= 0 && $flightDiscount <= 1)) {
                         throw new Exception("Discount must be between 0.00 and 1.00!");
                     }
 
