@@ -132,7 +132,7 @@ function admin_displayFlights($flights) {
             $departureUnformatted = date_create($departureDate);
             $arrivalUnformatted = date_create($arrivalDate);
 
-            $departureFormatted = date_format($departureUnformatted, "d M Y H:iA");
+            $departureFormatted = formatDateTime($departureDate);
 
             $duration = date_create($flight["duration"]);
             $durationHours = date_format($duration, "G")."h ".date_format($duration, "i")."m";
