@@ -65,7 +65,7 @@ To install and set up the Air Asia Booking System, follow these steps:
 
 ## Usage
 
-To use the Air Asia Booking System, follow these steps:
+Using the Air Asia Booking System, you can do the following:
 
 ### Customer Routes
 
@@ -81,7 +81,9 @@ To use the Air Asia Booking System, follow these steps:
 
 6. After successful payment, you will receive a confirmation email with your booking details.
 
-7. You can manage your reservations and view your booking history in the user profile section.
+7. You can manage your reservations and view your bookings in the user Manage My Booking page
+
+8. Edit user's profile information such as first name, last name, date of birth and phone number.
 
 ### Admin Routes
 
