@@ -49,9 +49,9 @@ To install and set up the Air Asia Booking System, follow these steps:
 
 ```php
 	$host = "localhost";
-    $username = "root"; 				//username
-    $password = "";						//password
-    $db = "air-asia-booking-system";	//database name
+	$username = "root"; 			//username
+    	$password = "";				//password
+    	$db = "air-asia-booking-system";	//database name
 ```
 
 6. Go back to the XAMPP Control Panel
@@ -59,6 +59,8 @@ To install and set up the Air Asia Booking System, follow these steps:
 7. Navigate to XAMPP Apache "httpd.conf" file
 
 8. Open it, and change DocumentRoot to the location of the air-asia-booking-system "public_html"
+
+9. You are good to go! 👍
 
 
 ## Usage
@@ -87,6 +89,12 @@ To access the admin functionalities, use the following credentials:
 - Username: "EnthuWafi"
 - Password: "wafi"
 
+1. Manage Flights
+2. Manage Bookings
+3. Manage Users
+4. Manage Feedbacks
+5. Manage Aircrafts
+6. View monthly/all-time income and traffic
 
 ## Contributing
 
